@@ -1,0 +1,28 @@
+{
+  "total_rules": 145,
+  "empty_procedure": [],
+  "no_drugs_but_required": [
+    {
+      "rule_id": "RULE_0075",
+      "procedure": "Curetagem uterina",
+      "raw_text": "Antibioticoprofilaxia cirúrgica não é necessária se o paciente tiver sido investigado e tratado para"
+    },
+    {
+      "rule_id": "RULE_0099",
+      "procedure": " Mielomeningocele",
+      "raw_text": "A profilaxia antibiótica é realizada desde o momento do nascimento"
+    },
+    {
+      "rule_id": "RULE_0143",
+      "procedure": "Nefrectomia infectada (tratamento)",
+      "raw_text": "Manter tratatamento orientado pela urocultura"
+    },
+    {
+      "rule_id": "RULE_0158",
+      "procedure": "HISTÓRIA DE VACINAÇÃO PRÉVIA CONTRA TÉTANO",
+      "raw_text": "FERIMENTOS COM RISCO MÍNIMO DE TÉTANO* VACINAS"
+    }
+  ],
+  "not_recommended_but_required": [],
+  "missing_section": []
+}

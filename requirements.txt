@@ -1,0 +1,25 @@
+# Sistema de Auditoria de Profilaxia Antimicrobiana - Mater Dei
+# Python 3.10+
+
+# Processamento de dados
+pandas>=3.0.0
+numpy>=1.26.0
+openpyxl>=3.1.0
+
+# Extração de PDF
+camelot-py[cv]>=1.0.9
+pdfplumber>=0.11.0
+pypdf>=5.0.0
+
+# Processamento de imagens (para Camelot)
+opencv-python-headless>=4.7.0
+
+# Fuzzy matching
+rapidfuzz>=3.0.0
+
+# Utilitários
+python-dateutil>=2.8.0
+
+# Web framework (para futuro)
+# flask>=3.0.0
+# flask-cors>=4.0.0
