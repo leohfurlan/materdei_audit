@@ -85,6 +85,9 @@ class AuditResult:
     
     conf_timing: str = "INDETERMINADO"
     conf_timing_razao: str = ""
+
+    conf_repique: str = "INDETERMINADO"
+    conf_repique_razao: str = ""
     
     conf_final: str = "INDETERMINADO"
     conf_final_razao: str = ""
@@ -102,6 +105,9 @@ class AuditResult:
     
     # Análise de timing
     timing_diferenca_minutos: Optional[int] = None
+
+    # Análise de repique
+    repique_diferenca_minutos: Optional[int] = None
     
     # Observações
     observacoes: List[str] = field(default_factory=list)
@@ -142,6 +148,8 @@ class AuditResult:
             'conf_dose_razao': self.conf_dose_razao,
             'conf_timing': self.conf_timing,
             'conf_timing_razao': self.conf_timing_razao,
+            'conf_repique': self.conf_repique,
+            'conf_repique_razao': self.conf_repique_razao,
             'conf_final': self.conf_final,
             'conf_final_razao': self.conf_final_razao,
             
@@ -149,6 +157,7 @@ class AuditResult:
             'dose_diferenca_mg': self.dose_diferenca_mg,
             'dose_diferenca_pct': self.dose_diferenca_pct,
             'timing_diferenca_minutos': self.timing_diferenca_minutos,
+            'repique_diferenca_minutos': self.repique_diferenca_minutos,
             
             # Observações
             'observacoes': '; '.join(self.observacoes),

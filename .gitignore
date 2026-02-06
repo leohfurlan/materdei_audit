@@ -47,6 +47,7 @@ data/output/*.csv
 data/output/*.json
 data/output/*.txt
 data/temp/*
+output/*
 
 # Jupyter Notebook
 .ipynb_checkpoints

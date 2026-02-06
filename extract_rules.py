@@ -13,8 +13,8 @@ import sys
 # Adiciona o diretório raiz ao path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from materdei_audit.controllers import ProtocolExtractor
-from materdei_audit.config import OUTPUT_DIR, EXTRACTION_CONFIG, LOGGING_CONFIG
+from controllers import ProtocolExtractor
+from config import OUTPUT_DIR, EXTRACTION_CONFIG, LOGGING_CONFIG
 from logging.config import dictConfig
 
 # Configura logging

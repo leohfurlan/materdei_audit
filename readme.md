@@ -18,10 +18,11 @@ Sistema para auditoria automatizada de procedimentos cirúrgicos, comparando a p
 ### 2. Auditoria de Cirurgias (Excel → Relatórios)
 - Carrega planilha Excel com cirurgias realizadas
 - Faz match inteligente entre procedimento e protocolo
-- Valida 3 critérios de conformidade:
+- Valida 4 critérios de conformidade:
   - **Escolha do antibiótico**: medicamento está no protocolo?
-  - **Dose administrada**: dose correta para o procedimento?
+  - **Dose administrada**: dose correta para o procedimento (inclui mg/kg quando aplicável)?
   - **Timing**: antibiótico dado na janela de 1 hora antes da incisão?
+  - **Repique (redosing)**: repique dentro do intervalo recomendado?
 - Gera relatórios detalhados em Excel, CSV e JSON
 
 ### 3. Geração de Relatórios
@@ -191,14 +192,22 @@ Peso (kg): 75
 - **ALERTA**: Pequena diferença (10-15%)
 - **NÃO CONFORME**: Diferença >15% ou dose muito baixa/alta
 - **INDETERMINADO**: Dose não informada ou sem referência no protocolo
+**Observação:** quando a regra do protocolo estiver em mg/kg, a dose esperada é calculada com base no peso do paciente.
+Para Cefazolina, aplica-se teto de 2g (<120kg) ou 3g (≥120kg).
 
 ### 3. Timing
 - **CONFORME**: Antibiótico administrado 0-60 minutos antes da incisão
 - **NÃO CONFORME**: Fora da janela ou após incisão
 - **INDETERMINADO**: Horários não informados
 
+### 4. Repique (Redosing)
+- **CONFORME**: Repique realizado dentro do intervalo recomendado (±30 min)
+- **NÃO CONFORME**: Repique fora do intervalo
+- **INDETERMINADO**: Horários de repique não informados
+- **NÃO APLICÁVEL**: Antibiótico sem intervalo de repique configurado
+
 ### Conformidade Final
-A conformidade final é determinada pela combinação dos três critérios:
+A conformidade final é determinada pela combinação dos quatro critérios:
 - **CONFORME**: Todos os critérios conformes
 - **ALERTA**: Pelo menos um critério em alerta, nenhum não conforme
 - **NÃO CONFORME**: Pelo menos um critério não conforme
@@ -215,6 +224,19 @@ AUDIT_CONFIG = {
     "dose_tolerance_percent": 15,         # Tolerância de dose
     "timing_window_minutes": 60,          # Janela de timing
     "alert_dose_tolerance_percent": 10,   # Tolerância para alertas
+}
+```
+
+### Intervalos de Repique
+```python
+REDOSING_INTERVALS = {
+    "CEFAZOLINA": 240,
+    "CEFUROXIMA": 240,
+    "CEFOXITINA": 120,
+    "CLINDAMICINA": 360,
+    "VANCOMICINA": 0,
+    "GENTAMICINA": 0,
+    "CIPROFLOXACINO": 0,
 }
 ```
 

@@ -10,9 +10,9 @@ import numpy as np
 import camelot
 import pdfplumber
 
-from ..models import ProtocolRule, Recommendation, Drug, ProtocolRulesRepository
-from ..utils import normalize_text, extract_drug_names
-from ..config import EXTRACTION_CONFIG, DRUG_DICTIONARY
+from models import ProtocolRule, Recommendation, Drug, ProtocolRulesRepository
+from utils import normalize_text, extract_drug_names
+from config import EXTRACTION_CONFIG, DRUG_DICTIONARY
 
 logger = logging.getLogger(__name__)
 
@@ -71,25 +71,51 @@ class ProtocolExtractor:
         tables = []
         
         # Estratégia 1: Camelot lattice (tabelas com bordas)
+        lattice_tables = None
         try:
             logger.debug("Tentando extração com Camelot (lattice)")
-            camelot_tables = camelot.read_pdf(
+            lattice_tables = camelot.read_pdf(
                 str(self.pdf_path),
                 pages=pages,
                 flavor='lattice',
-                edge_tol=self.config.get('camelot_edge_tol', 50),
-                row_tol=self.config.get('camelot_row_tol', 10),
-                column_tol=self.config.get('camelot_column_tol', 10),
+                line_scale=self.config.get('camelot_lattice_line_scale', 40),
+                line_tol=self.config.get('camelot_lattice_line_tol', 2),
+                joint_tol=self.config.get('camelot_lattice_joint_tol', 2),
+                process_background=self.config.get('camelot_lattice_process_background', False),
             )
             
-            for table in camelot_tables:
+            for table in lattice_tables:
                 df = table.df
                 if len(df) >= self.config.get('min_table_rows', 2):
                     tables.append(df)
-                    
-            logger.debug(f"Camelot lattice: {len(tables)} tabelas")
+            
+            logger.debug(f"Camelot lattice (config): {len(tables)} tabelas")
         except Exception as e:
             logger.warning(f"Erro na extração com Camelot lattice: {e}")
+            lattice_tables = None
+
+        # Fallback: lattice sem parâmetros avançados (compatibilidade)
+        if lattice_tables is None or len(tables) == 0:
+            try:
+                logger.debug("Tentando extração com Camelot (lattice) sem parâmetros avançados")
+                lattice_tables = camelot.read_pdf(
+                    str(self.pdf_path),
+                    pages=pages,
+                    flavor='lattice',
+                    line_scale=self.config.get('camelot_lattice_line_scale', 40),
+                    line_tol=self.config.get('camelot_lattice_line_tol', 2),
+                    joint_tol=self.config.get('camelot_lattice_joint_tol', 2),
+                    process_background=self.config.get('camelot_lattice_process_background', False),
+                )
+                
+                for table in lattice_tables:
+                    df = table.df
+                    if len(df) >= self.config.get('min_table_rows', 2):
+                        tables.append(df)
+                
+                logger.debug(f"Camelot lattice (fallback): {len(tables)} tabelas")
+            except Exception as e:
+                logger.warning(f"Erro na extração com Camelot lattice (fallback): {e}")
         
         # Estratégia 2: Camelot stream (tabelas sem bordas completas)
         try:
@@ -98,6 +124,9 @@ class ProtocolExtractor:
                 str(self.pdf_path),
                 pages=pages,
                 flavor='stream',
+                edge_tol=self.config.get('camelot_stream_edge_tol', 50),
+                row_tol=self.config.get('camelot_stream_row_tol', 10),
+                column_tol=self.config.get('camelot_stream_column_tol', 10),
             )
             
             for table in camelot_tables:
@@ -130,6 +159,64 @@ class ProtocolExtractor:
                 if df.iloc[0, 0] == existing_df.iloc[0, 0]:
                     return True
         return False
+
+    def _clean_dataframe(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Remove linhas repetidas de cabeçalho no meio do DataFrame.
+        
+        Args:
+            df: DataFrame original
+            
+        Returns:
+            DataFrame limpo
+        """
+        if df is None or df.empty:
+            return df
+        
+        header_keywords = {
+            'procedimento',
+            'procedimentos',
+            'cirurgia',
+            '1a opcao',
+            'alergia',
+            'pos operatorio',
+        }
+
+        doc_keywords = {
+            'titulo do documento',
+            'codigo',
+            'pagina',
+            'versao',
+            'data da emissao',
+            'protocolo',
+            'profilaxia antimicrobiana',
+            'hospital mater dei',
+        }
+        
+        header_row = [normalize_text(str(c)) for c in df.iloc[0].tolist()]
+        indices_to_drop = []
+        first_index = df.index[0]
+        
+        for idx, row in df.iterrows():
+            row_norm = [normalize_text(str(c)) for c in row.tolist()]
+            
+            if row_norm == header_row:
+                indices_to_drop.append(idx)
+                continue
+            
+            keyword_hits = sum(1 for cell in row_norm if cell in header_keywords)
+            if keyword_hits >= 2:
+                indices_to_drop.append(idx)
+                continue
+
+            row_text = ' '.join(row_norm)
+            if any(keyword in row_text for keyword in doc_keywords):
+                indices_to_drop.append(idx)
+        
+        if indices_to_drop:
+            df = df.drop(index=indices_to_drop).reset_index(drop=True)
+        
+        return df
     
     def _process_table(self, df: pd.DataFrame, table_index: int) -> List[ProtocolRule]:
         """
@@ -143,6 +230,9 @@ class ProtocolExtractor:
             Lista de regras extraídas
         """
         rules = []
+
+        # Limpa cabeÃ§alhos repetidos no meio da tabela
+        df = self._clean_dataframe(df)
         
         # Detecta seção da tabela
         section = self._detect_section(df)
@@ -213,11 +303,30 @@ class ProtocolExtractor:
             return None
         
         procedure = str(row.iloc[0]).strip()
+        # Remove bullets e normaliza espaÃ§os
+        procedure = re.sub(r'[\u2022\u2023\u25E6\u2043\u2219\uF0A0]+', ' ', procedure)
+        procedure = re.sub(r'\s+', ' ', procedure).strip()
         
         # Ignora linhas de cabeçalho ou vazias
         if not procedure or len(procedure) < 3:
             return None
-        if normalize_text(procedure) in ['procedimento', 'cirurgia', '']:
+        procedure_norm = normalize_text(procedure)
+        if procedure_norm in ['procedimento', 'cirurgia', '']:
+            return None
+        if ('procedimento' in procedure_norm or 'procedimentos' in procedure_norm) and (
+            'opcao' in procedure_norm or 'alergia' in procedure_norm
+        ):
+            return None
+        if any(
+            phrase in procedure_norm
+            for phrase in [
+                'titulo do documento',
+                'profilaxia antimicrobiana',
+                'hospital mater dei',
+                'codigo',
+                'pagina',
+            ]
+        ):
             return None
         
         # Recomendação primária
@@ -228,6 +337,10 @@ class ProtocolExtractor:
         
         # Pós-operatório
         postop = str(row.iloc[3]).strip() if len(row) > 3 else ""
+
+        # Ignora linhas sem recomendações
+        if not primary_text and not allergy_text and not postop:
+            return None
         
         # Verifica se requer profilaxia
         is_prophylaxis_required = self._requires_prophylaxis(primary_text)
@@ -241,6 +354,9 @@ class ProtocolExtractor:
         
         # Normaliza nome do procedimento
         procedure_norm = normalize_text(procedure)
+        section_norm = normalize_text(section)
+        if procedure_norm in [section_norm, f"cirurgia de {section_norm}", f"cirurgia {section_norm}"]:
+            return None
         
         # Cria regra
         rule = ProtocolRule(
@@ -332,6 +448,12 @@ class ProtocolExtractor:
         Returns:
             Texto da dose ou None
         """
+        # Procura primeiro por padrões de dose ponderal (mg/kg)
+        mgkg_pattern = r'(\d+(?:\.\d+)?\s*(?:mg|g)\s*/\s*kg)'
+        mgkg_match = re.search(mgkg_pattern, text, re.IGNORECASE)
+        if mgkg_match:
+            return mgkg_match.group(1)
+
         # Procura por padrão de dose próximo ao medicamento
         # Ex: "Cefazolina 2g" ou "2g de Cefazolina"
         pattern = r'(\d+(?:\.\d+)?\s*(?:g|mg|mcg))'
@@ -400,6 +522,7 @@ class ProtocolExtractor:
         # Cria repositório e salva
         repo = ProtocolRulesRepository()
         repo.rules = self.rules
+        repo._build_index()
         repo.save_to_json(output_dir / 'rules.json')
         
         logger.info(f"Regras salvas em: {output_dir}")

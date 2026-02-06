@@ -109,10 +109,22 @@ class ProtocolRule:
 class ProtocolRulesRepository:
     """Repositório para gerenciar regras do protocolo."""
     
+    _instance = None
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+    
     def __init__(self):
+        if getattr(self, "_initialized", False):
+            return
         self.rules: List[ProtocolRule] = []
         self._index: Dict[str, List[str]] = {}  # normalized_procedure -> [rule_ids]
         self._metadata: Dict[str, Any] = {}
+        self._is_loaded: bool = False
+        self._initialized = True
     
     def load_from_json(self, filepath: Path) -> None:
         """
@@ -121,12 +133,15 @@ class ProtocolRulesRepository:
         Args:
             filepath: Caminho para o arquivo rules.json
         """
+        if self._is_loaded:
+            return
         with open(filepath, 'r', encoding='utf-8') as f:
             rules_data = json.load(f)
         
         self.rules = [ProtocolRule.from_dict(r) for r in rules_data]
         self._build_index()
         self._load_metadata(filepath)
+        self._is_loaded = True
     
     def save_to_json(self, filepath: Path) -> None:
         """

@@ -1,515 +1,314 @@
 """
-Controller para auditoria de cirurgias comparando com protocolo
+Controller para geração de relatórios de auditoria
 """
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
-from datetime import datetime, date
+from typing import List, Dict, Any
+from datetime import datetime
 import pandas as pd
-import numpy as np
+import json
 
-from ..models import (
-    SurgeryRecord,
-    AuditResult,
-    ProtocolRulesRepository,
-    ProtocolRule,
-)
-from ..utils import (
-    normalize_text,
-    extract_drug_names,
-    fuzzy_match_score,
-    extract_dose_from_text,
-    parse_time,
-    calculate_time_diff_minutes,
-    clean_procedure_name,
-    normalize_yes_no,
-    validate_excel_structure,
-)
-from ..config import EXCEL_COLUMNS, DRUG_DICTIONARY, AUDIT_CONFIG
+from models import AuditResult
+from utils import format_conformity_reason
 
 logger = logging.getLogger(__name__)
 
 
-class SurgeryAuditor:
-    """Audita cirurgias comparando com protocolo institucional."""
+class ReportGenerator:
+    """Gera relatórios de auditoria em diversos formatos."""
     
-    def __init__(self, rules_repository: ProtocolRulesRepository, config: Dict[str, Any] = None):
+    def __init__(self, audit_results: List[AuditResult]):
         """
-        Inicializa o auditor.
+        Inicializa o gerador de relatórios.
         
         Args:
-            rules_repository: Repositório com regras do protocolo
-            config: Configurações de auditoria (usa AUDIT_CONFIG se None)
+            audit_results: Lista de resultados de auditoria
         """
-        self.rules_repo = rules_repository
-        self.config = config or AUDIT_CONFIG
-        self.surgery_records: List[SurgeryRecord] = []
-        self.audit_results: List[AuditResult] = []
+        self.audit_results = audit_results
+        self.df_results = None
         
-    def load_surgeries_from_excel(self, excel_path: Path, sheet_name: str = None) -> int:
+    def prepare_dataframe(self) -> pd.DataFrame:
         """
-        Carrega registros de cirurgias de planilha Excel.
+        Prepara DataFrame com resultados de auditoria.
+        
+        Returns:
+            DataFrame com todos os resultados
+        """
+        if self.df_results is not None:
+            return self.df_results
+        
+        # Converte resultados para dicionários
+        data = [result.to_dict() for result in self.audit_results]
+        
+        # Cria DataFrame
+        self.df_results = pd.DataFrame(data)
+        
+        # Formata razões de conformidade para texto legível
+        for col in [
+            'conf_escolha_razao',
+            'conf_dose_razao',
+            'conf_timing_razao',
+            'conf_repique_razao',
+            'conf_final_razao',
+        ]:
+            if col in self.df_results.columns:
+                self.df_results[f'{col}_legivel'] = self.df_results[col].apply(
+                    lambda x: format_conformity_reason(x) if isinstance(x, str) else ''
+                )
+        
+        return self.df_results
+    
+    def export_excel(self, output_path: Path) -> None:
+        """
+        Exporta relatório completo em Excel com múltiplas abas.
         
         Args:
-            excel_path: Caminho para arquivo Excel
-            sheet_name: Nome da aba (None = primeira aba)
+            output_path: Caminho para arquivo de saída
+        """
+        logger.info(f"Gerando relatório Excel: {output_path}")
+        
+        df = self.prepare_dataframe()
+        
+        with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
+            # Aba 1: Todos os casos
+            df.to_excel(writer, sheet_name='Todos os Casos', index=False)
             
-        Returns:
-            Número de registros carregados
-        """
-        logger.info(f"Carregando cirurgias de: {excel_path}")
-        
-        # Lê Excel
-        df = pd.read_excel(excel_path, sheet_name=sheet_name or 0)
-        
-        # Valida estrutura
-        is_valid, missing = validate_excel_structure(df, EXCEL_COLUMNS)
-        if not is_valid:
-            logger.warning(f"Colunas faltantes na planilha: {missing}")
-        
-        # Processa cada linha
-        self.surgery_records = []
-        for idx, row in df.iterrows():
-            try:
-                record = self._parse_row_to_surgery(row, idx)
-                if record:
-                    self.surgery_records.append(record)
-            except Exception as e:
-                logger.warning(f"Erro ao processar linha {idx}: {e}")
-        
-        logger.info(f"Carregados {len(self.surgery_records)} registros de cirurgias")
-        
-        return len(self.surgery_records)
-    
-    def _parse_row_to_surgery(self, row: pd.Series, idx: int) -> Optional[SurgeryRecord]:
-        """
-        Parseia linha do Excel para SurgeryRecord.
-        
-        Args:
-            row: Linha do DataFrame
-            idx: Índice da linha
+            # Aba 2: Não conformes
+            df_nao_conforme = df[df['conf_final'] == 'NAO_CONFORME']
+            if len(df_nao_conforme) > 0:
+                df_nao_conforme.to_excel(writer, sheet_name='Não Conformes', index=False)
             
-        Returns:
-            SurgeryRecord ou None se inválida
-        """
-        # Extrai dados
-        procedure = str(row.get(EXCEL_COLUMNS['procedure'], '')).strip()
-        
-        if not procedure or len(procedure) < 3:
-            return None
-        
-        # Data
-        date_val = row.get(EXCEL_COLUMNS['date'])
-        if isinstance(date_val, str):
-            try:
-                date_val = datetime.strptime(date_val, '%Y-%m-%d').date()
-            except:
-                date_val = None
-        elif isinstance(date_val, datetime):
-            date_val = date_val.date()
-        elif isinstance(date_val, pd.Timestamp):
-            date_val = date_val.date()
-        
-        # Antibiótico dado
-        atb_given = normalize_yes_no(row.get(EXCEL_COLUMNS['atb_given'], 'NAO'))
-        atb_name = str(row.get(EXCEL_COLUMNS['atb_name'], '')).strip()
-        
-        # Detecta medicamentos
-        atb_detected = extract_drug_names(atb_name, DRUG_DICTIONARY) if atb_name else []
-        
-        # Extrai dose
-        dose_mg = extract_dose_from_text(atb_name) if atb_name else None
-        
-        # Horários
-        incision_time = parse_time(str(row.get(EXCEL_COLUMNS['incision_time'], '')))
-        atb_time = parse_time(str(row.get(EXCEL_COLUMNS['atb_time'], '')))
-        repique_time = parse_time(str(row.get(EXCEL_COLUMNS['repique_time'], '')))
-        
-        # Repique
-        repique_done = normalize_yes_no(row.get(EXCEL_COLUMNS['repique'], 'NAO'))
-        
-        # Peso do paciente
-        weight = row.get(EXCEL_COLUMNS.get('patient_weight'))
-        if pd.notna(weight):
-            try:
-                weight = float(weight)
-            except:
-                weight = None
-        else:
-            weight = None
-        
-        # Cria registro
-        record = SurgeryRecord(
-            date=date_val,
-            procedure=procedure,
-            specialty=str(row.get(EXCEL_COLUMNS.get('specialty', ''), '')).strip(),
-            incision_time=incision_time,
-            atb_time=atb_time,
-            repique_time=repique_time,
-            atb_given=atb_given,
-            atb_name=atb_name,
-            atb_detected=atb_detected,
-            dose_administered_mg=dose_mg,
-            repique_done=repique_done,
-            patient_weight=weight,
-            row_index=int(idx),
-        )
-        
-        return record
-    
-    def audit_all_surgeries(self) -> List[AuditResult]:
-        """
-        Audita todas as cirurgias carregadas.
-        
-        Returns:
-            Lista de resultados de auditoria
-        """
-        logger.info(f"Iniciando auditoria de {len(self.surgery_records)} cirurgias")
-        
-        self.audit_results = []
-        
-        for record in self.surgery_records:
-            try:
-                result = self.audit_surgery(record)
-                self.audit_results.append(result)
-            except Exception as e:
-                logger.error(f"Erro ao auditar cirurgia {record.procedure}: {e}")
-                # Cria resultado com erro
-                result = AuditResult(surgery_record=record)
-                result.conf_final = 'INDETERMINADO'
-                result.conf_final_razao = f'Erro na auditoria: {str(e)}'
-                self.audit_results.append(result)
-        
-        logger.info(f"Auditoria concluída: {len(self.audit_results)} resultados")
-        
-        return self.audit_results
-    
-    def audit_surgery(self, record: SurgeryRecord) -> AuditResult:
-        """
-        Audita uma cirurgia individual.
-        
-        Args:
-            record: Registro da cirurgia
+            # Aba 3: Alertas
+            df_alerta = df[df['conf_final'] == 'ALERTA']
+            if len(df_alerta) > 0:
+                df_alerta.to_excel(writer, sheet_name='Alertas', index=False)
             
-        Returns:
-            Resultado da auditoria
-        """
-        # Cria resultado
-        result = AuditResult(surgery_record=record)
-        
-        # 1. Faz match com protocolo
-        matched_rule, score, method = self._match_with_protocol(record.procedure)
-        
-        if matched_rule:
-            result.matched_rule_id = matched_rule.rule_id
-            result.match_score = score
-            result.match_method = method
-            result.protocolo_secao = matched_rule.section
-            result.protocolo_procedimento = matched_rule.procedure
-            result.protocolo_requer_profilaxia = matched_rule.is_prophylaxis_required
-            
-            # Extrai medicamentos recomendados
-            result.protocolo_atb_recomendados = [
-                drug.name for drug in matched_rule.primary_recommendation.drugs
+            # Aba 4: Problemas de dose
+            df_dose_problem = df[
+                (df['conf_dose'] == 'NAO_CONFORME') & 
+                (df['conf_escolha'] == 'CONFORME')
             ]
+            if len(df_dose_problem) > 0:
+                df_dose_problem.to_excel(writer, sheet_name='Problemas de Dose', index=False)
             
-            # Extrai dose esperada
-            if matched_rule.primary_recommendation.drugs:
-                result.protocolo_dose_esperada = matched_rule.primary_recommendation.drugs[0].dose or ""
-        else:
-            result.match_score = 0.0
-            result.add_observacao("Procedimento não encontrado no protocolo")
+            # Aba 5: Sem match
+            df_sem_match = df[df['match_score'] == 0]
+            if len(df_sem_match) > 0:
+                df_sem_match.to_excel(writer, sheet_name='Sem Match Protocolo', index=False)
+            
+            # Aba 6: Estatísticas
+            df_stats = self._create_statistics_df(df)
+            df_stats.to_excel(writer, sheet_name='Estatísticas', index=False)
         
-        # 2. Valida escolha do antibiótico
-        if record.atb_given == 'SIM':
-            result.conf_escolha, result.conf_escolha_razao = self._validate_choice(
-                record, matched_rule
-            )
-        else:
-            if matched_rule and matched_rule.is_prophylaxis_required:
-                result.conf_escolha = 'NAO_CONFORME'
-                result.conf_escolha_razao = 'atb_nao_administrado'
-            else:
-                result.conf_escolha = 'CONFORME'
-                result.conf_escolha_razao = 'Profilaxia não requerida'
-        
-        # 3. Valida dose
-        if record.atb_given == 'SIM' and record.dose_administered_mg:
-            result.conf_dose, result.conf_dose_razao = self._validate_dose(
-                record, matched_rule, result
-            )
-        else:
-            result.conf_dose = 'INDETERMINADO'
-            result.conf_dose_razao = 'dose_nao_informada'
-        
-        # 4. Valida timing
-        if record.atb_given == 'SIM':
-            result.conf_timing, result.conf_timing_razao = self._validate_timing(
-                record, result
-            )
-        else:
-            result.conf_timing = 'INDETERMINADO'
-            result.conf_timing_razao = 'atb_nao_administrado'
-        
-        # 5. Calcula conformidade final
-        result.conf_final, result.conf_final_razao = self._calculate_final_conformity(result)
-        
-        return result
+        logger.info(f"Relatório Excel exportado: {output_path}")
     
-    def _match_with_protocol(self, procedure: str) -> Tuple[Optional[ProtocolRule], float, str]:
+    def _create_statistics_df(self, df: pd.DataFrame) -> pd.DataFrame:
         """
-        Faz match do procedimento com regra do protocolo.
+        Cria DataFrame com estatísticas.
         
         Args:
-            procedure: Nome do procedimento
+            df: DataFrame com resultados
             
         Returns:
-            Tupla (regra_matched, score, método)
+            DataFrame com estatísticas
         """
-        if not procedure:
-            return None, 0.0, "no_procedure"
+        total = len(df)
         
-        procedure_clean = clean_procedure_name(procedure)
-        
-        # Busca exata por procedimento normalizado
-        exact_matches = self.rules_repo.find_by_procedure(procedure_clean)
-        if exact_matches:
-            return exact_matches[0], 1.0, "exact_match"
-        
-        # Busca fuzzy
-        best_rule = None
-        best_score = 0.0
-        
-        threshold = self.config.get('match_threshold', 0.70)
-        
-        for rule in self.rules_repo.rules:
-            score = fuzzy_match_score(procedure_clean, rule.procedure_normalized)
-            
-            if score > best_score and score >= threshold:
-                best_score = score
-                best_rule = rule
-        
-        if best_rule:
-            return best_rule, best_score, "fuzzy_match"
-        
-        return None, 0.0, "no_match"
-    
-    def _validate_choice(self, record: SurgeryRecord, 
-                        rule: Optional[ProtocolRule]) -> Tuple[str, str]:
-        """
-        Valida escolha do antibiótico.
-        
-        Args:
-            record: Registro da cirurgia
-            rule: Regra do protocolo matched
-            
-        Returns:
-            Tupla (status, razão)
-        """
-        if not rule:
-            return 'INDETERMINADO', 'sem_match_protocolo'
-        
-        if not rule.is_prophylaxis_required:
-            return 'NAO_CONFORME', 'profilaxia_nao_recomendada'
-        
-        if not record.atb_detected:
-            return 'INDETERMINADO', 'atb_nao_identificado'
-        
-        # Verifica se antibiótico está nas recomendações
-        recommended_drugs = [drug.name for drug in rule.primary_recommendation.drugs]
-        
-        # Também aceita alternativa para alergia
-        allergy_drugs = [drug.name for drug in rule.allergy_recommendation.drugs]
-        
-        all_acceptable = recommended_drugs + allergy_drugs
-        
-        for detected_drug in record.atb_detected:
-            if detected_drug in all_acceptable:
-                return 'CONFORME', 'atb_recomendado'
-        
-        return 'NAO_CONFORME', 'atb_nao_recomendado'
-    
-    def _validate_dose(self, record: SurgeryRecord, rule: Optional[ProtocolRule],
-                      result: AuditResult) -> Tuple[str, str]:
-        """
-        Valida dose administrada.
-        
-        Args:
-            record: Registro da cirurgia
-            rule: Regra do protocolo
-            result: Resultado parcial (para preencher dados)
-            
-        Returns:
-            Tupla (status, razão)
-        """
-        if not rule or not rule.primary_recommendation.drugs:
-            return 'INDETERMINADO', 'dose_sem_referencia'
-        
-        # Pega dose recomendada
-        recommended_dose_text = rule.primary_recommendation.drugs[0].dose
-        if not recommended_dose_text:
-            return 'INDETERMINADO', 'dose_sem_referencia'
-        
-        # Converte para mg
-        recommended_dose_mg = extract_dose_from_text(recommended_dose_text)
-        if not recommended_dose_mg:
-            return 'INDETERMINADO', 'dose_sem_referencia'
-        
-        administered_mg = record.dose_administered_mg
-        if not administered_mg:
-            return 'INDETERMINADO', 'dose_nao_informada'
-        
-        # Calcula diferença
-        diff_mg = administered_mg - recommended_dose_mg
-        diff_pct = (diff_mg / recommended_dose_mg * 100) if recommended_dose_mg > 0 else 0
-        
-        result.dose_diferenca_mg = diff_mg
-        result.dose_diferenca_pct = diff_pct
-        
-        # Tolerâncias
-        alert_tolerance = self.config.get('alert_dose_tolerance_percent', 10)
-        tolerance = self.config.get('dose_tolerance_percent', 15)
-        
-        if abs(diff_pct) <= alert_tolerance:
-            return 'CONFORME', 'dose_correta'
-        elif abs(diff_pct) <= tolerance:
-            return 'ALERTA', 'dose_pequena_diferenca'
-        elif diff_pct < -tolerance:
-            return 'NAO_CONFORME', 'dose_muito_baixa'
-        else:
-            return 'NAO_CONFORME', 'dose_muito_alta'
-    
-    def _validate_timing(self, record: SurgeryRecord, 
-                        result: AuditResult) -> Tuple[str, str]:
-        """
-        Valida timing da administração (1 hora antes da incisão).
-        
-        Args:
-            record: Registro da cirurgia
-            result: Resultado parcial
-            
-        Returns:
-            Tupla (status, razão)
-        """
-        if not record.incision_time or not record.atb_time:
-            return 'INDETERMINADO', 'horarios_nao_informados'
-        
-        # Calcula diferença
-        diff_min = calculate_time_diff_minutes(record.atb_time, record.incision_time)
-        
-        if diff_min is None:
-            return 'INDETERMINADO', 'erro_calculo_horario'
-        
-        result.timing_diferenca_minutos = diff_min
-        
-        # ATB deve ser dado ANTES da incisão
-        if diff_min < 0:
-            return 'NAO_CONFORME', 'timing_apos_incisao'
-        
-        # Janela ideal: até 60 minutos antes
-        timing_window = self.config.get('timing_window_minutes', 60)
-        
-        if 0 <= diff_min <= timing_window:
-            return 'CONFORME', 'timing_correto'
-        else:
-            return 'NAO_CONFORME', 'timing_fora_janela'
-    
-    def _calculate_final_conformity(self, result: AuditResult) -> Tuple[str, str]:
-        """
-        Calcula conformidade final com base em todos os critérios.
-        
-        Args:
-            result: Resultado da auditoria
-            
-        Returns:
-            Tupla (status_final, razão)
-        """
-        # Se não tem match, indeterminado
-        if result.match_score == 0.0:
-            return 'INDETERMINADO', 'sem_match_protocolo'
-        
-        # Coleta status de cada critério
-        statuses = [
-            result.conf_escolha,
-            result.conf_dose,
-            result.conf_timing,
+        stats_data = [
+            ['RESUMO GERAL', ''],
+            ['Total de Cirurgias', total],
+            ['', ''],
+            ['CONFORMIDADE FINAL', ''],
+            ['Conforme', (df['conf_final'] == 'CONFORME').sum()],
+            ['Alerta (pequena diferença)', (df['conf_final'] == 'ALERTA').sum()],
+            ['Não Conforme', (df['conf_final'] == 'NAO_CONFORME').sum()],
+            ['Indeterminado', (df['conf_final'] == 'INDETERMINADO').sum()],
+            ['', ''],
+            ['CONFORMIDADE POR CRITÉRIO', ''],
+            ['Escolha - Conforme', (df['conf_escolha'] == 'CONFORME').sum()],
+            ['Escolha - Não Conforme', (df['conf_escolha'] == 'NAO_CONFORME').sum()],
+            ['Dose - Conforme', (df['conf_dose'] == 'CONFORME').sum()],
+            ['Dose - Alerta', (df['conf_dose'] == 'ALERTA').sum()],
+            ['Dose - Não Conforme', (df['conf_dose'] == 'NAO_CONFORME').sum()],
+            ['Timing - Conforme', (df['conf_timing'] == 'CONFORME').sum()],
+            ['Timing - Não Conforme', (df['conf_timing'] == 'NAO_CONFORME').sum()],
+            ['Repique - Conforme', (df['conf_repique'] == 'CONFORME').sum()],
+            ['Repique - Não Conforme', (df['conf_repique'] == 'NAO_CONFORME').sum()],
+            ['', ''],
+            ['QUALIDADE DO MATCH', ''],
+            ['Match Perfeito (≥0.9)', (df['match_score'] >= 0.9).sum()],
+            ['Match Bom (0.7-0.9)', ((df['match_score'] >= 0.7) & (df['match_score'] < 0.9)).sum()],
+            ['Match Fraco (<0.7)', ((df['match_score'] > 0) & (df['match_score'] < 0.7)).sum()],
+            ['Sem Match', (df['match_score'] == 0).sum()],
+            ['', ''],
+            ['TAXAS', ''],
+            ['Taxa de Conformidade (com alertas)', f"{((df['conf_final'].isin(['CONFORME', 'ALERTA'])).sum() / total * 100):.1f}%"],
+            ['Taxa de Conformidade Estrita', f"{((df['conf_final'] == 'CONFORME').sum() / total * 100):.1f}%"],
         ]
         
-        # Se qualquer critério for NAO_CONFORME, final é NAO_CONFORME
-        if 'NAO_CONFORME' in statuses:
-            reasons = []
-            if result.conf_escolha == 'NAO_CONFORME':
-                reasons.append(result.conf_escolha_razao)
-            if result.conf_dose == 'NAO_CONFORME':
-                reasons.append(result.conf_dose_razao)
-            if result.conf_timing == 'NAO_CONFORME':
-                reasons.append(result.conf_timing_razao)
-            
-            return 'NAO_CONFORME', ', '.join(reasons)
-        
-        # Se tem ALERTA, final é ALERTA
-        if 'ALERTA' in statuses:
-            return 'ALERTA', result.conf_dose_razao
-        
-        # Se algum INDETERMINADO
-        if 'INDETERMINADO' in statuses:
-            return 'INDETERMINADO', 'dados_insuficientes'
-        
-        # Todos conformes
-        return 'CONFORME', 'todos_criterios_conformes'
+        return pd.DataFrame(stats_data, columns=['Métrica', 'Valor'])
     
-    def get_statistics(self) -> Dict[str, Any]:
+    def export_csv(self, output_path: Path) -> None:
         """
-        Gera estatísticas dos resultados de auditoria.
+        Exporta resultados em CSV simples.
+        
+        Args:
+            output_path: Caminho para arquivo de saída
+        """
+        logger.info(f"Gerando relatório CSV: {output_path}")
+        
+        df = self.prepare_dataframe()
+        df.to_csv(output_path, index=False, encoding='utf-8-sig')
+        
+        logger.info(f"Relatório CSV exportado: {output_path}")
+    
+    def export_json(self, output_path: Path) -> None:
+        """
+        Exporta resultados em JSON.
+        
+        Args:
+            output_path: Caminho para arquivo de saída
+        """
+        logger.info(f"Gerando relatório JSON: {output_path}")
+        
+        df = self.prepare_dataframe()
+        
+        # Converte para dict records
+        data = df.to_dict(orient='records')
+        
+        # Salva JSON
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2, default=str)
+        
+        logger.info(f"Relatório JSON exportado: {output_path}")
+    
+    def export_summary_report(self, output_path: Path) -> None:
+        """
+        Exporta relatório resumido em texto.
+        
+        Args:
+            output_path: Caminho para arquivo de saída
+        """
+        logger.info(f"Gerando relatório resumido: {output_path}")
+        
+        df = self.prepare_dataframe()
+        total = len(df)
+        
+        # Monta relatório
+        lines = []
+        lines.append("=" * 70)
+        lines.append("RELATÓRIO DE AUDITORIA - PROFILAXIA ANTIMICROBIANA")
+        lines.append("=" * 70)
+        lines.append("")
+        lines.append(f"Data do Relatório: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
+        lines.append(f"Total de Cirurgias Auditadas: {total}")
+        lines.append("")
+        
+        lines.append("-" * 70)
+        lines.append("RESUMO DE CONFORMIDADE")
+        lines.append("-" * 70)
+        
+        conforme = (df['conf_final'] == 'CONFORME').sum()
+        alerta = (df['conf_final'] == 'ALERTA').sum()
+        nao_conforme = (df['conf_final'] == 'NAO_CONFORME').sum()
+        indeterminado = (df['conf_final'] == 'INDETERMINADO').sum()
+        
+        lines.append(f"  Conforme:              {conforme:4d} ({conforme/total*100:5.1f}%)")
+        lines.append(f"  Alerta:                {alerta:4d} ({alerta/total*100:5.1f}%)")
+        lines.append(f"  Não Conforme:          {nao_conforme:4d} ({nao_conforme/total*100:5.1f}%)")
+        lines.append(f"  Indeterminado:         {indeterminado:4d} ({indeterminado/total*100:5.1f}%)")
+        lines.append("")
+        
+        taxa_total = (conforme + alerta) / total * 100 if total > 0 else 0
+        taxa_estrita = conforme / total * 100 if total > 0 else 0
+        
+        lines.append(f"  Taxa de Conformidade Total:   {taxa_total:.1f}%")
+        lines.append(f"  Taxa de Conformidade Estrita: {taxa_estrita:.1f}%")
+        lines.append("")
+        
+        lines.append("-" * 70)
+        lines.append("CONFORMIDADE POR CRITÉRIO")
+        lines.append("-" * 70)
+        
+        escolha_conf = (df['conf_escolha'] == 'CONFORME').sum()
+        dose_conf = (df['conf_dose'] == 'CONFORME').sum()
+        timing_conf = (df['conf_timing'] == 'CONFORME').sum()
+        repique_conf = (df['conf_repique'] == 'CONFORME').sum()
+        
+        lines.append(f"  Escolha de Antibiótico:  {escolha_conf}/{total} ({escolha_conf/total*100:.1f}%)")
+        lines.append(f"  Dose Correta:            {dose_conf}/{total} ({dose_conf/total*100:.1f}%)")
+        lines.append(f"  Timing Adequado:         {timing_conf}/{total} ({timing_conf/total*100:.1f}%)")
+        lines.append(f"  Repique Adequado:        {repique_conf}/{total} ({repique_conf/total*100:.1f}%)")
+        lines.append("")
+        
+        # Principais problemas
+        lines.append("-" * 70)
+        lines.append("PRINCIPAIS NÃO CONFORMIDADES")
+        lines.append("-" * 70)
+        
+        if nao_conforme > 0:
+            df_nc = df[df['conf_final'] == 'NAO_CONFORME']
+            
+            # Conta razões mais comuns
+            razoes_escolha = df_nc['conf_escolha_razao'].value_counts()
+            razoes_dose = df_nc['conf_dose_razao'].value_counts()
+            razoes_timing = df_nc['conf_timing_razao'].value_counts()
+            
+            if len(razoes_escolha) > 0:
+                lines.append("")
+                lines.append("  Problemas de Escolha:")
+                for razao, count in razoes_escolha.head(3).items():
+                    lines.append(f"    - {format_conformity_reason(razao)}: {count} casos")
+            
+            if len(razoes_dose) > 0:
+                lines.append("")
+                lines.append("  Problemas de Dose:")
+                for razao, count in razoes_dose.head(3).items():
+                    lines.append(f"    - {format_conformity_reason(razao)}: {count} casos")
+            
+            if len(razoes_timing) > 0:
+                lines.append("")
+                lines.append("  Problemas de Timing:")
+                for razao, count in razoes_timing.head(3).items():
+                    lines.append(f"    - {format_conformity_reason(razao)}: {count} casos")
+        else:
+            lines.append("  ✓ Nenhuma não conformidade detectada!")
+        
+        lines.append("")
+        lines.append("=" * 70)
+        
+        # Salva arquivo
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(lines))
+        
+        logger.info(f"Relatório resumido exportado: {output_path}")
+        
+        # Retorna também as linhas para print
+        return '\n'.join(lines)
+    
+    def get_non_conformities_summary(self) -> List[Dict[str, Any]]:
+        """
+        Retorna resumo de não conformidades.
         
         Returns:
-            Dicionário com estatísticas
+            Lista de dicionários com resumo de cada não conformidade
         """
-        if not self.audit_results:
-            return {}
+        df = self.prepare_dataframe()
+        df_nc = df[df['conf_final'] == 'NAO_CONFORME']
         
-        total = len(self.audit_results)
+        summary = []
         
-        # Conformidade final
-        conforme = sum(1 for r in self.audit_results if r.conf_final == 'CONFORME')
-        alerta = sum(1 for r in self.audit_results if r.conf_final == 'ALERTA')
-        nao_conforme = sum(1 for r in self.audit_results if r.conf_final == 'NAO_CONFORME')
-        indeterminado = sum(1 for r in self.audit_results if r.conf_final == 'INDETERMINADO')
+        for _, row in df_nc.iterrows():
+            summary.append({
+                'data': row['data'],
+                'procedimento': row['procedimento'],
+                'atb_administrado': row['atb_detectado'],
+                'problemas': [
+                    format_conformity_reason(row['conf_escolha_razao']) if row['conf_escolha'] == 'NAO_CONFORME' else None,
+                    format_conformity_reason(row['conf_dose_razao']) if row['conf_dose'] == 'NAO_CONFORME' else None,
+                    format_conformity_reason(row['conf_timing_razao']) if row['conf_timing'] == 'NAO_CONFORME' else None,
+                    format_conformity_reason(row['conf_repique_razao']) if row['conf_repique'] == 'NAO_CONFORME' else None,
+                ],
+            })
         
-        # Por critério
-        escolha_conf = sum(1 for r in self.audit_results if r.conf_escolha == 'CONFORME')
-        dose_conf = sum(1 for r in self.audit_results if r.conf_dose == 'CONFORME')
-        dose_alert = sum(1 for r in self.audit_results if r.conf_dose == 'ALERTA')
-        timing_conf = sum(1 for r in self.audit_results if r.conf_timing == 'CONFORME')
-        
-        # Match
-        perfect_match = sum(1 for r in self.audit_results if r.match_score >= 0.9)
-        good_match = sum(1 for r in self.audit_results if 0.7 <= r.match_score < 0.9)
-        weak_match = sum(1 for r in self.audit_results if 0 < r.match_score < 0.7)
-        no_match = sum(1 for r in self.audit_results if r.match_score == 0)
-        
-        return {
-            'total_cirurgias': total,
-            'conformidade_final': {
-                'conforme': conforme,
-                'alerta': alerta,
-                'nao_conforme': nao_conforme,
-                'indeterminado': indeterminado,
-            },
-            'por_criterio': {
-                'escolha_conforme': escolha_conf,
-                'dose_conforme': dose_conf,
-                'dose_alerta': dose_alert,
-                'timing_conforme': timing_conf,
-            },
-            'qualidade_match': {
-                'perfeito': perfect_match,
-                'bom': good_match,
-                'fraco': weak_match,
-                'sem_match': no_match,
-            },
-            'taxas': {
-                'conformidade_total_pct': (conforme + alerta) / total * 100 if total > 0 else 0,
-                'conformidade_estrita_pct': conforme / total * 100 if total > 0 else 0,
-            }
-        }
+        return summary

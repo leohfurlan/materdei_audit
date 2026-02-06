@@ -131,7 +131,9 @@ Excel de Cirurgias + rules.json
 │                      │
 │ 4. Valida timing     │ Dentro de 1h?
 │                      │
-│ 5. Conformidade      │ Combina critérios
+│ 5. Valida repique    │ Intervalo ok?
+│                      │
+│ 6. Conformidade      │ Combina critérios
 │    final             │
 └──────────┬───────────┘
            │
@@ -198,12 +200,22 @@ def _validate_dose(record, rule, result):
     """
     Compara dose administrada com dose recomendada.
     Usa tolerância configurável para classificar.
+    Suporta dose ponderal (mg/kg) quando definida no protocolo.
     
     Lógica:
+    - Se a dose for mg/kg: calcula dose esperada com base no peso
+      (teto para Cefazolina: 2g <120kg, 3g ≥120kg)
     - ≤10% diferença → CONFORME
     - 10-15% diferença → ALERTA
     - >15% diferença → NAO_CONFORME
     """
+    if dose_regra_em_mgkg:
+        if not peso_paciente:
+            return 'INDETERMINADO'
+        recom = mg_por_kg * peso
+        if droga == 'CEFAZOLINA':
+            recom = min(recom, 2000 if peso < 120 else 3000)
+
     diff_pct = abs((admin - recom) / recom * 100)
     
     if diff_pct <= 10:
@@ -234,6 +246,22 @@ def _validate_timing(record, result):
         return 'CONFORME'
     else:
         return 'NAO_CONFORME'  # Muito antes
+```
+
+### 5. Validação de Repique (Redosing)
+
+```python
+def _validate_redosing(record, result):
+    """
+    Valida repique com base nos intervalos configurados (REDOSING_INTERVALS).
+    
+    Lógica:
+    - Se repique_done != 'SIM' → CONFORME (não aplicável)
+    - Se antibiótico sem intervalo ou intervalo = 0 → CONFORME
+    - Se horários ausentes → INDETERMINADO
+    - Se dentro do intervalo ±30min → CONFORME
+    - Caso contrário → NAO_CONFORME
+    """
 ```
 
 ## Estruturas de Dados
@@ -292,10 +320,13 @@ def _validate_timing(record, result):
   "conf_escolha": "CONFORME",
   "conf_dose": "CONFORME",
   "conf_timing": "CONFORME",
+  "conf_repique": "CONFORME",
+  "conf_repique_razao": "repique_no_intervalo",
   "conf_final": "CONFORME",
   "dose_diferenca_mg": 0.0,
   "dose_diferenca_pct": 0.0,
-  "timing_diferenca_minutos": 45
+  "timing_diferenca_minutos": 45,
+  "repique_diferenca_minutos": 240
 }
 ```
 
@@ -312,7 +343,8 @@ def _validate_timing(record, result):
 1. **Índice de procedimentos**: Busca O(1) por procedimento normalizado
 2. **Caching de normalização**: Evita processar mesmo texto múltiplas vezes
 3. **Fuzzy matching otimizado**: Usa rapidfuzz (C implementation)
-4. **Processamento em lote**: pandas para operações vetorizadas
+4. **ProtocolRulesRepository Singleton**: evita recarregar rules.json em múltiplas instâncias
+5. **Processamento em lote**: pandas para operações vetorizadas
 
 ## Testes
 
@@ -394,6 +426,24 @@ AUDIT_CONFIG = {
     "timing_window_minutes": 90,   # Expandir janela se necessário
 }
 ```
+
+### Intervalos de Repique (Redosing)
+
+Edite `materdei_audit/config/settings.py`:
+
+```python
+REDOSING_INTERVALS = {
+    "CEFAZOLINA": 240,
+    "CEFUROXIMA": 240,
+    "CEFOXITINA": 120,
+    "CLINDAMICINA": 360,
+    "VANCOMICINA": 0,
+    "GENTAMICINA": 0,
+    "CIPROFLOXACINO": 0,
+}
+```
+
+**Observação:** a validação considera tolerância de ±30 minutos em torno do intervalo.
 
 ## Integração com Flask (Futuro)
 

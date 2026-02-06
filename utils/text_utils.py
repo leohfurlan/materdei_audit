@@ -239,6 +239,10 @@ def format_conformity_reason(reason_code: str) -> str:
         "dose_pequena_diferenca": "Pequena diferença de dose detectada (revisar)",
         "dose_sem_referencia_peso": "Não foi possível validar dose (falta peso do paciente)",
         "multiplos_criterios": "Múltiplas não conformidades detectadas",
+        "repique_nao_aplicavel": "Repique não aplicável para este antibiótico",
+        "repique_horarios_nao_informados": "Horários de repique não informados",
+        "repique_no_intervalo": "Repique realizado dentro do intervalo recomendado",
+        "repique_fora_intervalo": "Repique fora do intervalo recomendado",
     }
     
     return reasons.get(reason_code, reason_code)

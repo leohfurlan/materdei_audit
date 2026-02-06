@@ -21,9 +21,15 @@ for directory in [INPUT_DIR, OUTPUT_DIR, TEMP_DIR, LOGS_DIR]:
 EXTRACTION_CONFIG = {
     "pages_to_extract": "8-35",  # Páginas do PDF com tabelas
     "camelot_flavor": "lattice",  # lattice ou stream
-    "camelot_edge_tol": 50,
-    "camelot_row_tol": 10,
-    "camelot_column_tol": 10,
+    # Parâmetros específicos do lattice
+    "camelot_lattice_line_scale": 40,
+    "camelot_lattice_line_tol": 2,
+    "camelot_lattice_joint_tol": 2,
+    "camelot_lattice_process_background": False,
+    # Parâmetros específicos do stream (mantidos para fallback)
+    "camelot_stream_edge_tol": 50,
+    "camelot_stream_row_tol": 10,
+    "camelot_stream_column_tol": 10,
     "min_table_rows": 2,
     "similarity_threshold": 0.7,  # Para fuzzy matching
 }
@@ -34,6 +40,17 @@ AUDIT_CONFIG = {
     "dose_tolerance_percent": 15,  # Tolerância de dose em %
     "timing_window_minutes": 60,  # Janela de 1 hora antes da incisão
     "alert_dose_tolerance_percent": 10,  # Tolerância para alertas
+}
+
+# Intervalos de repique (redosing) em minutos
+REDOSING_INTERVALS = {
+    "CEFAZOLINA": 240,
+    "CEFUROXIMA": 240,
+    "CEFOXITINA": 120,
+    "CLINDAMICINA": 360,
+    "VANCOMICINA": 0,
+    "GENTAMICINA": 0,
+    "CIPROFLOXACINO": 0,
 }
 
 # Mapeamento de colunas da planilha Excel

@@ -2,19 +2,20 @@
 Controller para auditoria de cirurgias comparando com protocolo
 """
 import logging
+import re
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime, date
 import pandas as pd
 import numpy as np
 
-from ..models import (
+from models import (
     SurgeryRecord,
     AuditResult,
     ProtocolRulesRepository,
     ProtocolRule,
 )
-from ..utils import (
+from utils import (
     normalize_text,
     extract_drug_names,
     fuzzy_match_score,
@@ -25,7 +26,7 @@ from ..utils import (
     normalize_yes_no,
     validate_excel_structure,
 )
-from ..config import EXCEL_COLUMNS, DRUG_DICTIONARY, AUDIT_CONFIG
+from config import EXCEL_COLUMNS, DRUG_DICTIONARY, AUDIT_CONFIG, REDOSING_INTERVALS
 
 logger = logging.getLogger(__name__)
 
@@ -101,14 +102,27 @@ class SurgeryAuditor:
         # Data
         date_val = row.get(EXCEL_COLUMNS['date'])
         if isinstance(date_val, str):
-            try:
-                date_val = datetime.strptime(date_val, '%Y-%m-%d').date()
-            except:
-                date_val = None
+            parsed = None
+            for fmt in ('%Y-%m-%d', '%d/%m/%Y', '%d/%m/%y', '%d-%m-%Y'):
+                try:
+                    parsed = datetime.strptime(date_val.strip(), fmt).date()
+                    break
+                except:
+                    continue
+            date_val = parsed
         elif isinstance(date_val, datetime):
             date_val = date_val.date()
         elif isinstance(date_val, pd.Timestamp):
             date_val = date_val.date()
+        else:
+            # Excel pode fornecer data como número (serial)
+            if pd.isna(date_val):
+                date_val = None
+            elif isinstance(date_val, (int, float, np.number)):
+                try:
+                    date_val = pd.to_datetime(date_val, unit='D', origin='1899-12-30').date()
+                except:
+                    date_val = None
         
         # Antibiótico dado
         atb_given = normalize_yes_no(row.get(EXCEL_COLUMNS['atb_given'], 'NAO'))
@@ -250,8 +264,17 @@ class SurgeryAuditor:
         else:
             result.conf_timing = 'INDETERMINADO'
             result.conf_timing_razao = 'atb_nao_administrado'
+
+        # 5. Valida repique (redosing)
+        if record.atb_given == 'SIM':
+            result.conf_repique, result.conf_repique_razao = self._validate_redosing(
+                record, result
+            )
+        else:
+            result.conf_repique = 'INDETERMINADO'
+            result.conf_repique_razao = 'atb_nao_administrado'
         
-        # 5. Calcula conformidade final
+        # 6. Calcula conformidade final
         result.conf_final, result.conf_final_razao = self._calculate_final_conformity(result)
         
         return result
@@ -349,11 +372,33 @@ class SurgeryAuditor:
         recommended_dose_text = rule.primary_recommendation.drugs[0].dose
         if not recommended_dose_text:
             return 'INDETERMINADO', 'dose_sem_referencia'
-        
-        # Converte para mg
-        recommended_dose_mg = extract_dose_from_text(recommended_dose_text)
-        if not recommended_dose_mg:
-            return 'INDETERMINADO', 'dose_sem_referencia'
+
+        # Converte para mg (inclui dose ponderal mg/kg)
+        recommended_dose_mg = None
+        mgkg_pattern = r'(\d+(?:\.\d+)?)\s*(MG|G)\s*/\s*KG'
+        mgkg_match = re.search(mgkg_pattern, recommended_dose_text, re.IGNORECASE)
+        if mgkg_match:
+            mg_per_kg = float(mgkg_match.group(1))
+            unit = mgkg_match.group(2).upper()
+            if unit == 'G':
+                mg_per_kg *= 1000
+
+            if not record.patient_weight or record.patient_weight <= 0:
+                return 'INDETERMINADO', 'dose_sem_referencia_peso'
+
+            expected_mg = mg_per_kg * record.patient_weight
+
+            # Aplica teto para Cefazolina
+            drug_name = rule.primary_recommendation.drugs[0].name if rule.primary_recommendation.drugs else ""
+            if drug_name == 'CEFAZOLINA':
+                cap_mg = 3000 if record.patient_weight >= 120 else 2000
+                expected_mg = min(expected_mg, cap_mg)
+
+            recommended_dose_mg = expected_mg
+        else:
+            recommended_dose_mg = extract_dose_from_text(recommended_dose_text)
+            if not recommended_dose_mg:
+                return 'INDETERMINADO', 'dose_sem_referencia'
         
         administered_mg = record.dose_administered_mg
         if not administered_mg:
@@ -413,6 +458,50 @@ class SurgeryAuditor:
             return 'CONFORME', 'timing_correto'
         else:
             return 'NAO_CONFORME', 'timing_fora_janela'
+
+    def _validate_redosing(self, record: SurgeryRecord,
+                           result: AuditResult) -> Tuple[str, str]:
+        """
+        Valida repique (redosing) baseado em meia-vida do antibiótico.
+        
+        Args:
+            record: Registro da cirurgia
+            result: Resultado parcial
+            
+        Returns:
+            Tupla (status, razão)
+        """
+        if record.repique_done != 'SIM':
+            return 'CONFORME', 'repique_nao_aplicavel'
+
+        drug_name = None
+        if record.atb_detected:
+            drug_name = record.atb_detected[0]
+        elif result.protocolo_atb_recomendados:
+            drug_name = result.protocolo_atb_recomendados[0]
+
+        if not drug_name:
+            return 'INDETERMINADO', 'atb_nao_identificado'
+
+        interval = REDOSING_INTERVALS.get(drug_name)
+        if not interval or interval <= 0:
+            return 'CONFORME', 'repique_nao_aplicavel'
+
+        if not record.atb_time or not record.repique_time:
+            return 'INDETERMINADO', 'repique_horarios_nao_informados'
+
+        diff_min = calculate_time_diff_minutes(record.atb_time, record.repique_time)
+        if diff_min is None:
+            return 'INDETERMINADO', 'repique_horarios_nao_informados'
+
+        result.repique_diferenca_minutos = diff_min
+
+        lower = interval - 30
+        upper = interval + 30
+
+        if lower <= diff_min <= upper:
+            return 'CONFORME', 'repique_no_intervalo'
+        return 'NAO_CONFORME', 'repique_fora_intervalo'
     
     def _calculate_final_conformity(self, result: AuditResult) -> Tuple[str, str]:
         """
@@ -433,6 +522,7 @@ class SurgeryAuditor:
             result.conf_escolha,
             result.conf_dose,
             result.conf_timing,
+            result.conf_repique,
         ]
         
         # Se qualquer critério for NAO_CONFORME, final é NAO_CONFORME
@@ -444,16 +534,18 @@ class SurgeryAuditor:
                 reasons.append(result.conf_dose_razao)
             if result.conf_timing == 'NAO_CONFORME':
                 reasons.append(result.conf_timing_razao)
+            if result.conf_repique == 'NAO_CONFORME':
+                reasons.append(result.conf_repique_razao)
             
             return 'NAO_CONFORME', ', '.join(reasons)
-        
-        # Se tem ALERTA, final é ALERTA
-        if 'ALERTA' in statuses:
-            return 'ALERTA', result.conf_dose_razao
         
         # Se algum INDETERMINADO
         if 'INDETERMINADO' in statuses:
             return 'INDETERMINADO', 'dados_insuficientes'
+
+        # Se tem ALERTA, final é ALERTA
+        if 'ALERTA' in statuses:
+            return 'ALERTA', result.conf_dose_razao
         
         # Todos conformes
         return 'CONFORME', 'todos_criterios_conformes'
@@ -481,6 +573,7 @@ class SurgeryAuditor:
         dose_conf = sum(1 for r in self.audit_results if r.conf_dose == 'CONFORME')
         dose_alert = sum(1 for r in self.audit_results if r.conf_dose == 'ALERTA')
         timing_conf = sum(1 for r in self.audit_results if r.conf_timing == 'CONFORME')
+        repique_conf = sum(1 for r in self.audit_results if r.conf_repique == 'CONFORME')
         
         # Match
         perfect_match = sum(1 for r in self.audit_results if r.match_score >= 0.9)
@@ -501,6 +594,7 @@ class SurgeryAuditor:
                 'dose_conforme': dose_conf,
                 'dose_alerta': dose_alert,
                 'timing_conforme': timing_conf,
+                'repique_conforme': repique_conf,
             },
             'qualidade_match': {
                 'perfeito': perfect_match,
