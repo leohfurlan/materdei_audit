@@ -6,6 +6,8 @@ from .protocol_rules import (
     Recommendation,
     ProtocolRule,
     ProtocolRulesRepository,
+    AntibioticRule,
+    SurgeryType,
 )
 
 from .audit_data import (
@@ -18,6 +20,8 @@ __all__ = [
     'Recommendation',
     'ProtocolRule',
     'ProtocolRulesRepository',
+    'AntibioticRule',
+    'SurgeryType',
     'SurgeryRecord',
     'AuditResult',
 ]

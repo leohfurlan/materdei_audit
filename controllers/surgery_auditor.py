@@ -34,7 +34,12 @@ logger = logging.getLogger(__name__)
 class SurgeryAuditor:
     """Audita cirurgias comparando com protocolo institucional."""
     
-    def __init__(self, rules_repository: ProtocolRulesRepository, config: Dict[str, Any] = None):
+    def __init__(
+        self,
+        rules_repository: ProtocolRulesRepository,
+        config: Dict[str, Any] = None,
+        procedure_translation_map: Optional[Dict[str, str]] = None,
+    ):
         """
         Inicializa o auditor.
         
@@ -46,6 +51,15 @@ class SurgeryAuditor:
         self.config = config or AUDIT_CONFIG
         self.surgery_records: List[SurgeryRecord] = []
         self.audit_results: List[AuditResult] = []
+        self.procedure_translation_map: Dict[str, str] = {}
+
+        if procedure_translation_map:
+            for excel_name, protocol_name in procedure_translation_map.items():
+                if not excel_name or not protocol_name:
+                    continue
+                key_norm = normalize_text(str(excel_name))
+                if key_norm:
+                    self.procedure_translation_map[key_norm] = str(protocol_name).strip()
         
     def load_surgeries_from_excel(self, excel_path: Path, sheet_name: str = None) -> int:
         """
@@ -291,6 +305,13 @@ class SurgeryAuditor:
         """
         if not procedure:
             return None, 0.0, "no_procedure"
+
+        # Prioriza tradução direta (Excel -> nomenclatura do protocolo)
+        translated = self._translate_procedure_name(procedure)
+        if translated:
+            translated_rule, translated_score, translated_method = self._match_translated_procedure(translated)
+            if translated_rule:
+                return translated_rule, translated_score, translated_method
         
         procedure_clean = clean_procedure_name(procedure)
         
@@ -317,6 +338,44 @@ class SurgeryAuditor:
         
         return None, 0.0, "no_match"
     
+
+    def _translate_procedure_name(self, procedure: str) -> str:
+        """Traduz o procedimento do Excel para nomenclatura do protocolo."""
+        if not self.procedure_translation_map:
+            return ""
+
+        return self.procedure_translation_map.get(normalize_text(procedure), "")
+
+    def _match_translated_procedure(self, translated_procedure: str) -> Tuple[Optional[ProtocolRule], float, str]:
+        """
+        Faz match a partir do texto traduzido (procedimentos.json).
+        Aceita multiplos alvos separados por "/".
+        """
+        candidates = [c.strip() for c in re.split(r"/", translated_procedure) if c and c.strip()]
+        if not candidates:
+            candidates = [translated_procedure]
+
+        for candidate in candidates:
+            exact_matches = self.rules_repo.find_by_procedure(normalize_text(candidate))
+            if exact_matches:
+                return exact_matches[0], 1.0, "translated_exact_match"
+
+        threshold = self.config.get('match_threshold', 0.70)
+        best_rule = None
+        best_score = 0.0
+
+        for candidate in candidates:
+            for rule in self.rules_repo.rules:
+                score = fuzzy_match_score(candidate, rule.procedure_normalized)
+                if score > best_score and score >= threshold:
+                    best_score = score
+                    best_rule = rule
+
+        if best_rule:
+            return best_rule, best_score, "translated_fuzzy_match"
+
+        return None, 0.0, "translated_no_match"
+
     def _validate_choice(self, record: SurgeryRecord, 
                         rule: Optional[ProtocolRule]) -> Tuple[str, str]:
         """

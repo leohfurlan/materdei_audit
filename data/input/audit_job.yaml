@@ -1,0 +1,24 @@
+version: 1
+excel_path: "./data/input/cirurgias.xlsx"
+sheet_name: null
+rules_path: "./data/output/rules.json"
+output_dir: "./data/output"
+
+matching:
+  min_score_auto: 0.45
+  min_score_review: 0.35
+  top_k_candidates: 5
+  use_specialty: true
+
+normalization:
+  strip_accents: true
+  lowercase: true
+  remove_stopwords: true
+
+aliases:
+  procedure_aliases_path: "./data/input/procedure_aliases.json"
+  drug_aliases_path: "./data/input/drug_aliases.json"
+  procedure_map_path: "./data/input/procedure_map.json"
+
+columns:
+  map_path: "./data/input/column_map.yaml"

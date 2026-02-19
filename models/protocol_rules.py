@@ -7,6 +7,24 @@ from pathlib import Path
 import json
 import hashlib
 from datetime import datetime
+from enum import Enum
+
+@dataclass
+class AntibioticRule:
+    """Regra para antibiótico específico."""
+    name: str
+    dose: str
+    route: str
+    time: str
+
+class SurgeryType(Enum):
+    """Tipos de cirurgia (classificação de contaminação)."""
+    CLEAN = "Limpa"
+    CLEAN_CONTAMINATED = "Limpa-contaminada"
+    CONTAMINATED = "Contaminada"
+    INFECTED = "Infectada"
+    DIRTY = "Sura/Infectada"  # Ajuste conforme necessidade
+
 
 
 @dataclass
@@ -58,21 +76,26 @@ class Recommendation:
             notes=data.get('notes', ''),
         )
 
-
 @dataclass
 class ProtocolRule:
     """Representa uma regra do protocolo."""
-    rule_id: str
-    section: str
-    procedure: str
-    procedure_normalized: str
-    is_prophylaxis_required: bool
-    primary_recommendation: Recommendation
-    allergy_recommendation: Recommendation
+    rule_id: str = ""
+    section: str = ""
+    procedure: str = ""
+    procedure_normalized: str = ""
+    is_prophylaxis_required: bool = False
+    primary_recommendation: Recommendation = field(default_factory=Recommendation)
+    allergy_recommendation: Recommendation = field(default_factory=Recommendation)
     postoperative: str = ""
     audit_category: str = "OK"
     original_row_index: int = -1
     metadata: Dict[str, Any] = field(default_factory=dict)
+    
+    # Novos campos para suporte a LLM
+    surgery_name: List[str] = field(default_factory=list)
+    surgery_type: Optional[SurgeryType] = None
+    antibiotics: List[AntibioticRule] = field(default_factory=list)
+    notes: str = ""
     
     def to_dict(self) -> Dict[str, Any]:
         return {

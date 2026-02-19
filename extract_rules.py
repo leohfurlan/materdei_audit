@@ -1,6 +1,6 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
-Script para extração de regras do protocolo PDF
+Script para extracao de regras do protocolo PDF.
 
 Uso:
     python extract_rules.py <caminho_pdf> [--output <diretorio_saida>]
@@ -10,7 +10,7 @@ import logging
 from pathlib import Path
 import sys
 
-# Adiciona o diretório raiz ao path
+# Adiciona o diretorio raiz ao path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from controllers import ProtocolExtractor
@@ -23,97 +23,168 @@ logger = logging.getLogger(__name__)
 
 
 def main():
-    """Função principal."""
+    """Funcao principal."""
     parser = argparse.ArgumentParser(
-        description='Extrai regras do protocolo de profilaxia antimicrobiana de PDF'
+        description="Extrai regras do protocolo de profilaxia antimicrobiana de PDF"
     )
     parser.add_argument(
-        'pdf_path',
+        "pdf_path",
         type=str,
-        help='Caminho para o arquivo PDF do protocolo'
+        help="Caminho para o arquivo PDF do protocolo",
     )
     parser.add_argument(
-        '--output',
-        '-o',
+        "--output",
+        "-o",
         type=str,
         default=str(OUTPUT_DIR),
-        help='Diretório de saída para os arquivos gerados'
+        help="Diretorio de saida para os arquivos gerados",
     )
     parser.add_argument(
-        '--pages',
-        '-p',
+        "--pages",
+        "-p",
         type=str,
-        default=EXTRACTION_CONFIG['pages_to_extract'],
-        help='Páginas a extrair (ex: "8-35")'
+        default=EXTRACTION_CONFIG["pages_to_extract"],
+        help='Paginas a extrair (ex: "8-35")',
     )
-    
+    parser.add_argument(
+        "--backend",
+        "-b",
+        type=str,
+        choices=["gemini", "langextract"],
+        default=EXTRACTION_CONFIG.get("llm_backend", "gemini"),
+        help="Backend LLM para extracao (gemini ou langextract)",
+    )
+    parser.add_argument(
+        "--preview",
+        action="store_true",
+        help="Extrai do PDF e salva raw_extractions.json para revisao (NAO gera rules.json)",
+    )
+    parser.add_argument(
+        "--from-raw",
+        type=str,
+        default=None,
+        metavar="ARQUIVO",
+        help="Carrega raw_extractions.json revisado e converte para rules.json (pula LLM)",
+    )
+
     args = parser.parse_args()
-    
+
     # Valida PDF
     pdf_path = Path(args.pdf_path)
     if not pdf_path.exists():
-        logger.error(f"Arquivo PDF não encontrado: {pdf_path}")
+        logger.error(f"Arquivo PDF nao encontrado: {pdf_path}")
         sys.exit(1)
-    
-    # Diretório de saída
+
+    # Diretorio de saida
     output_dir = Path(args.output)
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     logger.info("=" * 70)
-    logger.info("EXTRAÇÃO DE REGRAS DO PROTOCOLO")
+    logger.info("EXTRACAO DE REGRAS DO PROTOCOLO")
     logger.info("=" * 70)
     logger.info(f"PDF: {pdf_path}")
-    logger.info(f"Saída: {output_dir}")
-    logger.info(f"Páginas: {args.pages}")
+    logger.info(f"Saida: {output_dir}")
+    logger.info(f"Paginas: {args.pages}")
+    logger.info(f"Backend: {args.backend}")
+
+    if args.preview:
+        logger.info("Modo: PREVIEW (salvar raw_extractions.json)")
+    elif args.from_raw:
+        logger.info(f"Modo: FROM-RAW (carregar {args.from_raw})")
+    else:
+        logger.info("Modo: COMPLETO (PDF -> LLM -> rules.json)")
     logger.info("")
-    
+
     try:
         # Cria extrator
         config = EXTRACTION_CONFIG.copy()
-        config['pages_to_extract'] = args.pages
-        
+        config["pages_to_extract"] = args.pages
+        config["llm_backend"] = args.backend
+
         extractor = ProtocolExtractor(pdf_path, config)
-        
-        # Extrai regras
-        logger.info("Iniciando extração...")
+
+        # MODO PREVIEW
+        if args.preview:
+            raw_path = extractor.extract_preview(output_dir)
+
+            logger.info("")
+            logger.info("=" * 70)
+            logger.info("PREVIEW CONCLUIDO")
+            logger.info("=" * 70)
+            logger.info(f"Arquivo bruto salvo em: {raw_path}")
+            logger.info("")
+            logger.info("Proximos passos:")
+            logger.info(f"  1. Revise e edite: {raw_path}")
+            logger.info(
+                f"  2. Execute: python extract_rules.py \"{pdf_path}\" --from-raw \"{raw_path}\""
+            )
+            return 0
+
+        # MODO FROM-RAW
+        if args.from_raw:
+            raw_path = Path(args.from_raw)
+            if not raw_path.exists():
+                logger.error(f"Arquivo raw nao encontrado: {raw_path}")
+                sys.exit(1)
+
+            rules = extractor.build_from_raw(raw_path)
+
+            logger.info("Salvando resultados...")
+            extractor.save_rules(output_dir)
+
+            logger.info("")
+            logger.info("=" * 70)
+            logger.info("CONVERSAO CONCLUIDA COM SUCESSO")
+            logger.info("=" * 70)
+            logger.info(f"Total de regras convertidas: {len(rules)}")
+            logger.info("")
+            logger.info("Arquivos gerados:")
+            logger.info("  - rules.json")
+            logger.info("  - rules_index.json")
+            logger.info("  - rules.meta.json")
+            logger.info(f"Diretorio: {output_dir}")
+            return 0
+
+        # MODO COMPLETO (padrao)
+        logger.info("Iniciando extracao...")
         rules = extractor.extract_all_rules()
-        
+
         # Salva resultados
         logger.info("Salvando resultados...")
         extractor.save_rules(output_dir)
-        
-        # Gera relatório de validação
+
+        # Gera relatorio de validacao
         validation = extractor.get_validation_report()
-        
+
         logger.info("")
         logger.info("=" * 70)
-        logger.info("EXTRAÇÃO CONCLUÍDA COM SUCESSO")
+        logger.info("EXTRACAO CONCLUIDA COM SUCESSO")
         logger.info("=" * 70)
-        logger.info(f"Total de regras extraídas: {validation['total_rules']}")
+        logger.info(f"Total de regras extraidas: {validation['total_rules']}")
         logger.info(f"  - Requerem profilaxia: {validation['with_prophylaxis']}")
-        logger.info(f"  - Não requerem profilaxia: {validation['without_prophylaxis']}")
-        logger.info(f"  - Precisam validação: {validation['needs_validation']}")
+        logger.info(f"  - Nao requerem profilaxia: {validation['without_prophylaxis']}")
+        logger.info(f"  - Precisam validacao: {validation['needs_validation']}")
         logger.info("")
         logger.info("Arquivos gerados:")
-        logger.info(f"  - rules.json")
-        logger.info(f"  - rules_index.json")
-        logger.info(f"  - rules.meta.json")
+        logger.info("  - rules.json")
+        logger.info("  - rules_index.json")
+        logger.info("  - rules.meta.json")
         logger.info("")
-        logger.info(f"Diretório: {output_dir}")
-        
-        # Verifica se extração foi completa
-        if validation['total_rules'] < 100:
+        logger.info(f"Diretorio: {output_dir}")
+
+        # Verifica se extracao foi completa
+        if validation["total_rules"] < 100:
             logger.warning("")
-            logger.warning("⚠ ATENÇÃO: Menos de 100 regras extraídas!")
+            logger.warning("[!] ATENCAO: Menos de 100 regras extraidas!")
             logger.warning("  Esperado: >150 regras")
-            logger.warning("  Revisar PDF ou parâmetros de extração")
-        
+            logger.warning("  Revisar PDF ou parametros de extracao")
+
         return 0
-        
+
     except Exception as e:
-        logger.error(f"Erro durante extração: {e}", exc_info=True)
+        logger.error(f"Erro durante extracao: {e}", exc_info=True)
         return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

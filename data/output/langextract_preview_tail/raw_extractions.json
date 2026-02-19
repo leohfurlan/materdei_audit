@@ -1,0 +1,453 @@
+[
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Reconstrução pélvica com prótese",
+    "attributes": {
+      "surgery_name": [
+        "Reconstrução pélvica com prótese"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Gentamicina",
+          "dose": "240mg",
+          "route": "EV",
+          "time": "1x dia"
+        }
+      ],
+      "notes": "Clindamicina 900mg EV não recomendado."
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Nefrectomia limpa",
+    "attributes": {
+      "surgery_name": [
+        "Nefrectomia limpa"
+      ],
+      "surgery_type": "Limpa",
+      "antibiotics": [
+        {
+          "name": "Cefazolina",
+          "dose": "2g",
+          "route": "EV",
+          "time": ""
+        }
+      ],
+      "notes": ""
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Nefrectomia infectada (tratamento)",
+    "attributes": {
+      "surgery_name": [
+        "Nefrectomia infectada"
+      ],
+      "surgery_type": "Infectada",
+      "antibiotics": [],
+      "notes": "Manter tratamento orientado pela urocultura"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Prostatectomia aberta",
+    "attributes": {
+      "surgery_name": [
+        "Prostatectomia aberta",
+        "Ressecção transuretral de próstata",
+        "Ressecção transuretral de bexiga"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Ceftriaxone",
+          "dose": "1gr",
+          "route": "EV",
+          "time": "Manter por até 24h a partir do início da cirurgia"
+        },
+        {
+          "name": "Gentamicina",
+          "dose": "240mg",
+          "route": "",
+          "time": "Manter por até 24h a partir do início da cirurgia"
+        },
+        {
+          "name": "Ciprofloxacino",
+          "dose": "",
+          "route": "",
+          "time": "Manter por até 24h a partir do início da cirurgia"
+        }
+      ],
+      "notes": ""
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Ressecção transuretral de próstata",
+    "attributes": {
+      "surgery_name": [
+        "Prostatectomia aberta",
+        "Ressecção transuretral de próstata",
+        "Ressecção transuretral de bexiga"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Ceftriaxone",
+          "dose": "1gr",
+          "route": "EV",
+          "time": "Manter por até 24h a partir do início da cirurgia"
+        },
+        {
+          "name": "Gentamicina",
+          "dose": "240mg",
+          "route": "",
+          "time": "Manter por até 24h a partir do início da cirurgia"
+        },
+        {
+          "name": "Ciprofloxacino",
+          "dose": "",
+          "route": "",
+          "time": "Manter por até 24h a partir do início da cirurgia"
+        }
+      ],
+      "notes": ""
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Ressecção transuretral de bexiga",
+    "attributes": {
+      "surgery_name": [
+        "Prostatectomia aberta",
+        "Ressecção transuretral de próstata",
+        "Ressecção transuretral de bexiga"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Ceftriaxone",
+          "dose": "1gr",
+          "route": "EV",
+          "time": "Manter por até 24h a partir do início da cirurgia"
+        },
+        {
+          "name": "Gentamicina",
+          "dose": "240mg",
+          "route": "",
+          "time": "Manter por até 24h a partir do início da cirurgia"
+        },
+        {
+          "name": "Ciprofloxacino",
+          "dose": "",
+          "route": "",
+          "time": "Manter por até 24h a partir do início da cirurgia"
+        }
+      ],
+      "notes": ""
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Cistectomia, neobexiga",
+    "attributes": {
+      "surgery_name": [
+        "Cistectomia",
+        "Neobexiga"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefazolina",
+          "dose": "2grs",
+          "route": "EV",
+          "time": "no intraoperatório, seguido de 500mg EV q8h no POi"
+        },
+        {
+          "name": "Ceftriaxone",
+          "dose": "1gr",
+          "route": "EV",
+          "time": "no intraoperatório, seguido de 600mg EV q8h no POi"
+        },
+        {
+          "name": "Metronidazol",
+          "dose": "500mg",
+          "route": "",
+          "time": ""
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "900mg",
+          "route": "",
+          "time": ""
+        }
+      ],
+      "notes": "Realizar coleta de urocultura pré-operatória. Caso necessário adequação do esquema intraoperatório, entrar em contato com o SECIH"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Cirurgia de redesignação sexual",
+    "attributes": {
+      "surgery_name": [
+        "Cirurgia de redesignação sexual"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefazolina",
+          "dose": "2g",
+          "route": "EV",
+          "time": "Manter por até 24h a partir do início da cirurgia"
+        },
+        {
+          "name": "Sulfametoxazol/ Trimetoprim",
+          "dose": "800/160mg",
+          "route": "",
+          "time": "Até retirada do cateter vesicial de demora"
+        }
+      ],
+      "notes": ""
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Toracoabdominal penetrante ou fechado (com indicação cirúrgica)",
+    "attributes": {
+      "surgery_name": [
+        "Toracoabdominal penetrante",
+        "Toracoabdominal fechado"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefazolina",
+          "dose": "2grs",
+          "route": "",
+          "time": "Manter por até 24h a partir do início da cirurgia (mais 2 doses 8/8h)"
+        },
+        {
+          "name": "Metronidazol",
+          "dose": "dose total diária",
+          "route": "",
+          "time": "Manter por até 24h a partir do início da cirurgia (mais 2 doses 8/8h)"
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "",
+          "route": "",
+          "time": "Manter por até 24h a partir do início da cirurgia (mais 2 doses 8/8h)"
+        },
+        {
+          "name": "Gentamicina",
+          "dose": "",
+          "route": "",
+          "time": "antes da indução anestésica"
+        }
+      ],
+      "notes": "1ª. Opção: Cefazolina. Adicionar Metronidazol se lesão de víscera oca confirmada ou provável. 2ª. Opção ou alergia a penicilina: Clindamicina. Adicionar Gentamicina se lesão de víscera oca confirmada ou provável."
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Trauma perfurante de esôfago",
+    "attributes": {
+      "surgery_name": [
+        "Trauma perfurante de esôfago"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefazolina",
+          "dose": "2grs",
+          "route": "EV",
+          "time": "Manter por até 24h a partir do início da cirurgia (mais 2 doses 8/8h)"
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "dose total diária",
+          "route": "",
+          "time": "Manter por até 24h a partir do início da cirurgia (mais 2 doses 8/8h)"
+        },
+        {
+          "name": "Gentamicina",
+          "dose": "",
+          "route": "",
+          "time": "antes da indução anestésica"
+        }
+      ],
+      "notes": "1ª. Opção: Cefazolina. 2ª. Opção ou alergia a penicilina: Clindamicina + Gentamicina."
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Torácico, com pneumectomia",
+    "attributes": {
+      "surgery_name": [
+        "Torácico com pneumectomia",
+        "Pneumectomia"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefazolina",
+          "dose": "2grs",
+          "route": "EV",
+          "time": "Manter por até 24h a partir do início da cirurgia (mais 2 doses 8/8h)"
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "dose total diária",
+          "route": "",
+          "time": "Manter por até 24h a partir do início da cirurgia (mais 2 doses 8/8h)"
+        },
+        {
+          "name": "Gentamicina",
+          "dose": "",
+          "route": "",
+          "time": "antes da indução anestésica"
+        }
+      ],
+      "notes": "1ª. Opção: Cefazolina. 2ª. Opção ou alergia a penicilina: Clindamicina + Gentamicina."
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Lesão vascular",
+    "attributes": {
+      "surgery_name": [
+        "Lesão vascular"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefazolina",
+          "dose": "2grs",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "900mg",
+          "route": "EV",
+          "time": ""
+        }
+      ],
+      "notes": "1ª. Opção: Cefazolina. 2ª. Opção ou alergia a penicilina: Clindamicina. Não recomendado dose pós-operatória."
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Fratura facial Sem comunicação com cavidade oral",
+    "attributes": {
+      "surgery_name": [
+        "Fratura facial sem comunicação com cavidade oral"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefazolina",
+          "dose": "2grs",
+          "route": "EV",
+          "time": "Manter por até 24h a partir do início da cirurgia (mais 2 doses 8/8h)"
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "900mg",
+          "route": "EV",
+          "time": "Manter por até 24h a partir do início da cirurgia (mais 2 doses 8/8h)"
+        }
+      ],
+      "notes": "1ª. Opção: Cefazolina. 2ª. Opção ou alergia a penicilina: Clindamicina."
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Fratura facial Com comunicação com cavidade oral",
+    "attributes": {
+      "surgery_name": [
+        "Fratura facial com comunicação com cavidade oral"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefazolina",
+          "dose": "2grs",
+          "route": "EV",
+          "time": "Manter por até 24h a partir do início da cirurgia (mais 2 doses 8/8h)"
+        },
+        {
+          "name": "Metronidazol",
+          "dose": "500mg",
+          "route": "",
+          "time": "Manter por até 24h a partir do início da cirurgia (mais 2 doses 8/8h)"
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "dose total diária",
+          "route": "",
+          "time": "Manter por até 24h a partir do início da cirurgia (mais 2 doses 8/8h)"
+        },
+        {
+          "name": "Gentamicina",
+          "dose": "",
+          "route": "",
+          "time": "antes da indução anestésica"
+        }
+      ],
+      "notes": "1ª. Opção: Cefazolina + Metronidazol. 2ª. Opção ou alergia a penicilina: Clindamicina + Gentamicina. Sob orientação da Infectologia, avaliar necessidade de prolongamento do esquema antibiótico."
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Trauma de vias urinárias",
+    "attributes": {
+      "surgery_name": [
+        "Trauma de vias urinárias"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Ceftriaxone",
+          "dose": "1gr",
+          "route": "EV",
+          "time": "Manter por até 24h a partir do início da cirurgia (mais 1 dose)"
+        },
+        {
+          "name": "Gentamicina",
+          "dose": "dose total diária",
+          "route": "",
+          "time": "antes da indução anestésica"
+        }
+      ],
+      "notes": "1ª. Opção: Ceftriaxone. 2ª. Opção ou alergia a penicilina: Gentamicina."
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Fratura de base de crânio com rinorreia e/ou otorreia",
+    "attributes": {
+      "surgery_name": [
+        "Fratura de base de crânio com rinorreia",
+        "Fratura de base de crânio com otorreia"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefuroxima",
+          "dose": "1,5grs",
+          "route": "",
+          "time": "Manter por até 24h a partir do início da cirurgia"
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "900mg",
+          "route": "",
+          "time": "Manter por até 24h a partir do início da cirurgia"
+        }
+      ],
+      "notes": "1ª. Opção: Cefuroxima. 2ª. Opção ou alergia a penicilina: Clindamicina. Sob orientação da Infectologia, avaliar necessidade de prolongamento do esquema antibiótico."
+    }
+  }
+]

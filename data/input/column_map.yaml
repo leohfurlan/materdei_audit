@@ -1,0 +1,20 @@
+procedure: "cirurgia"
+specialty: "especialidade"
+
+incision_datetime: "data_hora_incisao"
+
+antibiotic_name: "atb"
+antibiotic_dose: "dose"
+antibiotic_dose_unit: "unidade_dose"     # mg, g, UI, mg/kg, etc
+antibiotic_route: "via"                  # EV, VO, IM, etc
+
+admin_datetime: "data_hora_adm"
+
+# se existir:
+patient_weight_kg: "peso_kg"
+patient_age_years: "idade"
+patient_sex: "sexo"
+
+# repiques (se vierem em colunas separadas)
+redose_1_datetime: "repique_1"
+redose_2_datetime: "repique_2"

@@ -1,0 +1,788 @@
+[
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Cirurgias limpas, sem implantes (ex.: parotidectomia, submandibulectomia)",
+    "attributes": {
+      "surgery_name": [
+        "Cirurgias limpas, sem implantes",
+        "parotidectomia",
+        "submandibulectomia"
+      ],
+      "surgery_type": "Limpa",
+      "antibiotics": [],
+      "notes": "Nao recomendado"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Cirurgia limpa, com implantes (exclui tubos de timpanostomia)",
+    "attributes": {
+      "surgery_name": [
+        "Cirurgia limpa, com implantes"
+      ],
+      "surgery_type": "Limpa",
+      "antibiotics": [
+        {
+          "name": "Cefazolina",
+          "dose": "2g",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "900mg",
+          "route": "EV",
+          "time": ""
+        }
+      ],
+      "notes": "Manter por até 24h a partir do início da cirurgia (mais 2 doses 8/8h para ambos)"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Cirurgia potencialmente contaminada para câncer",
+    "attributes": {
+      "surgery_name": [
+        "Cirurgia potencialmente contaminada para câncer"
+      ],
+      "surgery_type": "Potencialmente contaminada",
+      "antibiotics": [
+        {
+          "name": "Cefazolina",
+          "dose": "",
+          "route": "",
+          "time": ""
+        },
+        {
+          "name": "Metronidazol",
+          "dose": "",
+          "route": "",
+          "time": ""
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "",
+          "route": "",
+          "time": ""
+        }
+      ],
+      "notes": "Clindamicina (associação com gentamicina opcional, pois não é definido na literatura)"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Amidalectomia (tonsilectomia)/ Adenoamigdalectomia/ Timpanotomia para colocação de tubo de ventilação/ Ressecção de tumores glomicos / Ligadura de artéria esfenopalatina/ Microcirurgia de laringe (pólipo, cisto e nódulo)",
+    "attributes": {
+      "surgery_name": [
+        "Amidalectomia",
+        "tonsilectomia",
+        "Adenoamigdalectomia",
+        "Timpanotomia para colocação de tubo de ventilação",
+        "Ressecção de tumores glomicos",
+        "Ligadura de artéria esfenopalatina",
+        "Microcirurgia de laringe (pólipo, cisto e nódulo)"
+      ],
+      "surgery_type": "",
+      "antibiotics": [],
+      "notes": "Nao recomendado"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Cirurgia endoscópica de seios paranasais (sinusite crônica) poliposes nasais/ Papilomas nasais",
+    "attributes": {
+      "surgery_name": [
+        "Cirurgia endoscópica de seios paranasais",
+        "sinusite crônica",
+        "poliposes nasais",
+        "Papilomas nasais"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefazolina",
+          "dose": "2g",
+          "route": "EV",
+          "time": "Intraoperatório"
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "900mg",
+          "route": "EV",
+          "time": "Intraoperatório"
+        }
+      ],
+      "notes": ""
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "By-pass coronariano",
+    "attributes": {
+      "surgery_name": [
+        "By-pass coronariano"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefuroxima",
+          "dose": "1,5g",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "900mg",
+          "route": "EV",
+          "time": ""
+        }
+      ],
+      "notes": "Manter por até 24-48 h a partir do início da cirurgia"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Inserção de dispositivo cardíaco (por exemplo, implantação de marcapasso)",
+    "attributes": {
+      "surgery_name": [
+        "Inserção de dispositivo cardíaco",
+        "implantação de marcapasso"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefazolina",
+          "dose": "2g",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "900mg",
+          "route": "EV",
+          "time": ""
+        }
+      ],
+      "notes": "Não recomendado (dose pós-operatória)"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Dispositivos de assistência ventricular",
+    "attributes": {
+      "surgery_name": [
+        "Dispositivos de assistência ventricular"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefuroxima",
+          "dose": "1,5g",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "900mg",
+          "route": "EV",
+          "time": ""
+        }
+      ],
+      "notes": "Não recomendado (dose pós-operatória)"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Valvuloplastia, outros procedimentos com abertura de cavidade cardíaca",
+    "attributes": {
+      "surgery_name": [
+        "Valvuloplastia",
+        "outros procedimentos com abertura de cavidade cardíaca"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefuroxima",
+          "dose": "1,5g",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "900mg",
+          "route": "EV",
+          "time": ""
+        }
+      ],
+      "notes": "Manter por até 24-48 h a partir do início da cirurgia"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Internação hospitalar há mais de 5 dias",
+    "attributes": {
+      "surgery_name": [
+        "Internação hospitalar há mais de 5 dias"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefuroxima",
+          "dose": "1,5g",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Vancomicina",
+          "dose": "",
+          "route": "",
+          "time": ""
+        }
+      ],
+      "notes": "Seguir recomendações conforme item 4.2.6"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Varizes- Baixo risco: ligaduras de perfurantes e colaterais",
+    "attributes": {
+      "surgery_name": [
+        "Varizes- Baixo risco",
+        "ligaduras de perfurantes e colaterais"
+      ],
+      "surgery_type": "",
+      "antibiotics": [],
+      "notes": "Não recomendado"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Varizes- Alto risco*: safenectomias, tromboflebites, dermatofibrose, úlceras de estase, fibredemea, distúrbios de imunidade, varizes exuberantes",
+    "attributes": {
+      "surgery_name": [
+        "Varizes- Alto risco",
+        "safenectomias",
+        "tromboflebites",
+        "dermatofibrose",
+        "úlceras de estase",
+        "fibredemea",
+        "distúrbios de imunidade",
+        "varizes exuberantes"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefazolina",
+          "dose": "2g",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "900mg",
+          "route": "EV",
+          "time": ""
+        }
+      ],
+      "notes": "Não recomendado (dose pós-operatória)"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Embolectomia -Baixo risco: (CPK < 150)",
+    "attributes": {
+      "surgery_name": [
+        "Embolectomia -Baixo risco"
+      ],
+      "surgery_type": "",
+      "antibiotics": [],
+      "notes": "Não recomendado"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Embolectomia -Alto risco*: extensas, em MMI, com alterações neurológicas",
+    "attributes": {
+      "surgery_name": [
+        "Embolectomia -Alto risco",
+        "extensas",
+        "em MMI",
+        "com alterações neurológicas"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefazolina",
+          "dose": "2g",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "900mg",
+          "route": "EV",
+          "time": ""
+        }
+      ],
+      "notes": "Não recomendado (dose pós-operatória)"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Embolizações e ablações (procedimentos minimamente invasivos)",
+    "attributes": {
+      "surgery_name": [
+        "Embolizações e ablações",
+        "procedimentos minimamente invasivos"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefazolina",
+          "dose": "2g",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Ciprofloxacino",
+          "dose": "400mg",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Ampicilina/Sulbactam",
+          "dose": "3 g",
+          "route": "EV",
+          "time": ""
+        }
+      ],
+      "notes": "Não recomendado (dose pós-operatória)"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Enxerto com prótese vascular sem Lesão Trófica Infectada (LTI- lesão trófica infectada)",
+    "attributes": {
+      "surgery_name": [
+        "Enxerto com prótese vascular sem Lesão Trófica Infectada"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefazolina",
+          "dose": "2g",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "900mg",
+          "route": "EV",
+          "time": ""
+        }
+      ],
+      "notes": "Não recomendado (dose pós-operatória)"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Enxerto com veia autóloga (sem LTI)",
+    "attributes": {
+      "surgery_name": [
+        "Enxerto com veia autóloga"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefazolina",
+          "dose": "2g",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "900mg",
+          "route": "EV",
+          "time": ""
+        }
+      ],
+      "notes": ""
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Artéria carótida sem material de prótese e sem fatores de risco",
+    "attributes": {
+      "surgery_name": [
+        "Artéria carótida sem material de prótese e sem fatores de risco",
+        "Endarterectomia de carótida sem prótese e sem fatores de risco"
+      ],
+      "surgery_type": "",
+      "antibiotics": [],
+      "notes": "Não recomendado"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Implante de cateter venoso central de longa permanência (Port, Hickman, Permcath)",
+    "attributes": {
+      "surgery_name": [
+        "Implante de cateter venoso central de longa permanência (Port, Hickman, Permcath)"
+      ],
+      "surgery_type": "",
+      "antibiotics": [],
+      "notes": "Não recomendado"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Simpatectomia por toracoscopia",
+    "attributes": {
+      "surgery_name": [
+        "Simpatectomia por toracoscopia"
+      ],
+      "surgery_type": "",
+      "antibiotics": [],
+      "notes": "Não recomendado"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Trombectomia percutânea",
+    "attributes": {
+      "surgery_name": [
+        "Trombectomia percutânea"
+      ],
+      "surgery_type": "",
+      "antibiotics": [],
+      "notes": "Não recomendado"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Aneurisma de aorta abdominal",
+    "attributes": {
+      "surgery_name": [
+        "Aneurisma de aorta abdominal"
+      ],
+      "surgery_type": "",
+      "antibiotics": [],
+      "notes": "Não recomendado"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Endarterectomia de carótida com prótese",
+    "attributes": {
+      "surgery_name": [
+        "Endarterectomia de carótida com prótese"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefazolina",
+          "dose": "2g",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "900mg",
+          "route": "EV",
+          "time": ""
+        }
+      ],
+      "notes": "Dose pós-operatória: Não recomendado"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Fasciotomia",
+    "attributes": {
+      "surgery_name": [
+        "Fasciotomia"
+      ],
+      "surgery_type": "",
+      "antibiotics": [],
+      "notes": "Não recomendado"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Fistula arteriovenosa com ou sem próteses",
+    "attributes": {
+      "surgery_name": [
+        "Fistula arteriovenosa com ou sem próteses"
+      ],
+      "surgery_type": "",
+      "antibiotics": [],
+      "notes": "Não recomendado"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Fistula arteriovenosa com ou sem próteses - revisão**",
+    "attributes": {
+      "surgery_name": [
+        "Fistula arteriovenosa com ou sem próteses - revisão"
+      ],
+      "surgery_type": "",
+      "antibiotics": [],
+      "notes": "Não recomendado. Adicionar Vancomicina 1g EV em 1h se alto risco de infecção por Staphylococcus oxacilina resistente"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Amputações por necrose seca",
+    "attributes": {
+      "surgery_name": [
+        "Amputações por necrose seca"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefuroxima",
+          "dose": "1,5g",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Ciprofloxacina",
+          "dose": "400mg",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "900mg",
+          "route": "EV",
+          "time": ""
+        }
+      ],
+      "notes": "Dose pós-operatória: Não recomendado"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Amputações por necrose úmida",
+    "attributes": {
+      "surgery_name": [
+        "Amputações por necrose úmida"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Ciprofloxacina",
+          "dose": "400mg",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "900mg",
+          "route": "EV",
+          "time": ""
+        }
+      ],
+      "notes": "2ª Opção: Adequar conforme culturas e manter segundo a evolução"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Cirurgia bariátrica sem manipulação de alças abaixo do duodeno",
+    "attributes": {
+      "surgery_name": [
+        "Cirurgia bariátrica sem manipulação de alças abaixo do duodeno"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefazolina",
+          "dose": "2g",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "900mg",
+          "route": "EV",
+          "time": ""
+        }
+      ],
+      "notes": "Dose pós-operatória: Manter até por 24hrs. Cefazolina: 2g EV para IMC 30-50 kg/m2; 3g EV para IMC >50 kg/m2 ou peso >= 120 Kg. Clindamicina: 900mg EV para IMC 30-50 kg/m2; 1200mg EV para IMC >50 kg/m2."
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Cirurgia bariátrica com manipulação de alças abaixo do duodeno",
+    "attributes": {
+      "surgery_name": [
+        "Cirurgia bariátrica com manipulação de alças abaixo do duodeno"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Ceftriaxone/Cefazolina",
+          "dose": "5 mg/kg",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Metronidazol",
+          "dose": "",
+          "route": "",
+          "time": ""
+        },
+        {
+          "name": "Gentamicina",
+          "dose": "",
+          "route": "",
+          "time": ""
+        }
+      ],
+      "notes": "Dose pós-operatória: Manter até por 24hrs. Gentamicina dose baseada no Peso Ajustado."
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Esôfago(incisão em mucosa)",
+    "attributes": {
+      "surgery_name": [
+        "Esôfago(incisão em mucosa)"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Ceftriaxone/Cefazolina",
+          "dose": "5 mg/kg",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Metronidazol",
+          "dose": "900mg",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Gentamicina",
+          "dose": "5 mg/kg",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "",
+          "route": "",
+          "time": ""
+        },
+        {
+          "name": "Gentamicina",
+          "dose": "",
+          "route": "",
+          "time": ""
+        }
+      ],
+      "notes": "Dose pós-operatória: Não recomendado"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Esôfago (neoplasia)",
+    "attributes": {
+      "surgery_name": [
+        "Esôfago (neoplasia)"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefuroxima",
+          "dose": "5 mg/kg",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Metronidazol",
+          "dose": "900mg",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Gentamicina",
+          "dose": "5 mg/kg",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Clindamicina",
+          "dose": "",
+          "route": "",
+          "time": ""
+        },
+        {
+          "name": "Gentamicina",
+          "dose": "",
+          "route": "",
+          "time": ""
+        }
+      ],
+      "notes": "Dose pós-operatória: Não recomendado"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Gastrostomia",
+    "attributes": {
+      "surgery_name": [
+        "Gastrostomia"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefazolina",
+          "dose": "2g",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Ciplrfloxacino",
+          "dose": "400mg",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Ampicilina/Sulbactam",
+          "dose": "3g",
+          "route": "EV",
+          "time": ""
+        }
+      ],
+      "notes": "Dose pós-operatória: Não recomendado"
+    }
+  },
+  {
+    "extraction_class": "regra_cirurgia",
+    "extraction_text": "Gastroduodenal - vagotomia e procedimentos de correção de refluxo se fatores de risco: Dimunuição de acidez gástrica, +",
+    "attributes": {
+      "surgery_name": [
+        "Gastroduodenal - vagotomia e procedimentos de correção de refluxo"
+      ],
+      "surgery_type": "",
+      "antibiotics": [
+        {
+          "name": "Cefazolina",
+          "dose": "2g",
+          "route": "EV",
+          "time": ""
+        },
+        {
+          "name": "Gentamicina",
+          "dose": "5 mg/kg",
+          "route": "EV",
+          "time": ""
+        }
+      ],
+      "notes": "Aplicar se fatores de risco: Diminuição de acidez gástrica. Dose pós-operatória: Não recomendado"
+    }
+  }
+]

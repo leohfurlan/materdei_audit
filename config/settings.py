@@ -1,11 +1,11 @@
-"""
-Configurações do Sistema de Auditoria Mater Dei
+﻿"""
+ConfiguraÃ§Ãµes do Sistema de Auditoria Mater Dei
 """
 from pathlib import Path
 from typing import Dict, Any
 import os
 
-# Diretórios base
+# DiretÃ³rios base
 BASE_DIR = Path(__file__).parent.parent
 DATA_DIR = BASE_DIR / "data"
 INPUT_DIR = DATA_DIR / "input"
@@ -13,20 +13,29 @@ OUTPUT_DIR = DATA_DIR / "output"
 TEMP_DIR = DATA_DIR / "temp"
 LOGS_DIR = BASE_DIR / "logs"
 
-# Garantir que os diretórios existem
+# Garantir que os diretÃ³rios existem
 for directory in [INPUT_DIR, OUTPUT_DIR, TEMP_DIR, LOGS_DIR]:
     directory.mkdir(parents=True, exist_ok=True)
 
-# Configurações de extração de regras
+# ConfiguraÃ§Ãµes de extraÃ§Ã£o de regras
 EXTRACTION_CONFIG = {
-    "pages_to_extract": "8-35",  # Páginas do PDF com tabelas
+    "pages_to_extract": "8-35",  # Paginas do PDF com tabelas
+    "llm_backend": "gemini",
+    "gemini_model": "gemini-2.5-flash",
+    "langextract_model": "gemini-2.5-flash",
+    "llm_max_chunk_chars": 12000,
+    "llm_pages_per_chunk": 3,
+    "gemini_max_output_tokens": 8192,
+    "langextract_batch_length": 4,
+    "langextract_max_workers": 4,
+    "langextract_extraction_passes": 2,
     "camelot_flavor": "lattice",  # lattice ou stream
-    # Parâmetros específicos do lattice
+    # ParÃ¢metros especÃ­ficos do lattice
     "camelot_lattice_line_scale": 40,
     "camelot_lattice_line_tol": 2,
     "camelot_lattice_joint_tol": 2,
     "camelot_lattice_process_background": False,
-    # Parâmetros específicos do stream (mantidos para fallback)
+    # ParÃ¢metros especÃ­ficos do stream (mantidos para fallback)
     "camelot_stream_edge_tol": 50,
     "camelot_stream_row_tol": 10,
     "camelot_stream_column_tol": 10,
@@ -34,12 +43,12 @@ EXTRACTION_CONFIG = {
     "similarity_threshold": 0.7,  # Para fuzzy matching
 }
 
-# Configurações de auditoria
+# ConfiguraÃ§Ãµes de auditoria
 AUDIT_CONFIG = {
-    "match_threshold": 0.70,  # Score mínimo para match de procedimento
-    "dose_tolerance_percent": 15,  # Tolerância de dose em %
-    "timing_window_minutes": 60,  # Janela de 1 hora antes da incisão
-    "alert_dose_tolerance_percent": 10,  # Tolerância para alertas
+    "match_threshold": 0.70,  # Score mÃ­nimo para match de procedimento
+    "dose_tolerance_percent": 15,  # TolerÃ¢ncia de dose em %
+    "timing_window_minutes": 60,  # Janela de 1 hora antes da incisÃ£o
+    "alert_dose_tolerance_percent": 10,  # TolerÃ¢ncia para alertas
 }
 
 # Intervalos de repique (redosing) em minutos
@@ -58,21 +67,21 @@ EXCEL_COLUMNS = {
     "date": "Dt Cirurgia",
     "procedure": "Cirurgia",
     "specialty": "Especialidade",
-    "incision_time": "Hr Incisão",
-    "atb_given": "Administração de Antibiotico",
-    "atb_name": "Antibiótico",
-    "atb_time": "Hr Antibiótico",
+    "incision_time": "Hr IncisÃ£o",
+    "atb_given": "AdministraÃ§Ã£o de Antibiotico",
+    "atb_name": "AntibiÃ³tico",
+    "atb_time": "Hr AntibiÃ³tico",
     "repique": "Repique",
     "repique_time": "Hora Repique",
     "patient_weight": "Peso (kg)",
     # Colunas de conformidade (se existirem)
-    "conf_timing": "Conformidade 1° hora",
+    "conf_timing": "Conformidade 1Â° hora",
     "conf_dose": "Conformidade de Dose",
     "conf_choice": "Conformidade Escolha",
     "conf_final": "Conformidade Final",
 }
 
-# Dicionário de medicamentos conhecidos
+# DicionÃ¡rio de medicamentos conhecidos
 DRUG_DICTIONARY = {
     # Cefalosporinas
     "CEFAZOLINA": ["KEFAZOL", "CEFAZOLINA", "ANCEF"],
@@ -80,11 +89,11 @@ DRUG_DICTIONARY = {
     "CEFTRIAXONE": ["ROCEFIN", "CEFTRIAXONA", "CEFTRIAXONE"],
     "CEFOXITINA": ["MEFOXIN", "CEFOXITINA"],
     
-    # Aminoglicosídeos
+    # AminoglicosÃ­deos
     "GENTAMICINA": ["GENTAMICINA", "GARAMICINA"],
     "AMICACINA": ["AMICACINA", "NOVAMIN"],
     
-    # Glicopeptídeos
+    # GlicopeptÃ­deos
     "VANCOMICINA": ["VANCOMICINA", "VANCOCINA"],
     
     # Quinolonas
@@ -94,7 +103,7 @@ DRUG_DICTIONARY = {
     "AMOXICILINA_CLAVULANATO": ["CLAVULIN", "AMOXICILINA+CLAVULANATO"],
     "AMPICILINA_SULBACTAM": ["UNASYN", "AMPICILINA+SULBACTAM"],
     
-    # Nitroimidazóis
+    # NitroimidazÃ³is
     "METRONIDAZOL": ["METRONIDAZOL", "FLAGYL"],
     
     # Outros
@@ -104,13 +113,13 @@ DRUG_DICTIONARY = {
 # Categorias de conformidade
 CONFORMITY_STATUS = {
     "CONFORME": "Procedimento em conformidade com o protocolo",
-    "NAO_CONFORME": "Procedimento não conforme - requer ação corretiva",
-    "ALERTA": "Pequena diferença detectada - revisar",
-    "INDETERMINADO": "Não foi possível determinar conformidade",
-    "SEM_MATCH": "Procedimento não encontrado no protocolo",
+    "NAO_CONFORME": "Procedimento nÃ£o conforme - requer aÃ§Ã£o corretiva",
+    "ALERTA": "Pequena diferenÃ§a detectada - revisar",
+    "INDETERMINADO": "NÃ£o foi possÃ­vel determinar conformidade",
+    "SEM_MATCH": "Procedimento nÃ£o encontrado no protocolo",
 }
 
-# Configurações de logging
+# ConfiguraÃ§Ãµes de logging
 LOGGING_CONFIG = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -133,19 +142,28 @@ LOGGING_CONFIG = {
         },
         "file": {
             "class": "logging.handlers.RotatingFileHandler",
-            "level": "DEBUG",
+            "level": "INFO",
             "formatter": "detailed",
             "filename": str(LOGS_DIR / "audit.log"),
-            "maxBytes": 10485760,  # 10MB
+            "maxBytes": 104857600,  # 100MB
             "backupCount": 5,
         },
     },
+    "loggers": {
+        "pdfminer": {"level": "WARNING", "propagate": True},
+        "pdfplumber": {"level": "WARNING", "propagate": True},
+        "httpx": {"level": "WARNING", "propagate": True},
+        "google_genai": {"level": "WARNING", "propagate": True},
+        "absl": {"level": "WARNING", "propagate": True},
+    },
     "root": {
-        "level": "DEBUG",
+        "level": "INFO",
         "handlers": ["console", "file"],
     },
 }
 
-# Versão do sistema
+# VersÃ£o do sistema
 SYSTEM_VERSION = "1.0.0"
 SYSTEM_NAME = "Mater Dei - Sistema de Auditoria de Profilaxia Antimicrobiana"
+
+
