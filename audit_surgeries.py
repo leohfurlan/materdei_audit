@@ -3,25 +3,73 @@
 Script para auditoria de cirurgias.
 
 Uso:
-    python audit_surgeries.py <planilha_excel> <rules_json> [--output <diretorio_saida>]
+    python audit_surgeries.py <planilha_excel> <protocolo_json> [--output <diretorio_saida>]
 """
 import argparse
 import logging
 from logging.config import dictConfig
 from pathlib import Path
 import sys
+from typing import Any
 
 # Adiciona o diretorio raiz ao path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from config import OUTPUT_DIR, AUDIT_CONFIG, LOGGING_CONFIG
-from controllers import SurgeryAuditor, ReportGenerator
+from controllers import SurgeryAuditor, ReportGenerator, ProtocolExtractor
 from models import ProtocolRulesRepository
 from utils.input_loader import load_json
 
 # Configura logging
 dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger(__name__)
+
+
+def _looks_like_raw_extractions(payload: Any) -> bool:
+    """Detecta se o JSON possui formato de raw_extractions do extractor."""
+    if not isinstance(payload, list) or not payload:
+        return False
+    sample = payload[0] if isinstance(payload[0], dict) else {}
+    return (
+        isinstance(sample, dict)
+        and "attributes" in sample
+        and "extraction_text" in sample
+        and "rule_id" not in sample
+    )
+
+
+def _load_rules_repository(protocol_path: Path) -> ProtocolRulesRepository:
+    """
+    Carrega repositorio de regras aceitando:
+    - rules.json
+    - raw_extractions.json (convertido automaticamente)
+    """
+    payload = load_json(str(protocol_path))
+    rules_repo = ProtocolRulesRepository()
+
+    # Reseta estado interno (singleton) para evitar cache entre execucoes no mesmo processo.
+    rules_repo.rules = []
+    rules_repo._index = {}
+    rules_repo._metadata = {}
+    rules_repo._is_loaded = False
+
+    if _looks_like_raw_extractions(payload):
+        logger.info("  Detectado formato raw_extractions.json - convertendo para regras...")
+        extractor = ProtocolExtractor(protocol_path)
+        rules_repo.rules = extractor.convert_raw_to_rules(payload)
+        rules_repo._build_index()
+        rules_repo._metadata = {
+            "source_file": str(protocol_path),
+            "source_format": "raw_extractions",
+            "extraction_method": "langextract",
+            "rules_count": len(rules_repo.rules),
+        }
+        rules_repo._is_loaded = True
+    else:
+        logger.info("  Detectado formato rules.json")
+        rules_repo.load_from_json(protocol_path)
+
+    return rules_repo
 
 
 def main() -> int:
@@ -37,7 +85,7 @@ def main() -> int:
     parser.add_argument(
         "rules_path",
         type=str,
-        help="Caminho para arquivo rules.json com protocolo",
+        help="Caminho para rules.json ou raw_extractions.json do protocolo",
     )
     parser.add_argument(
         "--output",
@@ -70,7 +118,7 @@ def main() -> int:
 
     rules_path = Path(args.rules_path)
     if not rules_path.exists():
-        logger.error(f"Arquivo rules.json nao encontrado: {rules_path}")
+        logger.error(f"Arquivo de protocolo nao encontrado: {rules_path}")
         return 1
 
     # Diretorio de saida
@@ -90,8 +138,7 @@ def main() -> int:
     try:
         # Carrega regras do protocolo
         logger.info("Carregando protocolo...")
-        rules_repo = ProtocolRulesRepository()
-        rules_repo.load_from_json(rules_path)
+        rules_repo = _load_rules_repository(rules_path)
 
         stats = rules_repo.get_statistics()
         logger.info(f"  OK {stats['total_rules']} regras carregadas")

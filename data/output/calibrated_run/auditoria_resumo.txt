@@ -1,0 +1,46 @@
+======================================================================
+RELATÓRIO DE AUDITORIA - PROFILAXIA ANTIMICROBIANA
+======================================================================
+
+Data do Relatório: 20/02/2026 10:59
+Total de Cirurgias Auditadas: 1045
+
+----------------------------------------------------------------------
+RESUMO DE CONFORMIDADE
+----------------------------------------------------------------------
+  Conforme:               618 ( 59.1%)
+  Alerta:                 162 ( 15.5%)
+  Não Conforme:           231 ( 22.1%)
+  Indeterminado:           34 (  3.3%)
+
+  Taxa de Conformidade Total:   74.6%
+  Taxa de Conformidade Estrita: 59.1%
+
+----------------------------------------------------------------------
+CONFORMIDADE POR CRITÉRIO
+----------------------------------------------------------------------
+  Escolha de Antibiótico:  697/1045 (66.7%)
+  Dose Correta:            685/1045 (65.6%)
+  Timing Adequado:         1013/1045 (96.9%)
+  Repique Adequado:        1042/1045 (99.7%)
+
+----------------------------------------------------------------------
+PRINCIPAIS NÃO CONFORMIDADES
+----------------------------------------------------------------------
+
+  Problemas de Escolha:
+    - Antibiotico nao foi administrado: 106 casos
+    - Antibiotico nao recomendado pelo protocolo: 102 casos
+    - atb_recomendado: 20 casos
+
+  Problemas de Dose:
+    - Criterio nao aplicavel para o caso: 106 casos
+    - Dose fora da referencia, requer revisao: 66 casos
+    - dose_correta: 24 casos
+
+  Problemas de Timing:
+    - Criterio nao aplicavel para o caso: 106 casos
+    - timing_correto: 103 casos
+    - Antibiotico administrado apos a incisao: 15 casos
+
+======================================================================

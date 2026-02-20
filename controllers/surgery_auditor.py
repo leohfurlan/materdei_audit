@@ -24,7 +24,6 @@ from utils import (
     calculate_time_diff_minutes,
     clean_procedure_name,
     normalize_yes_no,
-    validate_excel_structure,
 )
 from config import EXCEL_COLUMNS, DRUG_DICTIONARY, AUDIT_CONFIG, REDOSING_INTERVALS
 
@@ -44,14 +43,15 @@ class SurgeryAuditor:
         Inicializa o auditor.
         
         Args:
-            rules_repository: Repositório com regras do protocolo
-            config: Configurações de auditoria (usa AUDIT_CONFIG se None)
+            rules_repository: RepositÃ³rio com regras do protocolo
+            config: ConfiguraÃ§Ãµes de auditoria (usa AUDIT_CONFIG se None)
         """
         self.rules_repo = rules_repository
         self.config = config or AUDIT_CONFIG
         self.surgery_records: List[SurgeryRecord] = []
         self.audit_results: List[AuditResult] = []
         self.procedure_translation_map: Dict[str, str] = {}
+        self.excel_columns: Dict[str, str] = {}
 
         if procedure_translation_map:
             for excel_name, protocol_name in procedure_translation_map.items():
@@ -70,17 +70,39 @@ class SurgeryAuditor:
             sheet_name: Nome da aba (None = primeira aba)
             
         Returns:
-            Número de registros carregados
+            NÃºmero de registros carregados
         """
         logger.info(f"Carregando cirurgias de: {excel_path}")
         
-        # Lê Excel
+        # LÃª Excel
         df = pd.read_excel(excel_path, sheet_name=sheet_name or 0)
-        
-        # Valida estrutura
-        is_valid, missing = validate_excel_structure(df, EXCEL_COLUMNS)
-        if not is_valid:
-            logger.warning(f"Colunas faltantes na planilha: {missing}")
+
+        # Resolve mapeamento de colunas por nome exato + nome normalizado
+        self.excel_columns = self._resolve_excel_columns(df.columns.tolist())
+
+        required_keys = ["procedure"]
+        missing_required = [
+            f"{key} ({EXCEL_COLUMNS[key]})" for key in required_keys if key not in self.excel_columns
+        ]
+        if missing_required:
+            raise ValueError(f"Colunas obrigatorias ausentes: {missing_required}")
+
+        optional_keys = [
+            "date",
+            "specialty",
+            "incision_time",
+            "atb_given",
+            "atb_name",
+            "atb_time",
+            "repique",
+            "repique_time",
+            "patient_weight",
+        ]
+        missing_optional = [
+            f"{key} ({EXCEL_COLUMNS[key]})" for key in optional_keys if key not in self.excel_columns
+        ]
+        if missing_optional:
+            logger.warning(f"Colunas opcionais ausentes na planilha: {missing_optional}")
         
         # Processa cada linha
         self.surgery_records = []
@@ -95,6 +117,138 @@ class SurgeryAuditor:
         logger.info(f"Carregados {len(self.surgery_records)} registros de cirurgias")
         
         return len(self.surgery_records)
+
+    def _resolve_excel_columns(self, dataframe_columns: List[Any]) -> Dict[str, str]:
+        """Resolve colunas da planilha para as chaves internas esperadas."""
+        resolved: Dict[str, str] = {}
+
+        all_columns = [str(col).strip() for col in dataframe_columns]
+        exact_lookup = {col: col for col in all_columns if col}
+
+        normalized_lookup: Dict[str, str] = {}
+        for col in all_columns:
+            norm_col = normalize_text(col)
+            if norm_col and norm_col not in normalized_lookup:
+                normalized_lookup[norm_col] = col
+
+        aliases = {
+            "date": ["dt cirurgia", "data cirurgia", "data da cirurgia"],
+            "procedure": ["cirurgia", "procedimento"],
+            "specialty": ["especialidade"],
+            "incision_time": ["hr incisao", "hora incisao", "hora da incisao"],
+            "atb_given": [
+                "administracao de antibiotico",
+                "administracao de antibioticos",
+                "administracao do antibiotico",
+            ],
+            "atb_name": ["antibiotico", "nome do antibiotico", "atb"],
+            "atb_time": [
+                "hr antibiotico",
+                "hora antibiotico",
+                "hora da administracao do atb",
+                "hora da administracao de antibiotico",
+            ],
+            "repique": ["repique"],
+            "repique_time": ["hora repique", "hr repique"],
+            "patient_weight": ["peso kg", "peso", "peso paciente"],
+            "conf_timing": ["conformidade 1 hora"],
+            "conf_dose": ["conformidade de dose"],
+            "conf_choice": ["conformidade escolha"],
+            "conf_final": ["conformidade final"],
+        }
+
+        for key, configured_name in EXCEL_COLUMNS.items():
+            configured = str(configured_name).strip()
+
+            if configured in exact_lookup:
+                resolved[key] = exact_lookup[configured]
+                continue
+
+            normalized_configured = normalize_text(configured)
+            if normalized_configured in normalized_lookup:
+                resolved[key] = normalized_lookup[normalized_configured]
+                continue
+
+            for alias in aliases.get(key, []):
+                normalized_alias = normalize_text(alias)
+                if normalized_alias in normalized_lookup:
+                    resolved[key] = normalized_lookup[normalized_alias]
+                    break
+
+        return resolved
+
+    def _get_row_value(self, row: pd.Series, key: str, default: Any = None) -> Any:
+        """ObtÃ©m valor da linha respeitando mapeamento de coluna resolvido."""
+        col_name = self.excel_columns.get(key)
+        if not col_name:
+            return default
+
+        value = row.get(col_name, default)
+        try:
+            if pd.isna(value):
+                return default
+        except Exception:
+            pass
+        return value
+
+    def _parse_excel_date(self, value: Any) -> Optional[date]:
+        """Converte valor de data do Excel para date."""
+        if value is None:
+            return None
+
+        if isinstance(value, datetime):
+            return value.date()
+        if isinstance(value, pd.Timestamp):
+            return value.date()
+        if isinstance(value, date):
+            return value
+
+        if isinstance(value, (int, float, np.number)):
+            try:
+                return pd.to_datetime(value, unit="D", origin="1899-12-30").date()
+            except Exception:
+                return None
+
+        if isinstance(value, str):
+            cleaned = value.strip()
+            if not cleaned:
+                return None
+
+            for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%d/%m/%y", "%d-%m-%Y"):
+                try:
+                    return datetime.strptime(cleaned, fmt).date()
+                except Exception:
+                    continue
+
+            parsed = pd.to_datetime(cleaned, errors="coerce", dayfirst=True)
+            if pd.notna(parsed):
+                return parsed.date()
+
+        return None
+
+    def _parse_excel_time(self, value: Any) -> Optional[str]:
+        """Converte horario do Excel para HH:MM."""
+        if value is None:
+            return None
+
+        if isinstance(value, datetime):
+            return value.strftime("%H:%M")
+        if isinstance(value, pd.Timestamp):
+            return value.strftime("%H:%M")
+        if hasattr(value, "hour") and hasattr(value, "minute"):
+            return f"{int(value.hour):02d}:{int(value.minute):02d}"
+
+        if isinstance(value, (int, float, np.number)):
+            fraction = float(value)
+            if fraction >= 1:
+                fraction = fraction % 1
+            if 0 <= fraction < 1:
+                total_minutes = int(round(fraction * 24 * 60)) % 1440
+                hour = total_minutes // 60
+                minute = total_minutes % 60
+                return f"{hour:02d}:{minute:02d}"
+
+        return parse_time(str(value))
     
     def _parse_row_to_surgery(self, row: pd.Series, idx: int) -> Optional[SurgeryRecord]:
         """
@@ -102,45 +256,23 @@ class SurgeryAuditor:
         
         Args:
             row: Linha do DataFrame
-            idx: Índice da linha
+            idx: Ãndice da linha
             
         Returns:
-            SurgeryRecord ou None se inválida
+            SurgeryRecord ou None se invÃ¡lida
         """
         # Extrai dados
-        procedure = str(row.get(EXCEL_COLUMNS['procedure'], '')).strip()
+        procedure = str(self._get_row_value(row, "procedure", "")).strip()
         
         if not procedure or len(procedure) < 3:
             return None
         
         # Data
-        date_val = row.get(EXCEL_COLUMNS['date'])
-        if isinstance(date_val, str):
-            parsed = None
-            for fmt in ('%Y-%m-%d', '%d/%m/%Y', '%d/%m/%y', '%d-%m-%Y'):
-                try:
-                    parsed = datetime.strptime(date_val.strip(), fmt).date()
-                    break
-                except:
-                    continue
-            date_val = parsed
-        elif isinstance(date_val, datetime):
-            date_val = date_val.date()
-        elif isinstance(date_val, pd.Timestamp):
-            date_val = date_val.date()
-        else:
-            # Excel pode fornecer data como número (serial)
-            if pd.isna(date_val):
-                date_val = None
-            elif isinstance(date_val, (int, float, np.number)):
-                try:
-                    date_val = pd.to_datetime(date_val, unit='D', origin='1899-12-30').date()
-                except:
-                    date_val = None
+        date_val = self._parse_excel_date(self._get_row_value(row, "date"))
         
-        # Antibiótico dado
-        atb_given = normalize_yes_no(row.get(EXCEL_COLUMNS['atb_given'], 'NAO'))
-        atb_name = str(row.get(EXCEL_COLUMNS['atb_name'], '')).strip()
+        # AntibiÃ³tico dado
+        atb_given = normalize_yes_no(self._get_row_value(row, "atb_given", "NAO"))
+        atb_name = str(self._get_row_value(row, "atb_name", "")).strip()
         
         # Detecta medicamentos
         atb_detected = extract_drug_names(atb_name, DRUG_DICTIONARY) if atb_name else []
@@ -148,20 +280,20 @@ class SurgeryAuditor:
         # Extrai dose
         dose_mg = extract_dose_from_text(atb_name) if atb_name else None
         
-        # Horários
-        incision_time = parse_time(str(row.get(EXCEL_COLUMNS['incision_time'], '')))
-        atb_time = parse_time(str(row.get(EXCEL_COLUMNS['atb_time'], '')))
-        repique_time = parse_time(str(row.get(EXCEL_COLUMNS['repique_time'], '')))
+        # HorÃ¡rios
+        incision_time = self._parse_excel_time(self._get_row_value(row, "incision_time"))
+        atb_time = self._parse_excel_time(self._get_row_value(row, "atb_time"))
+        repique_time = self._parse_excel_time(self._get_row_value(row, "repique_time"))
         
         # Repique
-        repique_done = normalize_yes_no(row.get(EXCEL_COLUMNS['repique'], 'NAO'))
+        repique_done = normalize_yes_no(self._get_row_value(row, "repique", "NAO"))
         
         # Peso do paciente
-        weight = row.get(EXCEL_COLUMNS.get('patient_weight'))
-        if pd.notna(weight):
+        weight = self._get_row_value(row, "patient_weight")
+        if weight is not None:
             try:
                 weight = float(weight)
-            except:
+            except Exception:
                 weight = None
         else:
             weight = None
@@ -170,7 +302,7 @@ class SurgeryAuditor:
         record = SurgeryRecord(
             date=date_val,
             procedure=procedure,
-            specialty=str(row.get(EXCEL_COLUMNS.get('specialty', ''), '')).strip(),
+            specialty=str(self._get_row_value(row, "specialty", "")).strip(),
             incision_time=incision_time,
             atb_time=atb_time,
             repique_time=repique_time,
@@ -208,7 +340,7 @@ class SurgeryAuditor:
                 result.conf_final_razao = f'Erro na auditoria: {str(e)}'
                 self.audit_results.append(result)
         
-        logger.info(f"Auditoria concluída: {len(self.audit_results)} resultados")
+        logger.info(f"Auditoria concluÃ­da: {len(self.audit_results)} resultados")
         
         return self.audit_results
     
@@ -236,39 +368,47 @@ class SurgeryAuditor:
             result.protocolo_procedimento = matched_rule.procedure
             result.protocolo_requer_profilaxia = matched_rule.is_prophylaxis_required
             
-            # Extrai medicamentos recomendados
+            # Extrai medicamentos recomendados (inclui alternativa de alergia)
+            primary_drugs = matched_rule.primary_recommendation.drugs if matched_rule.primary_recommendation else []
+            allergy_drugs = matched_rule.allergy_recommendation.drugs if matched_rule.allergy_recommendation else []
             result.protocolo_atb_recomendados = [
-                drug.name for drug in matched_rule.primary_recommendation.drugs
+                drug.name for drug in (primary_drugs + allergy_drugs) if getattr(drug, "name", "")
             ]
             
-            # Extrai dose esperada
-            if matched_rule.primary_recommendation.drugs:
-                result.protocolo_dose_esperada = matched_rule.primary_recommendation.drugs[0].dose or ""
+            # Extrai dose esperada da recomendacao primaria (para referencia em relatorio)
+            if primary_drugs:
+                result.protocolo_dose_esperada = primary_drugs[0].dose or ""
         else:
             result.match_score = 0.0
-            result.add_observacao("Procedimento não encontrado no protocolo")
+            result.add_observacao("Procedimento nao encontrado no protocolo")
         
-        # 2. Valida escolha do antibiótico
+        # 2. Valida escolha do antibiotico
         if record.atb_given == 'SIM':
             result.conf_escolha, result.conf_escolha_razao = self._validate_choice(
                 record, matched_rule
             )
         else:
-            if matched_rule and matched_rule.is_prophylaxis_required:
+            if matched_rule and self._rule_requires_prophylaxis(matched_rule):
                 result.conf_escolha = 'NAO_CONFORME'
                 result.conf_escolha_razao = 'atb_nao_administrado'
+            elif not matched_rule:
+                result.conf_escolha = 'CONFORME'
+                result.conf_escolha_razao = 'sem_match_sem_atb'
             else:
                 result.conf_escolha = 'CONFORME'
-                result.conf_escolha_razao = 'Profilaxia não requerida'
+                result.conf_escolha_razao = 'Profilaxia nao requerida'
         
         # 3. Valida dose
         if record.atb_given == 'SIM' and record.dose_administered_mg:
             result.conf_dose, result.conf_dose_razao = self._validate_dose(
                 record, matched_rule, result
             )
-        else:
+        elif record.atb_given == 'SIM':
             result.conf_dose = 'INDETERMINADO'
             result.conf_dose_razao = 'dose_nao_informada'
+        else:
+            result.conf_dose = 'CONFORME'
+            result.conf_dose_razao = 'criterio_nao_aplicavel'
         
         # 4. Valida timing
         if record.atb_given == 'SIM':
@@ -276,8 +416,8 @@ class SurgeryAuditor:
                 record, result
             )
         else:
-            result.conf_timing = 'INDETERMINADO'
-            result.conf_timing_razao = 'atb_nao_administrado'
+            result.conf_timing = 'CONFORME'
+            result.conf_timing_razao = 'criterio_nao_aplicavel'
 
         # 5. Valida repique (redosing)
         if record.atb_given == 'SIM':
@@ -285,14 +425,13 @@ class SurgeryAuditor:
                 record, result
             )
         else:
-            result.conf_repique = 'INDETERMINADO'
-            result.conf_repique_razao = 'atb_nao_administrado'
+            result.conf_repique = 'CONFORME'
+            result.conf_repique_razao = 'criterio_nao_aplicavel'
         
         # 6. Calcula conformidade final
         result.conf_final, result.conf_final_razao = self._calculate_final_conformity(result)
         
         return result
-    
     def _match_with_protocol(self, procedure: str) -> Tuple[Optional[ProtocolRule], float, str]:
         """
         Faz match do procedimento com regra do protocolo.
@@ -301,15 +440,18 @@ class SurgeryAuditor:
             procedure: Nome do procedimento
             
         Returns:
-            Tupla (regra_matched, score, método)
+            Tupla (regra_matched, score, mÃ©todo)
         """
         if not procedure:
             return None, 0.0, "no_procedure"
 
-        # Prioriza tradução direta (Excel -> nomenclatura do protocolo)
+        # Prioriza traduÃ§Ã£o direta (Excel -> nomenclatura do protocolo)
         translated = self._translate_procedure_name(procedure)
         if translated:
-            translated_rule, translated_score, translated_method = self._match_translated_procedure(translated)
+            translated_rule, translated_score, translated_method = self._match_translated_procedure(
+                translated_procedure=translated,
+                source_procedure=procedure,
+            )
             if translated_rule:
                 return translated_rule, translated_score, translated_method
         
@@ -319,6 +461,13 @@ class SurgeryAuditor:
         exact_matches = self.rules_repo.find_by_procedure(procedure_clean)
         if exact_matches:
             return exact_matches[0], 1.0, "exact_match"
+
+        # Busca exata por aliases das regras extraidas por LLM (quando disponiveis).
+        for rule in self.rules_repo.rules:
+            aliases = getattr(rule, "surgery_name", []) or []
+            for alias in aliases:
+                if normalize_text(str(alias)) == procedure_clean:
+                    return rule, 1.0, "alias_match"
         
         # Busca fuzzy
         best_rule = None
@@ -327,11 +476,15 @@ class SurgeryAuditor:
         threshold = self.config.get('match_threshold', 0.70)
         
         for rule in self.rules_repo.rules:
-            score = fuzzy_match_score(procedure_clean, rule.procedure_normalized)
-            
-            if score > best_score and score >= threshold:
-                best_score = score
-                best_rule = rule
+            targets = [rule.procedure_normalized]
+            aliases = getattr(rule, "surgery_name", []) or []
+            targets.extend(normalize_text(str(alias)) for alias in aliases if str(alias).strip())
+
+            for target in targets:
+                score = fuzzy_match_score(procedure_clean, target)
+                if score > best_score and score >= threshold:
+                    best_score = score
+                    best_rule = rule
         
         if best_rule:
             return best_rule, best_score, "fuzzy_match"
@@ -346,7 +499,28 @@ class SurgeryAuditor:
 
         return self.procedure_translation_map.get(normalize_text(procedure), "")
 
-    def _match_translated_procedure(self, translated_procedure: str) -> Tuple[Optional[ProtocolRule], float, str]:
+    def _is_translation_candidate_plausible(self, source_procedure: str, candidate: str) -> bool:
+        """
+        Evita matches absurdos vindos de traducao de procedimentos.
+        """
+        source_clean = clean_procedure_name(source_procedure)
+        candidate_clean = clean_procedure_name(candidate)
+
+        if not source_clean or not candidate_clean:
+            return False
+
+        if source_clean in candidate_clean or candidate_clean in source_clean:
+            return True
+
+        similarity = fuzzy_match_score(source_clean, candidate_clean)
+        threshold = float(self.config.get("translation_match_similarity_threshold", 0.45))
+        return similarity >= threshold
+
+    def _match_translated_procedure(
+        self,
+        translated_procedure: str,
+        source_procedure: Optional[str] = None,
+    ) -> Tuple[Optional[ProtocolRule], float, str]:
         """
         Faz match a partir do texto traduzido (procedimentos.json).
         Aceita multiplos alvos separados por "/".
@@ -356,20 +530,40 @@ class SurgeryAuditor:
             candidates = [translated_procedure]
 
         for candidate in candidates:
+            if source_procedure and not self._is_translation_candidate_plausible(source_procedure, candidate):
+                continue
             exact_matches = self.rules_repo.find_by_procedure(normalize_text(candidate))
             if exact_matches:
                 return exact_matches[0], 1.0, "translated_exact_match"
+
+        # Busca exata por aliases (surgery_name), quando disponiveis nas regras LLM.
+        for candidate in candidates:
+            if source_procedure and not self._is_translation_candidate_plausible(source_procedure, candidate):
+                continue
+            candidate_norm = normalize_text(candidate)
+            for rule in self.rules_repo.rules:
+                aliases = getattr(rule, "surgery_name", []) or []
+                for alias in aliases:
+                    if normalize_text(str(alias)) == candidate_norm:
+                        return rule, 1.0, "translated_alias_match"
 
         threshold = self.config.get('match_threshold', 0.70)
         best_rule = None
         best_score = 0.0
 
         for candidate in candidates:
+            if source_procedure and not self._is_translation_candidate_plausible(source_procedure, candidate):
+                continue
             for rule in self.rules_repo.rules:
-                score = fuzzy_match_score(candidate, rule.procedure_normalized)
-                if score > best_score and score >= threshold:
-                    best_score = score
-                    best_rule = rule
+                targets = [rule.procedure_normalized]
+                aliases = getattr(rule, "surgery_name", []) or []
+                targets.extend(normalize_text(str(alias)) for alias in aliases if str(alias).strip())
+
+                for target in targets:
+                    score = fuzzy_match_score(candidate, target)
+                    if score > best_score and score >= threshold:
+                        best_score = score
+                        best_rule = rule
 
         if best_rule:
             return best_rule, best_score, "translated_fuzzy_match"
@@ -379,38 +573,71 @@ class SurgeryAuditor:
     def _validate_choice(self, record: SurgeryRecord, 
                         rule: Optional[ProtocolRule]) -> Tuple[str, str]:
         """
-        Valida escolha do antibiótico.
+        Valida escolha do antibiotico.
         
         Args:
             record: Registro da cirurgia
             rule: Regra do protocolo matched
             
         Returns:
-            Tupla (status, razão)
+            Tupla (status, razao)
         """
         if not rule:
             return 'INDETERMINADO', 'sem_match_protocolo'
-        
-        if not rule.is_prophylaxis_required:
-            return 'NAO_CONFORME', 'profilaxia_nao_recomendada'
+
+        recommended_drugs = self._get_recommendation_drugs(rule)
+        if not recommended_drugs:
+            if not self._rule_requires_prophylaxis(rule):
+                return 'ALERTA', 'profilaxia_potencial_sem_indicacao'
+            return 'INDETERMINADO', 'atb_sem_referencia_protocolo'
         
         if not record.atb_detected:
             return 'INDETERMINADO', 'atb_nao_identificado'
-        
-        # Verifica se antibiótico está nas recomendações
-        recommended_drugs = [drug.name for drug in rule.primary_recommendation.drugs]
-        
-        # Também aceita alternativa para alergia
-        allergy_drugs = [drug.name for drug in rule.allergy_recommendation.drugs]
-        
-        all_acceptable = recommended_drugs + allergy_drugs
-        
+
+        acceptable_names = [drug.name for drug in recommended_drugs]
         for detected_drug in record.atb_detected:
-            if detected_drug in all_acceptable:
+            if detected_drug in acceptable_names:
                 return 'CONFORME', 'atb_recomendado'
-        
+
+        if not self._rule_requires_prophylaxis(rule):
+            return 'ALERTA', 'profilaxia_potencial_sem_indicacao'
+
         return 'NAO_CONFORME', 'atb_nao_recomendado'
-    
+
+    def _get_recommendation_drugs(self, rule: Optional[ProtocolRule]) -> List[Any]:
+        """Retorna lista consolidada de antibioticos das recomendacoes primaria e alergia."""
+        if not rule:
+            return []
+
+        primary = rule.primary_recommendation.drugs if rule.primary_recommendation else []
+        allergy = rule.allergy_recommendation.drugs if rule.allergy_recommendation else []
+        return [drug for drug in (primary + allergy) if getattr(drug, "name", "")]
+
+    def _rule_requires_prophylaxis(self, rule: Optional[ProtocolRule]) -> bool:
+        """Infere necessidade de profilaxia considerando flags e recomendacoes preenchidas."""
+        if not rule:
+            return False
+        if rule.is_prophylaxis_required:
+            return True
+        return bool(self._get_recommendation_drugs(rule))
+
+    def _select_reference_drug(self, record: SurgeryRecord, rule: Optional[ProtocolRule]) -> Optional[Any]:
+        """
+        Seleciona o antibiotico de referencia para comparar dose.
+        Prioriza antibiotico administrado identificado na prescricao.
+        """
+        candidates = self._get_recommendation_drugs(rule)
+        if not candidates:
+            return None
+
+        if record.atb_detected:
+            for detected in record.atb_detected:
+                for drug in candidates:
+                    if drug.name == detected:
+                        return drug
+
+        return candidates[0]
+
     def _validate_dose(self, record: SurgeryRecord, rule: Optional[ProtocolRule],
                       result: AuditResult) -> Tuple[str, str]:
         """
@@ -422,13 +649,17 @@ class SurgeryAuditor:
             result: Resultado parcial (para preencher dados)
             
         Returns:
-            Tupla (status, razão)
+            Tupla (status, razao)
         """
-        if not rule or not rule.primary_recommendation.drugs:
+        if not rule:
             return 'INDETERMINADO', 'dose_sem_referencia'
-        
-        # Pega dose recomendada
-        recommended_dose_text = rule.primary_recommendation.drugs[0].dose
+
+        reference_drug = self._select_reference_drug(record, rule)
+        if not reference_drug:
+            return 'INDETERMINADO', 'dose_sem_referencia'
+
+        # Pega dose recomendada para o antibiotico efetivamente administrado.
+        recommended_dose_text = reference_drug.dose
         if not recommended_dose_text:
             return 'INDETERMINADO', 'dose_sem_referencia'
 
@@ -448,8 +679,7 @@ class SurgeryAuditor:
             expected_mg = mg_per_kg * record.patient_weight
 
             # Aplica teto para Cefazolina
-            drug_name = rule.primary_recommendation.drugs[0].name if rule.primary_recommendation.drugs else ""
-            if drug_name == 'CEFAZOLINA':
+            if reference_drug.name == 'CEFAZOLINA':
                 cap_mg = 3000 if record.patient_weight >= 120 else 2000
                 expected_mg = min(expected_mg, cap_mg)
 
@@ -463,42 +693,44 @@ class SurgeryAuditor:
         if not administered_mg:
             return 'INDETERMINADO', 'dose_nao_informada'
         
-        # Calcula diferença
+        # Calcula diferenca
         diff_mg = administered_mg - recommended_dose_mg
         diff_pct = (diff_mg / recommended_dose_mg * 100) if recommended_dose_mg > 0 else 0
         
         result.dose_diferenca_mg = diff_mg
         result.dose_diferenca_pct = diff_pct
         
-        # Tolerâncias
+        # Tolerancias
         alert_tolerance = self.config.get('alert_dose_tolerance_percent', 10)
         tolerance = self.config.get('dose_tolerance_percent', 15)
+        hard_tolerance = self.config.get('hard_dose_tolerance_percent', 100)
         
         if abs(diff_pct) <= alert_tolerance:
             return 'CONFORME', 'dose_correta'
         elif abs(diff_pct) <= tolerance:
             return 'ALERTA', 'dose_pequena_diferenca'
+        elif abs(diff_pct) <= hard_tolerance:
+            return 'ALERTA', 'dose_fora_referencia'
         elif diff_pct < -tolerance:
             return 'NAO_CONFORME', 'dose_muito_baixa'
         else:
             return 'NAO_CONFORME', 'dose_muito_alta'
-    
     def _validate_timing(self, record: SurgeryRecord, 
                         result: AuditResult) -> Tuple[str, str]:
         """
-        Valida timing da administração (1 hora antes da incisão).
+        Valida timing da administraÃ§Ã£o (1 hora antes da incisÃ£o).
         
         Args:
             record: Registro da cirurgia
             result: Resultado parcial
             
         Returns:
-            Tupla (status, razão)
+            Tupla (status, razÃ£o)
         """
         if not record.incision_time or not record.atb_time:
             return 'INDETERMINADO', 'horarios_nao_informados'
         
-        # Calcula diferença
+        # Calcula diferenÃ§a
         diff_min = calculate_time_diff_minutes(record.atb_time, record.incision_time)
         
         if diff_min is None:
@@ -506,11 +738,11 @@ class SurgeryAuditor:
         
         result.timing_diferenca_minutos = diff_min
         
-        # ATB deve ser dado ANTES da incisão
+        # ATB deve ser dado ANTES da incisÃ£o
         if diff_min < 0:
             return 'NAO_CONFORME', 'timing_apos_incisao'
         
-        # Janela ideal: até 60 minutos antes
+        # Janela ideal: atÃ© 60 minutos antes
         timing_window = self.config.get('timing_window_minutes', 60)
         
         if 0 <= diff_min <= timing_window:
@@ -521,14 +753,14 @@ class SurgeryAuditor:
     def _validate_redosing(self, record: SurgeryRecord,
                            result: AuditResult) -> Tuple[str, str]:
         """
-        Valida repique (redosing) baseado em meia-vida do antibiótico.
+        Valida repique (redosing) baseado em meia-vida do antibiÃ³tico.
         
         Args:
             record: Registro da cirurgia
             result: Resultado parcial
             
         Returns:
-            Tupla (status, razão)
+            Tupla (status, razÃ£o)
         """
         if record.repique_done != 'SIM':
             return 'CONFORME', 'repique_nao_aplicavel'
@@ -564,27 +796,29 @@ class SurgeryAuditor:
     
     def _calculate_final_conformity(self, result: AuditResult) -> Tuple[str, str]:
         """
-        Calcula conformidade final com base em todos os critérios.
+        Calcula conformidade final com base em todos os criterios.
         
         Args:
             result: Resultado da auditoria
             
         Returns:
-            Tupla (status_final, razão)
+            Tupla (status_final, razao)
         """
-        # Se não tem match, indeterminado
-        if result.match_score == 0.0:
-            return 'INDETERMINADO', 'sem_match_protocolo'
-        
-        # Coleta status de cada critério
+        # Coleta status de cada criterio
         statuses = [
             result.conf_escolha,
             result.conf_dose,
             result.conf_timing,
             result.conf_repique,
         ]
+
+        # Escolha do ATB e match do procedimento sao criterios gate.
+        if result.conf_escolha == 'INDETERMINADO':
+            if result.match_score == 0.0:
+                return 'ALERTA', 'sem_match_protocolo'
+            return 'ALERTA', result.conf_escolha_razao or 'dados_insuficientes'
         
-        # Se qualquer critério for NAO_CONFORME, final é NAO_CONFORME
+        # Se qualquer criterio for NAO_CONFORME, final e NAO_CONFORME
         if 'NAO_CONFORME' in statuses:
             reasons = []
             if result.conf_escolha == 'NAO_CONFORME':
@@ -597,24 +831,23 @@ class SurgeryAuditor:
                 reasons.append(result.conf_repique_razao)
             
             return 'NAO_CONFORME', ', '.join(reasons)
-        
-        # Se algum INDETERMINADO
-        if 'INDETERMINADO' in statuses:
-            return 'INDETERMINADO', 'dados_insuficientes'
 
-        # Se tem ALERTA, final é ALERTA
+        # Se tem ALERTA, final e ALERTA
         if 'ALERTA' in statuses:
-            return 'ALERTA', result.conf_dose_razao
+            if result.conf_dose == 'ALERTA':
+                return 'ALERTA', result.conf_dose_razao
+            if result.conf_escolha == 'ALERTA':
+                return 'ALERTA', result.conf_escolha_razao
+            return 'ALERTA', 'alerta_validacao'
         
-        # Todos conformes
+        # INDETERMINADO em criterios secundarios (dose/timing/repique) nao derruba o status final.
         return 'CONFORME', 'todos_criterios_conformes'
-    
     def get_statistics(self) -> Dict[str, Any]:
         """
-        Gera estatísticas dos resultados de auditoria.
+        Gera estatÃ­sticas dos resultados de auditoria.
         
         Returns:
-            Dicionário com estatísticas
+            DicionÃ¡rio com estatÃ­sticas
         """
         if not self.audit_results:
             return {}
@@ -627,7 +860,7 @@ class SurgeryAuditor:
         nao_conforme = sum(1 for r in self.audit_results if r.conf_final == 'NAO_CONFORME')
         indeterminado = sum(1 for r in self.audit_results if r.conf_final == 'INDETERMINADO')
         
-        # Por critério
+        # Por critÃ©rio
         escolha_conf = sum(1 for r in self.audit_results if r.conf_escolha == 'CONFORME')
         dose_conf = sum(1 for r in self.audit_results if r.conf_dose == 'CONFORME')
         dose_alert = sum(1 for r in self.audit_results if r.conf_dose == 'ALERTA')
@@ -666,3 +899,4 @@ class SurgeryAuditor:
                 'conformidade_estrita_pct': conforme / total * 100 if total > 0 else 0,
             }
         }
+

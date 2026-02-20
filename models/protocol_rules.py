@@ -8,6 +8,9 @@ import json
 import hashlib
 from datetime import datetime
 from enum import Enum
+import logging
+
+logger = logging.getLogger(__name__)
 
 @dataclass
 class AntibioticRule:
@@ -162,9 +165,34 @@ class ProtocolRulesRepository:
             rules_data = json.load(f)
         
         self.rules = [ProtocolRule.from_dict(r) for r in rules_data]
+        repaired_rules = self._repair_inconsistent_rules()
+        if repaired_rules:
+            logger.info(
+                "Ajustadas %s regras com profilaxia inconsistente (drugs presentes + is_prophylaxis_required=False).",
+                repaired_rules,
+            )
         self._build_index()
         self._load_metadata(filepath)
         self._is_loaded = True
+
+    def _repair_inconsistent_rules(self) -> int:
+        """
+        Corrige inconsistencias comuns em rules.json:
+        - Regra com medicamentos recomendados mas marcada como profilaxia nao requerida.
+        """
+        repaired = 0
+        for rule in self.rules:
+            has_primary = bool(rule.primary_recommendation and rule.primary_recommendation.drugs)
+            has_allergy = bool(rule.allergy_recommendation and rule.allergy_recommendation.drugs)
+            has_any_drug = has_primary or has_allergy
+
+            if has_any_drug and not rule.is_prophylaxis_required:
+                rule.is_prophylaxis_required = True
+                rule.metadata = dict(rule.metadata or {})
+                rule.metadata["prophylaxis_required_inferred"] = True
+                repaired += 1
+
+        return repaired
     
     def save_to_json(self, filepath: Path) -> None:
         """

@@ -20,7 +20,7 @@ for directory in [INPUT_DIR, OUTPUT_DIR, TEMP_DIR, LOGS_DIR]:
 # ConfiguraÃ§Ãµes de extraÃ§Ã£o de regras
 EXTRACTION_CONFIG = {
     "pages_to_extract": "8-35",  # Paginas do PDF com tabelas
-    "llm_backend": "gemini",
+    "llm_backend": "langextract",
     "gemini_model": "gemini-2.5-flash",
     "langextract_model": "gemini-2.5-flash",
     "llm_max_chunk_chars": 12000,
@@ -46,7 +46,9 @@ EXTRACTION_CONFIG = {
 # ConfiguraÃ§Ãµes de auditoria
 AUDIT_CONFIG = {
     "match_threshold": 0.70,  # Score mÃ­nimo para match de procedimento
+    "translation_match_similarity_threshold": 0.45,  # Filtro para evitar matches absurdos via procedimentos.json
     "dose_tolerance_percent": 15,  # TolerÃ¢ncia de dose em %
+    "hard_dose_tolerance_percent": 100,  # Acima disso vira NAO_CONFORME (faixa intermediaria vira ALERTA)
     "timing_window_minutes": 60,  # Janela de 1 hora antes da incisÃ£o
     "alert_dose_tolerance_percent": 10,  # TolerÃ¢ncia para alertas
 }
@@ -84,9 +86,25 @@ EXCEL_COLUMNS = {
 # DicionÃ¡rio de medicamentos conhecidos
 DRUG_DICTIONARY = {
     # Cefalosporinas
-    "CEFAZOLINA": ["KEFAZOL", "CEFAZOLINA", "ANCEF"],
-    "CEFUROXIMA": ["ZINACEF", "CEFUROXIMA"],
-    "CEFTRIAXONE": ["ROCEFIN", "CEFTRIAXONA", "CEFTRIAXONE"],
+    "CEFAZOLINA": [
+        "KEFAZOL",
+        "KEFASOL",
+        "KEFZOL",
+        "CEFAZOLINA",
+        "CEFASOLINA",
+        "CEFAZOLIN",
+        "CEFAZOINA",
+        "CEFAAZOLINA",
+        "CEFAZLINA",
+        "CEAFZOLINA",
+        "CEFOZOLINA",
+        "CEFAZOLIBNA",
+        "KEGFAZOL",
+        "KERFAZOL",
+        "ANCEF",
+    ],
+    "CEFUROXIMA": ["ZINACEF", "ZINASEF", "CEFUROXIMA", "CEFUROXINA", "CEFAROXINA"],
+    "CEFTRIAXONE": ["ROCEFIN", "ROCEFIM", "ROCECEFIN", "CEFTRIAXONA", "CEFRIAXONA", "CEFTRIAXONE"],
     "CEFOXITINA": ["MEFOXIN", "CEFOXITINA"],
     
     # AminoglicosÃ­deos
@@ -98,16 +116,34 @@ DRUG_DICTIONARY = {
     
     # Quinolonas
     "CIPROFLOXACINO": ["CIPROFLOXACINO", "CIPRO"],
+    "LEVOFLOXACINO": ["LEVOFLOXACINO", "TAVANIC"],
     
     # Penicilinas
     "AMOXICILINA_CLAVULANATO": ["CLAVULIN", "AMOXICILINA+CLAVULANATO"],
     "AMPICILINA_SULBACTAM": ["UNASYN", "AMPICILINA+SULBACTAM"],
+    "PENICILINA_G_CRISTALINA": [
+        "PENICILINA G CRISTALINA",
+        "PENICILINA CRISTALINA",
+        "BENZILPENICILINA",
+    ],
     
     # NitroimidazÃ³is
     "METRONIDAZOL": ["METRONIDAZOL", "FLAGYL"],
     
     # Outros
     "CLINDAMICINA": ["CLINDAMICINA", "DALACIN"],
+    "AZITROMICINA": ["AZITROMICINA", "ZITROMAX"],
+    "DOXICICLINA": ["DOXICICLINA", "VIBRAMICINA"],
+    "CEFEPIME": ["CEFEPIME", "MAXIPIME"],
+    "TEICOPLANINA": ["TEICOPLANINA", "TEICOPLAMINA", "TARGOCID"],
+    "SULFAMETOXAZOL_TRIMETOPRIM": [
+        "SULFAMETOXAZOL-TRIMETOPRIM",
+        "SULFAMETOXAZOL/TRIMETOPRIM",
+        "SULFAMETOXAZOL/ TRIMETOPRIM",
+        "SMZ/TMP",
+        "COTRIMOXAZOL",
+        "BACTRIM",
+    ],
 }
 
 # Categorias de conformidade

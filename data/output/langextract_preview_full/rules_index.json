@@ -1,0 +1,626 @@
+{
+  "cirurgias limpas sem implantes": [
+    "llm_rule_0000"
+  ],
+  "cirurgia limpa com implantes": [
+    "llm_rule_0001"
+  ],
+  "cirurgia potencialmente contaminada para cancer": [
+    "llm_rule_0002"
+  ],
+  "amidalectomia": [
+    "llm_rule_0003"
+  ],
+  "cirurgia endoscopica de seios paranasais": [
+    "llm_rule_0004"
+  ],
+  "by pass coronariano": [
+    "llm_rule_0005"
+  ],
+  "insercao de dispositivo cardiaco": [
+    "llm_rule_0006"
+  ],
+  "dispositivos de assistencia ventricular": [
+    "llm_rule_0007"
+  ],
+  "valvuloplastia": [
+    "llm_rule_0008"
+  ],
+  "varizes baixo risco": [
+    "llm_rule_0009"
+  ],
+  "varizes alto risco": [
+    "llm_rule_0010"
+  ],
+  "embolectomia baixo risco": [
+    "llm_rule_0011"
+  ],
+  "embolectomia alto risco": [
+    "llm_rule_0012"
+  ],
+  "embolizacoes": [
+    "llm_rule_0013"
+  ],
+  "enxerto com protese vascular sem lesao trofica infectada": [
+    "llm_rule_0014"
+  ],
+  "enxerto com veia autologa": [
+    "llm_rule_0015"
+  ],
+  "arteria carotida sem material de protese e sem fatores de risco": [
+    "llm_rule_0016"
+  ],
+  "implante de cateter venoso central de longa permanencia port hickman permcath": [
+    "llm_rule_0017"
+  ],
+  "simpatectomia por toracoscopia": [
+    "llm_rule_0018"
+  ],
+  "trombectomia percutanea": [
+    "llm_rule_0019"
+  ],
+  "aneurisma de aorta abdominal": [
+    "llm_rule_0020"
+  ],
+  "endarterectomia de carotida com protese": [
+    "llm_rule_0021"
+  ],
+  "fasciotomia": [
+    "llm_rule_0022"
+  ],
+  "fistula arteriovenosa com ou sem proteses": [
+    "llm_rule_0023"
+  ],
+  "fistula arteriovenosa com ou sem proteses revisao": [
+    "llm_rule_0024"
+  ],
+  "amputacoes por necrose seca": [
+    "llm_rule_0025"
+  ],
+  "amputacoes por necrose umida": [
+    "llm_rule_0026"
+  ],
+  "cirurgia bariatrica sem manipulacao de alcas abaixo do duodeno": [
+    "llm_rule_0027"
+  ],
+  "cirurgia bariatrica com manipulacao de alcas abaixo do duodeno": [
+    "llm_rule_0028"
+  ],
+  "esofago incisao em mucosa": [
+    "llm_rule_0029"
+  ],
+  "esofago neoplasia": [
+    "llm_rule_0030"
+  ],
+  "gastrostomia": [
+    "llm_rule_0031",
+    "llm_rule_0146"
+  ],
+  "gastroduodenal vagotomia e procedimentos de correcao de refluxo se fatores de risco": [
+    "llm_rule_0032"
+  ],
+  "intestino delgado duodeno jejuno e ileo": [
+    "llm_rule_0033"
+  ],
+  "apendicectomia nao complicada": [
+    "llm_rule_0034"
+  ],
+  "apendicectomia complicada abscesso perfuracao": [
+    "llm_rule_0035"
+  ],
+  "com obstrucao": [
+    "llm_rule_0036"
+  ],
+  "cirurgias colorretais": [
+    "llm_rule_0037"
+  ],
+  "polipectomia colon": [
+    "llm_rule_0038"
+  ],
+  "colangiopancreatografia retrograda endoscopica": [
+    "llm_rule_0039",
+    "llm_rule_0040"
+  ],
+  "colecistectomia aberta": [
+    "llm_rule_0041"
+  ],
+  "esplenectomia": [
+    "llm_rule_0042"
+  ],
+  "gastroduodenopancreatectomia": [
+    "llm_rule_0043",
+    "llm_rule_0044"
+  ],
+  "pancreas com abertura do trato gastrintestinal": [
+    "llm_rule_0045"
+  ],
+  "hepatectomia": [
+    "llm_rule_0046"
+  ],
+  "hernioplastia": [
+    "llm_rule_0047",
+    "llm_rule_0048"
+  ],
+  "trauma abdominal penetrante": [
+    "llm_rule_0049"
+  ],
+  "abscesso perirretal": [
+    "llm_rule_0050"
+  ],
+  "cisto pilonidal": [
+    "llm_rule_0051"
+  ],
+  "reconstrucao de esfincter anal": [
+    "llm_rule_0052"
+  ],
+  "fistula anorretal": [
+    "llm_rule_0053"
+  ],
+  "cirurgia redutora de enfisema": [
+    "llm_rule_0054"
+  ],
+  "trauma toraco abdominal penetrante": [
+    "llm_rule_0055"
+  ],
+  "biopsia transtoracica": [
+    "llm_rule_0056"
+  ],
+  "craniotomia": [
+    "llm_rule_0057"
+  ],
+  "aminectomia": [
+    "llm_rule_0058"
+  ],
+  "artrodese de coluna": [
+    "llm_rule_0059"
+  ],
+  "microcirurgia de snc com implante": [
+    "llm_rule_0060"
+  ],
+  "implantacao de dve": [
+    "llm_rule_0061"
+  ],
+  "cirurgia com incisao trans oral": [
+    "llm_rule_0062"
+  ],
+  "cirurgia de mama": [
+    "llm_rule_0063"
+  ],
+  "cirurgia ginecologica": [
+    "llm_rule_0064"
+  ],
+  "reproducao assistida": [
+    "llm_rule_0065"
+  ],
+  "laparoscopia diagnostica sem acesso instestinal ou vaginal exceto histerectomia": [
+    "llm_rule_0066"
+  ],
+  "laringoscopia de suspensao": [
+    "llm_rule_0067"
+  ],
+  "mediastinoscopia": [
+    "llm_rule_0068"
+  ],
+  "mediastinotomia": [
+    "llm_rule_0069"
+  ],
+  "pleuroscopia diagnostica": [
+    "llm_rule_0070"
+  ],
+  "toracocentese diagnostica": [
+    "llm_rule_0071"
+  ],
+  "toracostomia para insercao de dreno apos pneumotorax espontaneo": [
+    "llm_rule_0072"
+  ],
+  "traqueostomia": [
+    "llm_rule_0073"
+  ],
+  "escoliose neuromuscular": [
+    "llm_rule_0074"
+  ],
+  "revisao de coluna sem suspeita de infeccao": [
+    "llm_rule_0075"
+  ],
+  "fistula liquorica pos trauma": [
+    "llm_rule_0076"
+  ],
+  "cirurgia estetica de mama com protese": [
+    "llm_rule_0077"
+  ],
+  "mastectomia": [
+    "llm_rule_0078",
+    "llm_rule_0155"
+  ],
+  "nodulectomia mama": [
+    "llm_rule_0079"
+  ],
+  "quadrantectomia mama": [
+    "llm_rule_0080"
+  ],
+  "cistocele": [
+    "llm_rule_0081"
+  ],
+  "correcao de prolapso genital": [
+    "llm_rule_0082"
+  ],
+  "endometriose sem manipulcao de alca intestinal": [
+    "llm_rule_0083"
+  ],
+  "histerectomia abdominal": [
+    "llm_rule_0084"
+  ],
+  "miomectomia": [
+    "llm_rule_0085"
+  ],
+  "ooforectomia": [
+    "llm_rule_0086"
+  ],
+  "panhisterectomia": [
+    "llm_rule_0087"
+  ],
+  "perineoplastia": [
+    "llm_rule_0088"
+  ],
+  "retocele": [
+    "llm_rule_0089"
+  ],
+  "telas para incontinencia urinaria": [
+    "llm_rule_0090"
+  ],
+  "uretrocistopexia": [
+    "llm_rule_0091"
+  ],
+  "coleta de oocitos": [
+    "llm_rule_0092"
+  ],
+  "cistoscopia": [
+    "llm_rule_0093",
+    "llm_rule_0193"
+  ],
+  "biopsia endometrial": [
+    "llm_rule_0094"
+  ],
+  "dilatacao e curetagem de indicacao": [
+    "llm_rule_0095"
+  ],
+  "esterilizacao tubaria": [
+    "llm_rule_0096"
+  ],
+  "histeroscopia diagnostica ou cirurgica": [
+    "llm_rule_0097"
+  ],
+  "histerossalpingografia": [
+    "llm_rule_0098"
+  ],
+  "insercao de diu": [
+    "llm_rule_0099"
+  ],
+  "reproducao asssitida transferencia de embrioes": [
+    "llm_rule_0100"
+  ],
+  "biopsia de tecido cervical incluindo cagf ou curetagem endocervical": [
+    "llm_rule_0101"
+  ],
+  "endometriose ou outros procedimentos com manipulacao de alca": [
+    "llm_rule_0102"
+  ],
+  "esfincter anal reconstrucao apos lesao perineal obstetrica para lesao de 3o e 4o grau": [
+    "llm_rule_0103"
+  ],
+  "parto vaginal": [
+    "llm_rule_0104"
+  ],
+  "parto vaginal se remocao manual da placenta se laceracoes de perineo de 3o e 4o graus": [
+    "llm_rule_0105"
+  ],
+  "parto forceps": [
+    "llm_rule_0106"
+  ],
+  "parto cesariana sem ruptura de membranas nao trabalho de parto": [
+    "llm_rule_0107"
+  ],
+  "parto cesariana com ruptura de membranas em trabalho de parto": [
+    "llm_rule_0108"
+  ],
+  "abortamento cirurgico nao infectado": [
+    "llm_rule_0109"
+  ],
+  "neovagina total": [
+    "llm_rule_0110"
+  ],
+  "cerclagem uterina": [
+    "llm_rule_0111"
+  ],
+  "histerossalpingografia em pacientes com tubas uterinas dilatadas": [
+    "llm_rule_0112"
+  ],
+  "curetagem uterina": [
+    "llm_rule_0113"
+  ],
+  "aborto provocado e aborto nao infectado com fator de risco historia de dip dst ou comportamento sexual de risco": [
+    "llm_rule_0114"
+  ],
+  "curetagem uterina de aborto retido incompleto e sem fator de risco": [
+    "llm_rule_0115"
+  ],
+  "trabalho de parto prematuro em paciente com fator de risco historia de dip gonorreia ou multiplos parceiros sexuais ou emergencia trabalho de parto prolongado 12h": [
+    "llm_rule_0116"
+  ],
+  "laparoscopia ou laparotomia diagnostica sem abertura de utero ou vagina": [
+    "llm_rule_0117"
+  ],
+  "cirurgias limpas envolvendo mao joelho ou pe sem implante sem insercao de proteses pinos ou parafusos ou tecido avascular": [
+    "llm_rule_0118"
+  ],
+  "infiltracao coluna": [
+    "llm_rule_0119"
+  ],
+  "artroscopia em geral": [
+    "llm_rule_0120"
+  ],
+  "cirurgia com insercao de dispositivos de fixacao interna": [
+    "llm_rule_0121"
+  ],
+  "artroplastia total de substituicao": [
+    "llm_rule_0122"
+  ],
+  "revisao de artroplastia por suspeita de infeccao": [
+    "llm_rule_0123"
+  ],
+  "artroplastias": [
+    "llm_rule_0124"
+  ],
+  "laminectomia": [
+    "llm_rule_0125"
+  ],
+  "artrodeses de coluna 360o": [
+    "llm_rule_0126"
+  ],
+  "amputacao de membros eletiva": [
+    "llm_rule_0127"
+  ],
+  "amputacao de membros pos traumatica": [
+    "llm_rule_0128"
+  ],
+  "reducao cirurgica de fraturas expostas grau i": [
+    "llm_rule_0129"
+  ],
+  "reducao cirurgica de fraturas expostas grau iiia": [
+    "llm_rule_0130"
+  ],
+  "cirurgia em ossos chatos pouco contaminados": [
+    "llm_rule_0131"
+  ],
+  "cirurgia em ossos chatos muito contaminados": [
+    "llm_rule_0132"
+  ],
+  "osteossintese de fratura fechada": [
+    "llm_rule_0133"
+  ],
+  "mordedura de cachorro": [
+    "llm_rule_0134"
+  ],
+  "mielomeningocele": [
+    "llm_rule_0135"
+  ],
+  "apendicectomia grau i": [
+    "llm_rule_0136"
+  ],
+  "revisao de artroplastia": [
+    "llm_rule_0137"
+  ],
+  "cirurgia cardiaca aberta em criancas ate 30 kg com ou sem uso de cec": [
+    "llm_rule_0138"
+  ],
+  "colorretal": [
+    "llm_rule_0139"
+  ],
+  "rotacao intestinal sem volvo": [
+    "llm_rule_0140"
+  ],
+  "rotacao intestinal com volvo": [
+    "llm_rule_0141"
+  ],
+  "atresia de esofago duodeno": [
+    "llm_rule_0142"
+  ],
+  "gastrosquise": [
+    "llm_rule_0143"
+  ],
+  "onfalocele": [
+    "llm_rule_0144"
+  ],
+  "hipospadia": [
+    "llm_rule_0145"
+  ],
+  "esplenectomia eletiva": [
+    "llm_rule_0147"
+  ],
+  "vesicostomia": [
+    "llm_rule_0148"
+  ],
+  "postectomia sem fatores de risco": [
+    "llm_rule_0149"
+  ],
+  "postectomia com fatores de risco": [
+    "llm_rule_0150"
+  ],
+  "urologia litiase": [
+    "llm_rule_0151"
+  ],
+  "urologia geral": [
+    "llm_rule_0152"
+  ],
+  "cirurgia da mama cirurgia estetica ou reconstrucao com ou sem protese": [
+    "llm_rule_0153"
+  ],
+  "esvaziamento de linfonodos axilares": [
+    "llm_rule_0154"
+  ],
+  "nodulectomia": [
+    "llm_rule_0156"
+  ],
+  "quadrantectomia": [
+    "llm_rule_0157"
+  ],
+  "revisao de cirurgia de mama": [
+    "llm_rule_0158"
+  ],
+  "cirugia de mama biospia excisional diagnostica": [
+    "llm_rule_0159"
+  ],
+  "biopsia de linfonodo sentinela": [
+    "llm_rule_0160"
+  ],
+  "excisao de cicatriz": [
+    "llm_rule_0161"
+  ],
+  "lumpectomia com ou sem agulha ou fio de localizacao": [
+    "llm_rule_0162"
+  ],
+  "abdominoplastia": [
+    "llm_rule_0163"
+  ],
+  "dermolipectomia": [
+    "llm_rule_0164"
+  ],
+  "insercao protese malar e queixo": [
+    "llm_rule_0165"
+  ],
+  "lipoaspiracao": [
+    "llm_rule_0166"
+  ],
+  "otoplastia": [
+    "llm_rule_0167"
+  ],
+  "ritidoplastia": [
+    "llm_rule_0168"
+  ],
+  "blefaroplastia": [
+    "llm_rule_0169"
+  ],
+  "braquioplastia": [
+    "llm_rule_0170"
+  ],
+  "lifting de nadegas": [
+    "llm_rule_0171"
+  ],
+  "lipoaspiracao succao ou laser assistida": [
+    "llm_rule_0172"
+  ],
+  "peeling quimico dermoabrasao laser": [
+    "llm_rule_0173"
+  ],
+  "cirurgias potencialmente contaminadas enxertos cutaneos e retalhos": [
+    "llm_rule_0174"
+  ],
+  "septoplastia": [
+    "llm_rule_0175"
+  ],
+  "rinosseptoplastia": [
+    "llm_rule_0176"
+  ],
+  "cirurgia de mao brida": [
+    "llm_rule_0177"
+  ],
+  "transplante de pele em queimados enxerto": [
+    "llm_rule_0178"
+  ],
+  "enxerto em queimados": [
+    "llm_rule_0179"
+  ],
+  "cirurgia craniofacial congenitas": [
+    "llm_rule_0180"
+  ],
+  "reconstrucao de mama": [
+    "llm_rule_0181"
+  ],
+  "microcirurgia": [
+    "llm_rule_0182"
+  ],
+  "cirurgia urologica potencialmente contaminada": [
+    "llm_rule_0183"
+  ],
+  "biopsia de prostata transretal": [
+    "llm_rule_0184"
+  ],
+  "braquiterapia prostatica transperineal": [
+    "llm_rule_0185"
+  ],
+  "cirurgia endourologica ambulatorial": [
+    "llm_rule_0186"
+  ],
+  "cirurgia de adrenal": [
+    "llm_rule_0187"
+  ],
+  "nefrolitotomia percutanea": [
+    "llm_rule_0188"
+  ],
+  "ureteroscopia": [
+    "llm_rule_0189"
+  ],
+  "ureterorrenoscopia": [
+    "llm_rule_0190"
+  ],
+  "litotripsia extracorporea": [
+    "llm_rule_0191"
+  ],
+  "estudo urodinamico": [
+    "llm_rule_0192"
+  ],
+  "sling miduretral": [
+    "llm_rule_0194"
+  ],
+  "orquiectomia": [
+    "llm_rule_0195"
+  ],
+  "orquiectomia com protese": [
+    "llm_rule_0196"
+  ],
+  "proteses penianas": [
+    "llm_rule_0197"
+  ],
+  "esfincter artificial": [
+    "llm_rule_0198"
+  ],
+  "reconstrucao pelvica com protese": [
+    "llm_rule_0199"
+  ],
+  "nefrectomia limpa": [
+    "llm_rule_0200"
+  ],
+  "prostatectomia aberta": [
+    "llm_rule_0201"
+  ],
+  "cistectomia": [
+    "llm_rule_0202"
+  ],
+  "cirurgia de redesignacao sexual": [
+    "llm_rule_0203"
+  ],
+  "toracoabdominal penetrante": [
+    "llm_rule_0204"
+  ],
+  "trauma perfurante de esofago": [
+    "llm_rule_0205"
+  ],
+  "toracico com pneumectomia": [
+    "llm_rule_0206"
+  ],
+  "lesao vascular": [
+    "llm_rule_0207"
+  ],
+  "fratura facial sem comunicacao com cavidade oral": [
+    "llm_rule_0208"
+  ],
+  "fratura facial com comunicacao com cavidade oral": [
+    "llm_rule_0209"
+  ],
+  "trauma de vias urinarias": [
+    "llm_rule_0210"
+  ],
+  "fratura de base de cranio com rinorreia": [
+    "llm_rule_0211"
+  ]
+}

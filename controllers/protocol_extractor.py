@@ -53,7 +53,7 @@ if not api_key:
     logger.warning("Nenhuma API key encontrada! Defina GEMINI_API_KEY, GOOGLE_API_KEY, API_KEY_GOOGLE_AI_STUDIO ou LANGEXTRACT_API_KEY no .env")
 
 from models import ProtocolRule, Recommendation, Drug, ProtocolRulesRepository, AntibioticRule, SurgeryType
-from utils import normalize_text, extract_drug_names
+from utils import normalize_text, extract_drug_names, fuzzy_match_score
 from config import EXTRACTION_CONFIG, DRUG_DICTIONARY
 
 
@@ -248,7 +248,9 @@ class ProtocolExtractor:
                - attributes.antibiotics: lista de objetos com name, dose, route e time
                - attributes.notes: observacoes complementares (opcional)
             3. Se algum campo nao estiver claro, retorne string vazia nesse campo.
-            4. Retorne somente JSON valido, sem markdown e sem texto adicional.
+            4. Se houver perda de formatacao da tabela (colunas deslocadas), recupere semanticamente:
+               nome do antibiotico, dose, via e tempo, mesmo que estejam fora da coluna original.
+            5. Retorne somente JSON valido, sem markdown e sem texto adicional.
         """)
 
         response_schema: Dict[str, Any] = {
@@ -314,6 +316,8 @@ class ProtocolExtractor:
             - Ignore cabecalhos, rodapes e metadados administrativos.
             - Quando nao houver antibiotico recomendado, retorne listas vazias.
             - Quando algum campo nao existir, use string vazia.
+            - Se a tabela estiver desformatada e os campos deslocados, reorganize semanticamente
+              antibiotic_names, antibiotic_doses, antibiotic_routes e antibiotic_times.
         """)
 
         if ExampleData is None or Extraction is None:
@@ -717,6 +721,302 @@ class ProtocolExtractor:
         with open(input_path, 'r', encoding='utf-8') as f:
             return json.load(f)
 
+    def _format_mg_value(self, value_mg: float) -> str:
+        """Formata valor numerico em string de mg."""
+        rounded = round(value_mg, 3)
+        if abs(rounded - round(rounded)) < 1e-9:
+            return f"{int(round(rounded))}mg"
+        return f"{rounded:.3f}".rstrip("0").rstrip(".") + "mg"
+
+    def _normalize_dose_text_to_mg(self, dose_text: str) -> str:
+        """
+        Normaliza texto de dose para unidade mg quando possivel.
+
+        Exemplos:
+        - 2g -> 2000mg
+        - 1,5 g -> 1500mg
+        - 5 mg/kg -> 5mg/kg
+        - 15 a 20mg/kg (nao exceder 2g) -> 15 a 20mg/kg (nao exceder 2000mg)
+        """
+        if not dose_text or not isinstance(dose_text, str):
+            return ""
+
+        pattern = re.compile(
+            r"(?P<value>\d+(?:[.,]\d+)?)\s*(?P<unit>mcg|ug|\u00b5g|mg|mgs|g|gr|grs|grama|gramas)\b",
+            flags=re.IGNORECASE,
+        )
+
+        def _replace(match: re.Match) -> str:
+            value_raw = match.group("value")
+            unit_raw = match.group("unit").lower()
+
+            try:
+                value = float(value_raw.replace(",", "."))
+            except ValueError:
+                return match.group(0)
+
+            if unit_raw in {"g", "gr", "grs", "grama", "gramas"}:
+                value_mg = value * 1000.0
+            elif unit_raw in {"mcg", "ug", "\u00b5g"}:
+                value_mg = value / 1000.0
+            else:
+                value_mg = value
+
+            return self._format_mg_value(value_mg)
+
+        normalized = pattern.sub(_replace, dose_text)
+        normalized = re.sub(r"\s*/\s*kg", "/kg", normalized, flags=re.IGNORECASE)
+        normalized = re.sub(r"\s+", " ", normalized).strip()
+        return normalized
+
+    def _normalize_route(self, route_text: str) -> str:
+        """Normaliza via de administracao."""
+        if not route_text or not isinstance(route_text, str):
+            return ""
+
+        route_norm = normalize_text(route_text)
+        mapping = {
+            "ev": "EV",
+            "iv": "EV",
+            "intravenosa": "EV",
+            "intravenoso": "EV",
+            "vo": "VO",
+            "oral": "VO",
+            "im": "IM",
+            "intramuscular": "IM",
+            "sc": "SC",
+            "subcutanea": "SC",
+            "subcutaneo": "SC",
+            "it": "IT",
+            "intratecal": "IT",
+        }
+
+        if route_norm in mapping:
+            return mapping[route_norm]
+
+        tokens = route_norm.split()
+        for token in tokens:
+            if token in mapping:
+                return mapping[token]
+
+        return route_text.strip().upper()
+
+    def _looks_like_dose_text(self, text: str) -> bool:
+        """Heuristica para detectar texto de dose."""
+        if not text or not isinstance(text, str):
+            return False
+
+        return bool(
+            re.search(
+                r"\d+(?:[.,]\d+)?\s*(?:mcg|ug|mg|mgs|g|gr|grs|grama|gramas)\b",
+                text,
+                flags=re.IGNORECASE,
+            )
+        )
+
+    def _looks_like_route_text(self, text: str) -> bool:
+        """Heuristica para detectar texto de via de administracao."""
+        if not text or not isinstance(text, str):
+            return False
+
+        normalized = normalize_text(text)
+        route_tokens = {
+            "ev",
+            "iv",
+            "intravenosa",
+            "intravenoso",
+            "vo",
+            "oral",
+            "im",
+            "intramuscular",
+            "sc",
+            "subcutanea",
+            "subcutaneo",
+            "it",
+            "intratecal",
+        }
+        tokens = set(normalized.split())
+        return bool(tokens & route_tokens)
+
+    def _looks_like_timing_text(self, text: str) -> bool:
+        """Heuristica para detectar texto de timing de administracao."""
+        if not text or not isinstance(text, str):
+            return False
+
+        normalized = normalize_text(text)
+        if re.search(r"\b\d+(?:\s*)(?:min|hora|horas|h)\b", normalized):
+            return True
+
+        keywords = [
+            "inducao",
+            "incis",
+            "antes",
+            "apos",
+            "durante",
+            "inicio",
+            "pre operator",
+            "intraoperator",
+            "anestes",
+        ]
+        return any(keyword in normalized for keyword in keywords)
+
+    def _normalize_antibiotic_names(self, raw_name: str, allow_fallback: bool = True) -> List[str]:
+        """Normaliza nome(s) de antibiotico para chaves do dicionario padrao."""
+        if not raw_name or not isinstance(raw_name, str):
+            return []
+
+        def _fuzzy_lookup(name_text: str) -> Optional[str]:
+            candidate = str(name_text or "").strip()
+            if not candidate:
+                return None
+
+            best_match = None
+            best_score = 0.0
+            for standard_name, aliases in DRUG_DICTIONARY.items():
+                all_candidates = [standard_name] + list(aliases)
+                for alias in all_candidates:
+                    score = fuzzy_match_score(candidate, alias)
+                    if score > best_score:
+                        best_score = score
+                        best_match = standard_name
+
+            if best_match and best_score >= 0.85:
+                return best_match
+            return None
+
+        names: List[str] = []
+        detected = extract_drug_names(raw_name, DRUG_DICTIONARY)
+        names.extend(detected)
+
+        if not names:
+            # Tenta separar combinacoes (A/B, A+B, A e B)
+            parts = [
+                part.strip()
+                for part in re.split(r"\s*(?:/|\+|\be\b)\s*", raw_name, flags=re.IGNORECASE)
+                if part and part.strip()
+            ]
+            for part in parts:
+                names.extend(extract_drug_names(part, DRUG_DICTIONARY))
+                fuzzy_candidate = _fuzzy_lookup(part)
+                if fuzzy_candidate:
+                    names.append(fuzzy_candidate)
+
+        if not names:
+            fuzzy_candidate = _fuzzy_lookup(raw_name)
+            if fuzzy_candidate:
+                names.append(fuzzy_candidate)
+
+        # Remove duplicados mantendo ordem
+        unique_names: List[str] = []
+        for item in names:
+            if item and item not in unique_names:
+                unique_names.append(item)
+
+        if unique_names:
+            return unique_names
+
+        if not allow_fallback:
+            return []
+
+        # Fallback: preserva texto original em formato consistente.
+        fallback = re.sub(r"\s+", " ", raw_name).strip().upper()
+        return [fallback] if fallback else []
+
+    def _normalize_antibiotics(self, antibiotics_raw: List[Any]) -> List[AntibioticRule]:
+        """
+        Normaliza entradas de antibioticos:
+        - nome padronizado (chave do dicionario)
+        - dose convertida para mg quando possivel
+        - via padronizada
+        """
+        normalized: List[AntibioticRule] = []
+        seen = set()
+
+        for ab in antibiotics_raw:
+            if isinstance(ab, dict):
+                raw_name = str(ab.get("name", "")).strip()
+                raw_dose = str(ab.get("dose", "")).strip()
+                raw_route = str(ab.get("route", "")).strip()
+                raw_time = str(ab.get("time", "")).strip()
+            elif isinstance(ab, str):
+                raw_name = ab.strip()
+                raw_dose = ""
+                raw_route = ""
+                raw_time = ""
+            else:
+                logger.warning(
+                    f"Formato inesperado de antibiotico ignorado: {type(ab)} -> {ab}"
+                )
+                continue
+
+            if not any([raw_name, raw_dose, raw_route, raw_time]):
+                continue
+
+            # Reparo semantico para casos de colunas deslocadas no PDF.
+            # Tenta identificar nome/dose/via/tempo em qualquer campo.
+            fields = [raw_name, raw_dose, raw_route, raw_time]
+            joined_fields = " ".join([field for field in fields if field]).strip()
+
+            normalized_names: List[str] = []
+            for candidate in [raw_name, raw_dose, raw_route, raw_time, joined_fields]:
+                normalized_names = self._normalize_antibiotic_names(
+                    candidate, allow_fallback=False
+                )
+                if normalized_names:
+                    break
+
+            if not normalized_names:
+                normalized_names = self._normalize_antibiotic_names(raw_name)
+                if not normalized_names and joined_fields:
+                    normalized_names = self._normalize_antibiotic_names(joined_fields)
+
+            dose_source = ""
+            for candidate in [raw_dose, raw_name, raw_route, raw_time]:
+                if self._looks_like_dose_text(candidate):
+                    dose_source = candidate
+                    break
+            normalized_dose = self._normalize_dose_text_to_mg(dose_source)
+
+            route_source = ""
+            for candidate in [raw_route, raw_dose, raw_time, raw_name]:
+                if self._looks_like_route_text(candidate):
+                    route_source = candidate
+                    break
+            normalized_route = self._normalize_route(route_source)
+
+            timing_source = ""
+            for candidate in [raw_time, raw_route, raw_dose, raw_name]:
+                if self._looks_like_timing_text(candidate):
+                    timing_source = candidate.strip()
+                    break
+            if not timing_source:
+                timing_source = raw_time
+
+            if not normalized_names and dose_source:
+                # Evita perder linha quando apenas dose foi identificada.
+                normalized_names = self._normalize_antibiotic_names(joined_fields)
+
+            for normalized_name in normalized_names:
+                dedupe_key = (
+                    normalized_name,
+                    normalized_dose,
+                    normalized_route,
+                    timing_source,
+                )
+                if dedupe_key in seen:
+                    continue
+                seen.add(dedupe_key)
+                normalized.append(
+                    AntibioticRule(
+                        name=normalized_name,
+                        dose=normalized_dose,
+                        route=normalized_route,
+                        time=timing_source,
+                    )
+                )
+
+        return normalized
+
     def convert_raw_to_rules(self, raw_extractions: List[Dict]) -> List[ProtocolRule]:
         """
         Converte lista de dicts brutos (do LLM) para objetos ProtocolRule.
@@ -727,25 +1027,7 @@ class ProtocolExtractor:
             attrs = entry.get("attributes", {})
             
             antibiotics_raw = attrs.get("antibiotics", [])
-            antibiotics_objs: List[AntibioticRule] = []
-            for ab in antibiotics_raw:
-                if isinstance(ab, dict):
-                    antibiotics_objs.append(
-                        AntibioticRule(
-                            name=ab.get("name", ""),
-                            dose=ab.get("dose", ""),
-                            route=ab.get("route", ""),
-                            time=ab.get("time", ""),
-                        )
-                    )
-                elif isinstance(ab, str):
-                    antibiotics_objs.append(
-                        AntibioticRule(name=ab.strip(), dose="", route="", time="")
-                    )
-                else:
-                    logger.warning(
-                        f"Formato inesperado de antibiotico ignorado: {type(ab)} -> {ab}"
-                    )
+            antibiotics_objs = self._normalize_antibiotics(antibiotics_raw)
             
             s_type_str = attrs.get("surgery_type", "").upper().replace("-", "_")
             try:
@@ -777,10 +1059,10 @@ class ProtocolExtractor:
             procedure = surgery_names[0] if surgery_names else extraction_text
             notes = str(attrs.get("notes") or "").strip()
 
-            notes_norm = normalize_text(notes)
+            # Recomendacoes extraidas com antibioticos devem ser tratadas como profilaxia requerida.
+            # Algumas notas trazem "nao recomendado dose pos-operatoria", o que nao invalida
+            # a profilaxia pre-operatoria da regra.
             is_prophylaxis_required = bool(antibiotics_objs)
-            if "nao recomendado" in notes_norm or "sem profilaxia" in notes_norm:
-                is_prophylaxis_required = False
 
             primary_drugs = [
                 Drug(
@@ -811,7 +1093,11 @@ class ProtocolExtractor:
                     notes=notes,
                 ),
                 audit_category=audit_category,
-                metadata={"source": "llm", "backend": self.llm_backend},
+                metadata={
+                    "source": "llm",
+                    "backend": self.llm_backend,
+                    "dose_unit_standard": "mg",
+                },
                 surgery_name=surgery_names,
                 surgery_type=surgery_enum,
                 antibiotics=antibiotics_objs,

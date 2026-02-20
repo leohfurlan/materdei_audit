@@ -50,8 +50,8 @@ class TestLLMExtraction(unittest.TestCase):
 
         antibiotic = rule.antibiotics[0]
         self.assertIsInstance(antibiotic, AntibioticRule)
-        self.assertEqual(antibiotic.name, "Cefazolina")
-        self.assertEqual(antibiotic.dose, "2g")
+        self.assertEqual(antibiotic.name, "CEFAZOLINA")
+        self.assertEqual(antibiotic.dose, "2000mg")
         self.assertEqual(antibiotic.route, "EV")
 
         mock_client.models.generate_content.assert_called()
@@ -89,9 +89,72 @@ class TestLLMExtraction(unittest.TestCase):
         self.assertEqual(rule.surgery_name, ["Apendicectomia"])
         self.assertEqual(rule.surgery_type, SurgeryType.CLEAN_CONTAMINATED)
         self.assertEqual(len(rule.antibiotics), 1)
-        self.assertEqual(rule.antibiotics[0].name, "Cefazolina")
-        self.assertEqual(rule.antibiotics[0].dose, "2g")
+        self.assertEqual(rule.antibiotics[0].name, "CEFAZOLINA")
+        self.assertEqual(rule.antibiotics[0].dose, "2000mg")
         self.assertEqual(rule.antibiotics[0].route, "EV")
+
+    def test_convert_raw_to_rules_normalizes_complex_dose_and_combo(self):
+        extractor = ProtocolExtractor(Path("dummy.pdf"))
+        raw = [
+            {
+                "extraction_class": "regra_cirurgia",
+                "extraction_text": "TESTE",
+                "attributes": {
+                    "surgery_name": ["Procedimento teste"],
+                    "surgery_type": "Limpa",
+                    "antibiotics": [
+                        {
+                            "name": "Ampicilina/Sulbactam",
+                            "dose": "15 a 20mg/kg (nao exceder 2g)",
+                            "route": "iv",
+                            "time": "na inducao",
+                        }
+                    ],
+                    "notes": "",
+                },
+            }
+        ]
+
+        rules = extractor.convert_raw_to_rules(raw)
+        self.assertEqual(len(rules), 1)
+        self.assertEqual(len(rules[0].antibiotics), 1)
+        self.assertEqual(rules[0].antibiotics[0].name, "AMPICILINA_SULBACTAM")
+        self.assertEqual(
+            rules[0].antibiotics[0].dose,
+            "15 a 20mg/kg (nao exceder 2000mg)",
+        )
+        self.assertEqual(rules[0].antibiotics[0].route, "EV")
+
+    def test_convert_raw_to_rules_repairs_shifted_columns(self):
+        extractor = ProtocolExtractor(Path("dummy.pdf"))
+        raw = [
+            {
+                "extraction_class": "regra_cirurgia",
+                "extraction_text": "TESTE SHIFT",
+                "attributes": {
+                    "surgery_name": ["Procedimento com shift"],
+                    "surgery_type": "Limpa",
+                    "antibiotics": [
+                        {
+                            # Simula colunas deslocadas para esquerda.
+                            "name": "2g",
+                            "dose": "EV",
+                            "route": "na inducao",
+                            "time": "Cefazolina",
+                        }
+                    ],
+                    "notes": "",
+                },
+            }
+        ]
+
+        rules = extractor.convert_raw_to_rules(raw)
+        self.assertEqual(len(rules), 1)
+        self.assertEqual(len(rules[0].antibiotics), 1)
+        self.assertEqual(rules[0].antibiotics[0].name, "CEFAZOLINA")
+        self.assertEqual(rules[0].antibiotics[0].dose, "2000mg")
+        self.assertEqual(rules[0].antibiotics[0].route, "EV")
+        self.assertEqual(rules[0].antibiotics[0].time, "na inducao")
 
 
 if __name__ == "__main__":
