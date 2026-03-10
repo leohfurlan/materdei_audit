@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from config import OUTPUT_DIR, AUDIT_CONFIG, LOGGING_CONFIG
 from controllers import SurgeryAuditor, ReportGenerator, ProtocolExtractor
 from models import ProtocolRulesRepository
-from utils.input_loader import load_json
+from utils.input_loader import load_json, load_procedure_translation_map
 
 # Configura logging
 dictConfig(LOGGING_CONFIG)
@@ -107,6 +107,12 @@ def main() -> int:
         default="./data/input/procedimentos.json",
         help="Caminho do JSON de traducao de procedimentos (Excel -> protocolo)",
     )
+    parser.add_argument(
+        "--procedures-map-version",
+        type=str,
+        default="current",
+        help="Versao do mapeamento: current, latest ou numero da versao",
+    )
 
     args = parser.parse_args()
 
@@ -145,24 +151,30 @@ def main() -> int:
 
         # Carrega dicionario de traducao de procedimentos
         procedure_translation_map = {}
+        procedure_translation_map_metadata = {}
         procedures_map_path = Path(args.procedures_map)
-        if procedures_map_path.exists():
-            raw_map = load_json(str(procedures_map_path))
-            if isinstance(raw_map, dict):
-                procedure_translation_map = {
-                    str(k).strip(): str(v).strip()
-                    for k, v in raw_map.items()
-                    if isinstance(k, str) and isinstance(v, str) and k.strip() and v.strip()
-                }
-                logger.info(
-                    f"  OK {len(procedure_translation_map)} traducoes carregadas de {procedures_map_path}"
-                )
-            else:
-                logger.warning(
-                    f"Dicionario de procedimentos invalido (nao e objeto JSON): {procedures_map_path}"
-                )
-        else:
-            logger.warning(f"Dicionario de procedimentos nao encontrado: {procedures_map_path}")
+        try:
+            (
+                procedure_translation_map,
+                procedure_translation_map_metadata,
+            ) = load_procedure_translation_map(
+                procedures_map_path,
+                args.procedures_map_version,
+            )
+            logger.info(
+                "  OK %s traducoes carregadas de %s (versao %s)",
+                len(procedure_translation_map),
+                procedure_translation_map_metadata.get("resolved_path", procedures_map_path),
+                procedure_translation_map_metadata.get("map_version", "current"),
+            )
+        except FileNotFoundError:
+            logger.warning(
+                "Dicionario de procedimentos nao encontrado: %s (versao solicitada: %s)",
+                procedures_map_path,
+                args.procedures_map_version,
+            )
+        except ValueError as exc:
+            logger.warning(f"Dicionario de procedimentos invalido: {exc}")
         logger.info("")
 
         # Cria auditor
@@ -170,6 +182,7 @@ def main() -> int:
             rules_repo,
             AUDIT_CONFIG,
             procedure_translation_map=procedure_translation_map,
+            procedure_translation_map_metadata=procedure_translation_map_metadata,
         )
 
         # Carrega cirurgias

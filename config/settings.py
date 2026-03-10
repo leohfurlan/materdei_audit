@@ -67,6 +67,7 @@ REDOSING_INTERVALS = {
 # Mapeamento de colunas da planilha Excel
 EXCEL_COLUMNS = {
     "date": "Dt Cirurgia",
+    "attendance_code": "Cod Atendimento",
     "procedure": "Cirurgia",
     "specialty": "Especialidade",
     "incision_time": "Hr IncisÃ£o",

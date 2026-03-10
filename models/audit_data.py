@@ -12,6 +12,7 @@ class SurgeryRecord:
     
     # Dados básicos
     date: Optional[date] = None
+    attendance_code: str = ""
     procedure: str = ""
     specialty: str = ""
     
@@ -45,6 +46,7 @@ class SurgeryRecord:
         """Converte para dicionário."""
         return {
             'date': self.date.isoformat() if self.date else None,
+            'attendance_code': self.attendance_code,
             'procedure': self.procedure,
             'specialty': self.specialty,
             'incision_time': self.incision_time,
@@ -75,6 +77,7 @@ class AuditResult:
     matched_rule_id: Optional[str] = None
     match_score: float = 0.0
     match_method: str = ""
+    procedure_map_version: str = ""
     
     # Conformidade calculada
     conf_escolha: str = "INDETERMINADO"
@@ -117,6 +120,7 @@ class AuditResult:
         result = {
             # Dados do registro original
             'data': self.surgery_record.date.isoformat() if self.surgery_record.date else None,
+            'cod_atendimento': self.surgery_record.attendance_code,
             'procedimento': self.surgery_record.procedure,
             'especialidade': self.surgery_record.specialty,
             'hr_incisao': self.surgery_record.incision_time,
@@ -133,6 +137,7 @@ class AuditResult:
             'match_rule_id': self.matched_rule_id,
             'match_score': self.match_score,
             'match_method': self.match_method,
+            'versao_mapeamento_procedimentos': self.procedure_map_version,
             
             # Protocolo
             'protocolo_secao': self.protocolo_secao,

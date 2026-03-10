@@ -1,10 +1,14 @@
 import unittest
 import sys
 from pathlib import Path
+from unittest.mock import patch
+
+import pandas as pd
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from controllers.report_generator import ReportGenerator
 from controllers.surgery_auditor import SurgeryAuditor
 from models import (
     ProtocolRulesRepository,
@@ -12,6 +16,7 @@ from models import (
     Recommendation,
     Drug,
     SurgeryRecord,
+    AuditResult,
 )
 from config import AUDIT_CONFIG
 
@@ -117,6 +122,42 @@ class TestSurgeryAuditorCalibration(unittest.TestCase):
 
         self.assertEqual(result.conf_dose, "ALERTA")
         self.assertEqual(result.conf_dose_razao, "dose_fora_referencia")
+
+    def test_load_surgeries_from_excel_keeps_cod_atendimento(self):
+        auditor = SurgeryAuditor(self.repo, AUDIT_CONFIG)
+        df = pd.DataFrame(
+            [
+                {
+                    "Cod Atendimento": 12345.0,
+                    "Cirurgia": "Cesariana",
+                    "Administração de Antibiotico": "SIM",
+                    "Antibiótico": "Cefazolina 2g",
+                }
+            ]
+        )
+
+        with patch("controllers.surgery_auditor.pd.read_excel", return_value=df):
+            count = auditor.load_surgeries_from_excel(Path("dummy.xlsx"))
+
+        self.assertEqual(count, 1)
+        self.assertEqual(auditor.surgery_records[0].attendance_code, "12345")
+
+    def test_report_dataframe_includes_cod_atendimento_and_map_version(self):
+        result = AuditResult(
+            surgery_record=SurgeryRecord(
+                procedure="Cesariana",
+                attendance_code="ATD-001",
+                repique_done="NAO",
+            ),
+            procedure_map_version="v2",
+        )
+
+        df = ReportGenerator([result]).prepare_dataframe()
+
+        self.assertIn("cod_atendimento", df.columns)
+        self.assertIn("versao_mapeamento_procedimentos", df.columns)
+        self.assertEqual(df.loc[0, "cod_atendimento"], "ATD-001")
+        self.assertEqual(df.loc[0, "versao_mapeamento_procedimentos"], "v2")
 
 
 if __name__ == "__main__":

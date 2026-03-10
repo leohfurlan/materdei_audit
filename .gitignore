@@ -43,12 +43,16 @@ logs/
 # Data files (não commitar dados sensíveis)
 data/input/*.xlsx
 data/input/*.pdf
+data/input/*.csv
+data/input/*.json
+data/input/*.txt
 data/output/*.xlsx
 data/output/*.csv
 data/output/*.json
 data/output/*.txt
 data/temp/*
 output/*
+
 
 # Jupyter Notebook
 .ipynb_checkpoints

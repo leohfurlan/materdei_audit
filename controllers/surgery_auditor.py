@@ -38,6 +38,7 @@ class SurgeryAuditor:
         rules_repository: ProtocolRulesRepository,
         config: Dict[str, Any] = None,
         procedure_translation_map: Optional[Dict[str, str]] = None,
+        procedure_translation_map_metadata: Optional[Dict[str, Any]] = None,
     ):
         """
         Inicializa o auditor.
@@ -51,7 +52,13 @@ class SurgeryAuditor:
         self.surgery_records: List[SurgeryRecord] = []
         self.audit_results: List[AuditResult] = []
         self.procedure_translation_map: Dict[str, str] = {}
+        self.procedure_translation_map_version = ""
         self.excel_columns: Dict[str, str] = {}
+
+        if procedure_translation_map_metadata:
+            self.procedure_translation_map_version = str(
+                procedure_translation_map_metadata.get("map_version", "")
+            ).strip()
 
         if procedure_translation_map:
             for excel_name, protocol_name in procedure_translation_map.items():
@@ -89,6 +96,7 @@ class SurgeryAuditor:
 
         optional_keys = [
             "date",
+            "attendance_code",
             "specialty",
             "incision_time",
             "atb_given",
@@ -133,6 +141,12 @@ class SurgeryAuditor:
 
         aliases = {
             "date": ["dt cirurgia", "data cirurgia", "data da cirurgia"],
+            "attendance_code": [
+                "cod atendimento",
+                "cod. atendimento",
+                "codigo atendimento",
+                "codigo do atendimento",
+            ],
             "procedure": ["cirurgia", "procedimento"],
             "specialty": ["especialidade"],
             "incision_time": ["hr incisao", "hora incisao", "hora da incisao"],
@@ -249,6 +263,27 @@ class SurgeryAuditor:
                 return f"{hour:02d}:{minute:02d}"
 
         return parse_time(str(value))
+
+    def _parse_identifier(self, value: Any) -> str:
+        """Normaliza identificadores livres vindos do Excel."""
+        if value is None:
+            return ""
+
+        try:
+            if pd.isna(value):
+                return ""
+        except Exception:
+            pass
+
+        if isinstance(value, (int, np.integer)):
+            return str(int(value))
+
+        if isinstance(value, (float, np.floating)):
+            if float(value).is_integer():
+                return str(int(value))
+            return str(value).strip()
+
+        return str(value).strip()
     
     def _parse_row_to_surgery(self, row: pd.Series, idx: int) -> Optional[SurgeryRecord]:
         """
@@ -301,6 +336,7 @@ class SurgeryAuditor:
         # Cria registro
         record = SurgeryRecord(
             date=date_val,
+            attendance_code=self._parse_identifier(self._get_row_value(row, "attendance_code", "")),
             procedure=procedure,
             specialty=str(self._get_row_value(row, "specialty", "")).strip(),
             incision_time=incision_time,
@@ -356,6 +392,7 @@ class SurgeryAuditor:
         """
         # Cria resultado
         result = AuditResult(surgery_record=record)
+        result.procedure_map_version = self.procedure_translation_map_version
         
         # 1. Faz match com protocolo
         matched_rule, score, method = self._match_with_protocol(record.procedure)
