@@ -1,0 +1,59 @@
+﻿procedimento,ocorrencias,traducao_mapeada,melhor_regra_atual,melhor_score_atual
+CATETERISMO DIR + ESQ + CINEANGIOCARDIOG,21,Procedimentos Hemodinâmica (Diagnóstico),Toracocentese diagnóstica,0.635
+CATETERISMO DAS CAMARAS ESQUERDAS E OU E,14,Procedimentos Hemodinâmica (Diagnóstico/Terapêutico),Toracocentese diagnóstica,0.56
+ENDOSCOPIA DIGESTIVA ALTA,12,Esofagogastroduodenoscopia diagnóstica ou terapêutica,Pleuroscopia diagnóstica,0.629
+IMPLANTE DE ENDO-PROTESE INTRACORONARIA,6,Angioplastias (Stent),Hernioplastia,0.625
+N.P.CURATIVO ESPECIAL SOB ANESTESIA - POR UN,4,Desbridamento de úlcera/necrose (tratamento) ou Curativo simples,Endometriose ou outros procedimentos com manipulação de alça,0.508
+N.P.ENDOSCOPIA DIGESTIVA ALTA,4,Esofagogastroduodenoscopia diagnóstica ou terapêutica,Pleuroscopia diagnóstica,0.629
+TESTE DA UREASE P/PESQUISA DE HELICOBACT,4,Esofagogastroduodenoscopia diagnóstica ou terapêutica (Endoscopia),Pleuroscopia diagnóstica,0.629
+N.P.ANGIOGRAFIA POR CATETER,3,Arteriografias / Angiografia,Colangiopancreatografia Retrógrada Endoscópica,0.583
+PARACENTESE ABDOMINAL,3,Procedimento Diagnóstico / Punção (Sem profilaxia rotineira),Laparoscopia ou laparotomia diagnóstica (sem abertura de útero ou vagina),0.548
+N.P.EXTENSOS FERIM-CICATRIZES OU TUMORES REP,3,,Fistula arteriovenosa com ou sem próteses - revisão,0.473
+ANGIOGRAFIA POR CATETERISMO SELETIVO DE,3,Arteriografias / Angiografia,Colangiopancreatografia Retrógrada Endoscópica,0.583
+N.P.DESBRIDAMENTO CIRÚRGICO - POR UNIDADE TOPOGRÁFICA (UT),3,Desbridamento de úlcera/necrose (tratamento),Amputação de membros pós-traumática,0.519
+N.P.HALLUX VALGUS (UM PE) - TRATAMENTO CIRURGICO,3,Cirurgia Ortopédica - Pé,Cirurgia de adrenal,0.683
+TRATAMENTO CIRURGICO DO MAL PERFURANTE PLANTAR,2,Desbridamento de úlcera/necrose (tratamento) ou Cirurgia Ortopédica - Pé,Cirurgia de mama,0.815
+N.P.TENOPLASTIA / ENXERTO DE TENDAO - TRATAMENTO CIRURGICO,2,Cirurgia Ortopédica - Reparos tendinosos,Cirurgia de mama,0.667
+N.P.FRATURAS E/OU LUXACOES AO NIVEL DO TORNOZELO - TRATAMENTO CI,2,,"Parto vaginal, se remoção manual da placenta, se lacerações de períneo de 3º e 4º graus",0.511
+"N.P.BLOQUEIO FENOLICO, ALCOOLICO OU COM TOXI",2,Procedimento Anestésico / Bloqueio,Endometriose ou outros procedimentos com manipulação de alça,0.543
+N.P.IMPLANTE DE ENDO-PROTESE INTRACORONARIA,2,Angioplastias (Stent),Hernioplastia,0.625
+ESTUDO ELETROFISIOLOGICO CARDÍACO COM OU SEM ELETRO-ELETRON,2,Estudo eletrofisiológico,Estudo urodinâmico,0.619
+HEMATOMA INTRACEREBRAL: TRATAMENTO CIRUR,2,,Cirurgia com incisão trans-oral,0.571
+N.P.PE PLANO VALGO - TRATAMENTO CIRURGICO,2,Cirurgia Ortopédica - Pé,Cirurgia de adrenal,0.683
+N.P.TENOLISE NO TUNEL OSTEO FIBROSO,1,Tenólise,Embolizações,0.5
+N.P.OSTEOMIELITE DOS OSSOS DA PERNA - TRATAM,1,Ressecção de condrite/osteomielite,Postectomia Com fatores de risco,0.606
+RESSUTURA DA PAREDE ABDOMINAL (POR DEISC,1,Cirurgia Geral - Procedimentos diversos / Fechamento de parede,Cirurgia de mama,0.815
+N.P.MANIPULACAO ARTICULAR (SOB ANESTESIA GER,1,Exploração articular,Reprodução assistida,0.55
+N.P.RETIRADA CIRÚRGICA DE CORPO ESTRANHO (NA,1,Cirurgia Geral - Procedimentos diversos / Retirada corpo estranho,Cirurgia de mama,0.667
+ANGIOGRAFIA POR CATETER,1,Arteriografias / Angiografia,Colangiopancreatografia Retrógrada Endoscópica,0.583
+N.P.N.P. DESBRIDAMENTO CIRÚRGICO - POR UNIDADE TOPOGRÁFICA (UT),1,Desbridamento de úlcera/necrose (tratamento),Amputação de membros pós-traumática,0.519
+N.P.CATETERISMO DIR + ESQ + CINEANGIOCARDIOG,1,Procedimentos Hemodinâmica (Diagnóstico),Toracocentese diagnóstica,0.635
+CORPO ESTRANHO DE FARINGE - RETIRADA COM,1,Remoção corpo estranho (sem profilaxia),Cirurgia da mama: Cirurgia estética ou reconstrução com ou sem prótese,0.511
+N.P.SINOVECTOMIA TOTAL - PROCEDIMENTO VIDEOARTROSCOPICO DE PUNHO,1,,Neovagina total,0.5
+ARTERIOGRAFIA DIGITAL (ATE 3 VASOS),1,Arteriografias,Artroplastias,0.667
+MAPEAMENTO DE FEIXES ANOMALOS E FOCOS EC,1,Estudo eletrofisiológico,Estudo urodinâmico,0.619
+"N.P.LESAO AGUDA DE LIGAMENTO COLATERAL,ASSOC",1,Cirurgia Ortopédica - Reparos tendinosos/ligamentares,Cirurgia de mama,0.667
+N.P.N.P. EXTENSOS FERIM-CICATRIZES OU TUMORES REP,1,,Fistula arteriovenosa com ou sem próteses - revisão,0.473
+N.P.TENOTOMIA DA PORÇÃO DO BICEPS  (OMBRO),1,Cirurgia Ortopédica - Reparos tendinosos,Cirurgia de mama,0.667
+CATETERISMO CARDIACO DIREITO E ESQUERDO,1,Procedimentos Hemodinâmica (Diagnóstico),Toracocentese diagnóstica,0.635
+N.P.DESBRIDAMENTO DE ESCARA OU ULCERACAO,1,Desbridamento de úlcera/necrose (tratamento),Amputação de membros pós-traumática,0.519
+CATETERISMO DE CAMARAS DIR. E ESQ. COM E,1,,Endarterectomia de carótida com prótese,0.56
+N.P.OSTEOTOMIAS SEGMENTARES DA MAXILA OU MAL,1,Cirurgia Bucomaxilo / Cabeça e Pescoço,Cirurgia de mama,0.667
+CATETERISMO DA ARTÉRIA RADIAL - PARA PAM,1,Procedimentos Hemodinâmica (Diagnóstico/Monitorização),Toracocentese diagnóstica,0.597
+N.P.TESTE DA UREASE P/PESQUISA DE HELICOBACT,1,Esofagogastroduodenoscopia diagnóstica ou terapêutica (Endoscopia),Pleuroscopia diagnóstica,0.629
+MAPEAMENTO DE GATILHOS OU SUBSTRATOS ARRITMOGENICOS POR TECN,1,Estudo eletrofisiológico,Estudo urodinâmico,0.619
+"N.P.INSTABILIDADE FEMORO-PATELAR, RELEASE LA",1,Cirurgia Ortopédica - Reparos tendinosos/ligamentares,Cirurgia de mama,0.667
+N.P.ULCERA OU NECROSE: DEBRIDOMENTO CIRURGIC,1,Desbridamento de úlcera/necrose (tratamento),Amputação de membros pós-traumática,0.519
+N.P.N.P. OSTEOTOMIAS SEGMENTARES DA MAXILA OU MAL,1,Cirurgia Bucomaxilo / Cabeça e Pescoço,Cirurgia de mama,0.667
+N.P.OSTEOPLASTIA PARA PROGNATISMO OU MICROGN,1,Cirurgia Bucomaxilo / Cabeça e Pescoço,Cirurgia de mama,0.667
+N.P.CISTO SINOVIAL -  TRATAMENTO CIRURGICO,1,Ressecção de cisto sinovial / Pequenas cirurgias ortopédicas,Cirurgias colorretais,0.6
+N.P.RESSECCAO DE TUMOR DE PAREDE ABDOMINAL P,1,Cirurgia Geral - Procedimentos diversos,Cirurgia de mama,0.667
+DESBRIDAMENTO DE ESCARA OU ULCERACAO,1,Desbridamento de úlcera/necrose (tratamento),Amputação de membros pós-traumática,0.519
+N.P.CATETERISMO DAS CAMARAS ESQUERDAS E OU E,1,Procedimentos Hemodinâmica (Diagnóstico/Terapêutico),Toracocentese diagnóstica,0.56
+BLOQUEIO ANESTESICO DE NERVOS (DIARIA SUBSEQUENTE),1,Procedimento Anestésico / Bloqueio,Endometriose ou outros procedimentos com manipulação de alça,0.543
+N.P.FRATURAS E/OU LUXACOES E/OU AVULSOES - REDUCAO INCRUENTA - E,1,Procedimento Ortopédico (Sem antibiótico se conservador),Curetagem uterina de aborto retido/incompleto e sem fator de risco,0.496
+EXTENSOS FERIM-CICATRIZES OU TUMORES REP,1,,Cirurgia redutora de enfisema,0.493
+ECOENDOSCOPIA ALTA,1,Esofagogastroduodenoscopia diagnóstica ou terapêutica (Endoscopia),Pleuroscopia diagnóstica,0.629
+"N.P.OSTEOCONDROPLASTIA - ESTABILIZAÇÃO, RESSECÇÃO E/OU PLASTIA #",1,,Lipoaspiração (sucção ou laser assistida),0.49
+N.P.N.P. OSTEOTOMIAS ALVEOLO PALATINAS,1,Cirurgia Bucomaxilo / Cabeça e Pescoço,Cirurgia de mama,0.667
+N.P.OSTEOTOMIAS ALVEOLO PALATINAS,1,Cirurgia Bucomaxilo / Cabeça e Pescoço,Cirurgia de mama,0.667

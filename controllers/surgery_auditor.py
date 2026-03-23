@@ -64,9 +64,11 @@ class SurgeryAuditor:
             for excel_name, protocol_name in procedure_translation_map.items():
                 if not excel_name or not protocol_name:
                     continue
-                key_norm = normalize_text(str(excel_name))
-                if key_norm:
-                    self.procedure_translation_map[key_norm] = str(protocol_name).strip()
+                for key_norm in self._build_procedure_lookup_variants(str(excel_name)):
+                    self.procedure_translation_map.setdefault(
+                        key_norm,
+                        str(protocol_name).strip(),
+                    )
         
     def load_surgeries_from_excel(self, excel_path: Path, sheet_name: str = None) -> int:
         """
@@ -483,28 +485,29 @@ class SurgeryAuditor:
             return None, 0.0, "no_procedure"
 
         # Prioriza traduÃ§Ã£o direta (Excel -> nomenclatura do protocolo)
+        procedure_candidates = self._build_procedure_lookup_variants(procedure)
         translated = self._translate_procedure_name(procedure)
         if translated:
             translated_rule, translated_score, translated_method = self._match_translated_procedure(
                 translated_procedure=translated,
-                source_procedure=procedure,
+                source_procedure=None,
             )
             if translated_rule:
                 return translated_rule, translated_score, translated_method
         
-        procedure_clean = clean_procedure_name(procedure)
-        
         # Busca exata por procedimento normalizado
-        exact_matches = self.rules_repo.find_by_procedure(procedure_clean)
-        if exact_matches:
-            return exact_matches[0], 1.0, "exact_match"
+        for procedure_candidate in procedure_candidates:
+            exact_matches = self.rules_repo.find_by_procedure(procedure_candidate)
+            if exact_matches:
+                return exact_matches[0], 1.0, "exact_match"
 
         # Busca exata por aliases das regras extraidas por LLM (quando disponiveis).
-        for rule in self.rules_repo.rules:
-            aliases = getattr(rule, "surgery_name", []) or []
-            for alias in aliases:
-                if normalize_text(str(alias)) == procedure_clean:
-                    return rule, 1.0, "alias_match"
+        for procedure_candidate in procedure_candidates:
+            for rule in self.rules_repo.rules:
+                aliases = getattr(rule, "surgery_name", []) or []
+                for alias in aliases:
+                    if normalize_text(str(alias)) == procedure_candidate:
+                        return rule, 1.0, "alias_match"
         
         # Busca fuzzy
         best_rule = None
@@ -517,24 +520,68 @@ class SurgeryAuditor:
             aliases = getattr(rule, "surgery_name", []) or []
             targets.extend(normalize_text(str(alias)) for alias in aliases if str(alias).strip())
 
-            for target in targets:
-                score = fuzzy_match_score(procedure_clean, target)
-                if score > best_score and score >= threshold:
-                    best_score = score
-                    best_rule = rule
+            for procedure_candidate in procedure_candidates:
+                for target in targets:
+                    score = fuzzy_match_score(procedure_candidate, target)
+                    if score > best_score and score >= threshold:
+                        best_score = score
+                        best_rule = rule
         
         if best_rule:
             return best_rule, best_score, "fuzzy_match"
         
         return None, 0.0, "no_match"
     
+    def _strip_nonsemantic_procedure_prefixes(self, procedure_normalized: str) -> str:
+        """Remove prefixos administrativos recorrentes no inicio da descricao."""
+        stripped = procedure_normalized.strip()
+        if not stripped:
+            return ""
+
+        prefix_pattern = re.compile(r"^(?:(?:n\s*p)|np)\b\s*", re.IGNORECASE)
+        while stripped:
+            updated = prefix_pattern.sub("", stripped).strip()
+            if updated == stripped:
+                break
+            stripped = updated
+
+        return stripped
+
+    def _build_procedure_lookup_variants(self, procedure: str) -> List[str]:
+        """Gera variantes normalizadas para lookup e matching de procedimentos."""
+        normalized = normalize_text(procedure)
+        if not normalized:
+            return []
+
+        variants: List[str] = []
+
+        def _append(candidate: str) -> None:
+            candidate = candidate.strip()
+            if candidate and candidate not in variants:
+                variants.append(candidate)
+
+        _append(normalized)
+
+        stripped = self._strip_nonsemantic_procedure_prefixes(normalized)
+        _append(stripped)
+
+        cleaned = clean_procedure_name(stripped or normalized)
+        _append(cleaned)
+
+        return variants
+
 
     def _translate_procedure_name(self, procedure: str) -> str:
         """Traduz o procedimento do Excel para nomenclatura do protocolo."""
         if not self.procedure_translation_map:
             return ""
 
-        return self.procedure_translation_map.get(normalize_text(procedure), "")
+        for candidate in self._build_procedure_lookup_variants(procedure):
+            translated = self.procedure_translation_map.get(candidate, "")
+            if translated:
+                return translated
+
+        return ""
 
     def _is_translation_candidate_plausible(self, source_procedure: str, candidate: str) -> bool:
         """
@@ -639,7 +686,7 @@ class SurgeryAuditor:
         if not self._rule_requires_prophylaxis(rule):
             return 'ALERTA', 'profilaxia_potencial_sem_indicacao'
 
-        return 'NAO_CONFORME', 'atb_nao_recomendado'
+        return 'ALERTA', 'atb_nao_recomendado'
 
     def _get_recommendation_drugs(self, rule: Optional[ProtocolRule]) -> List[Any]:
         """Retorna lista consolidada de antibioticos das recomendacoes primaria e alergia."""

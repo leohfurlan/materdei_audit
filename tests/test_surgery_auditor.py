@@ -35,6 +35,19 @@ class TestSurgeryAuditorCalibration(unittest.TestCase):
         self.repo._build_index()
         return SurgeryAuditor(self.repo, AUDIT_CONFIG)
 
+    def _build_auditor_with_rule_and_map(
+        self,
+        rule: ProtocolRule,
+        procedure_translation_map: dict[str, str],
+    ) -> SurgeryAuditor:
+        self.repo.rules = [rule]
+        self.repo._build_index()
+        return SurgeryAuditor(
+            self.repo,
+            AUDIT_CONFIG,
+            procedure_translation_map=procedure_translation_map,
+        )
+
     def test_no_match_without_antibiotic_is_conforme(self):
         auditor = SurgeryAuditor(self.repo, AUDIT_CONFIG)
         record = SurgeryRecord(
@@ -94,6 +107,78 @@ class TestSurgeryAuditorCalibration(unittest.TestCase):
 
         self.assertEqual(result.conf_final, "ALERTA")
         self.assertEqual(result.conf_final_razao, "sem_match_protocolo")
+
+    def test_antibiotic_outside_protocol_list_becomes_alert(self):
+        rule = ProtocolRule(
+            rule_id="rule_alert_choice",
+            procedure="Cesariana",
+            procedure_normalized="cesariana",
+            is_prophylaxis_required=True,
+            primary_recommendation=Recommendation(
+                drugs=[Drug(name="CEFAZOLINA", dose="2000mg", route="EV", timing="na inducao")]
+            ),
+            allergy_recommendation=Recommendation(drugs=[]),
+        )
+        auditor = self._build_auditor_with_rule(rule)
+        record = SurgeryRecord(
+            procedure="Cesariana",
+            atb_given="SIM",
+            atb_detected=["CLINDAMICINA"],
+            atb_name="Clindamicina 900mg",
+            dose_administered_mg=900.0,
+            atb_time="07:00",
+            incision_time="07:30",
+            repique_done="NAO",
+        )
+
+        result = auditor.audit_surgery(record)
+
+        self.assertEqual(result.conf_escolha, "ALERTA")
+        self.assertEqual(result.conf_escolha_razao, "atb_nao_recomendado")
+        self.assertEqual(result.conf_final, "ALERTA")
+
+    def test_prefix_np_is_ignored_for_protocol_match(self):
+        rule = ProtocolRule(
+            rule_id="rule_prefix",
+            procedure="Reparo ou sutura de um menisco joelho",
+            procedure_normalized="reparo ou sutura de um menisco joelho",
+            is_prophylaxis_required=True,
+            primary_recommendation=Recommendation(
+                drugs=[Drug(name="CEFAZOLINA", dose="2000mg", route="EV", timing="na inducao")]
+            ),
+            allergy_recommendation=Recommendation(drugs=[]),
+        )
+        auditor = self._build_auditor_with_rule(rule)
+
+        matched_rule, score, method = auditor._match_with_protocol(
+            "N.P.REPARO OU SUTURA DE UM MENISCO (JOELHO)"
+        )
+
+        self.assertIsNotNone(matched_rule)
+        self.assertEqual(matched_rule.rule_id, "rule_prefix")
+        self.assertEqual(score, 1.0)
+        self.assertEqual(method, "exact_match")
+
+    def test_curated_translation_map_is_trusted_even_with_low_lexical_similarity(self):
+        rule = ProtocolRule(
+            rule_id="rule_map",
+            procedure="Cirurgias limpas sem implantes",
+            procedure_normalized="cirurgias limpas sem implantes",
+            is_prophylaxis_required=False,
+            primary_recommendation=Recommendation(drugs=[]),
+            allergy_recommendation=Recommendation(drugs=[]),
+        )
+        auditor = self._build_auditor_with_rule_and_map(
+            rule,
+            {"TIREOIDECTOMIA TOTAL": "Cirurgias limpas sem implantes"},
+        )
+
+        matched_rule, score, method = auditor._match_with_protocol("N.P.TIREOIDECTOMIA TOTAL")
+
+        self.assertIsNotNone(matched_rule)
+        self.assertEqual(matched_rule.rule_id, "rule_map")
+        self.assertEqual(score, 1.0)
+        self.assertEqual(method, "translated_exact_match")
 
     def test_large_dose_gap_up_to_100_percent_is_alert(self):
         rule = ProtocolRule(
