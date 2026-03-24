@@ -47,6 +47,60 @@ def _apply_synonyms(text: str, synonyms: Dict[str, List[str]]) -> str:
     return " ".join(tokens)
 
 
+def _cell_text(value: Any) -> str:
+    """Converte valores de célula para texto, tratando nulos do pandas."""
+    if value is None or pd.isna(value):
+        return ""
+    return str(value).strip()
+
+
+def _build_surgeon_specialty_map(
+    df: pd.DataFrame,
+    col_surgeon: Optional[str],
+    col_spec: Optional[str],
+) -> Dict[str, str]:
+    """
+    Mapeia cirurgião -> especialidade predominante.
+
+    Em caso de empate, usa a primeira especialidade não nula encontrada.
+    """
+    if not col_surgeon or not col_spec:
+        return {}
+
+    specialty_counts: Dict[str, Dict[str, int]] = {}
+    first_seen_order: Dict[str, Dict[str, int]] = {}
+    specialty_labels: Dict[str, Dict[str, str]] = {}
+
+    source = df[[col_surgeon, col_spec]].itertuples(index=False, name=None)
+    for row_idx, (surgeon_value, spec_value) in enumerate(source):
+        surgeon = _cell_text(surgeon_value)
+        spec = _cell_text(spec_value)
+        surgeon_norm = normalize_text(surgeon)
+        spec_norm = normalize_text(spec)
+        if not surgeon_norm or not spec_norm:
+            continue
+
+        surgeon_counts = specialty_counts.setdefault(surgeon_norm, {})
+        surgeon_counts[spec_norm] = surgeon_counts.get(spec_norm, 0) + 1
+
+        surgeon_orders = first_seen_order.setdefault(surgeon_norm, {})
+        surgeon_orders.setdefault(spec_norm, row_idx)
+
+        surgeon_labels = specialty_labels.setdefault(surgeon_norm, {})
+        surgeon_labels.setdefault(spec_norm, spec)
+
+    surgeon_specialty_map: Dict[str, str] = {}
+    for surgeon_norm, surgeon_counts in specialty_counts.items():
+        surgeon_orders = first_seen_order[surgeon_norm]
+        best_spec_norm = max(
+            surgeon_counts,
+            key=lambda spec_norm: (surgeon_counts[spec_norm], -surgeon_orders[spec_norm]),
+        )
+        surgeon_specialty_map[surgeon_norm] = specialty_labels[surgeon_norm][best_spec_norm]
+
+    return surgeon_specialty_map
+
+
 def _build_rule_index(rules: List[Dict[str, Any]], specialty_set: Optional[set] = None) -> List[Dict[str, Any]]:
     out = []
     specialty_set = specialty_set or set()
@@ -145,20 +199,24 @@ def main() -> int:
     specialty_set = set()
     if col_spec:
         for v in df[col_spec].dropna().unique():
-            v_str = str(v).strip()
+            v_str = _cell_text(v)
             if v_str:
                 specialty_set.add(normalize_text(v_str))
 
+    surgeon_specialty_map = _build_surgeon_specialty_map(df, col_surgeon, col_spec)
     rule_index = _build_rule_index(rules, specialty_set)
     mapping: Dict[str, Any] = {}
     simple_map: Dict[str, Any] = {}
 
     for _, row in df.iterrows():
-        proc = str(row.get(col_proc, "")).strip()
+        proc = _cell_text(row.get(col_proc, ""))
         if not proc or len(proc) < 3:
             continue
-        spec = str(row.get(col_spec, "")).strip() if col_spec else ""
-        surgeon = str(row.get(col_surgeon, "")).strip() if col_surgeon else ""
+        spec = _cell_text(row.get(col_spec, "")) if col_spec else ""
+        surgeon = _cell_text(row.get(col_surgeon, "")) if col_surgeon else ""
+        if not spec and surgeon:
+            spec = surgeon_specialty_map.get(normalize_text(surgeon), "")
+
         key = f"{spec} | {proc}" if spec else proc
         if key in mapping:
             continue
