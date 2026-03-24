@@ -62,12 +62,14 @@ class Recommendation:
     drugs: List[Drug] = field(default_factory=list)
     raw_text: str = ""
     notes: str = ""
+    acceptable_regimens: List[List[str]] = field(default_factory=list)
     
     def to_dict(self) -> Dict[str, Any]:
         return {
             'drugs': [d.to_dict() for d in self.drugs],
             'raw_text': self.raw_text,
             'notes': self.notes,
+            'acceptable_regimens': self.acceptable_regimens,
         }
     
     @classmethod
@@ -77,6 +79,11 @@ class Recommendation:
             drugs=drugs,
             raw_text=data.get('raw_text', ''),
             notes=data.get('notes', ''),
+            acceptable_regimens=[
+                [str(item).strip() for item in regimen if str(item).strip()]
+                for regimen in data.get('acceptable_regimens', [])
+                if isinstance(regimen, list)
+            ],
         )
 
 @dataclass

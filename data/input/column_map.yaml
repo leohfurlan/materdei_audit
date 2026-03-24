@@ -1,5 +1,6 @@
 procedure: "cirurgia"
 specialty: "especialidade"
+surgeon: "cirurgiao"
 
 incision_datetime: "data_hora_incisao"
 

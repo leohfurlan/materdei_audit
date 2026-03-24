@@ -15,6 +15,7 @@ class SurgeryRecord:
     attendance_code: str = ""
     procedure: str = ""
     specialty: str = ""
+    surgeon: str = ""
     
     # Horários
     incision_time: Optional[str] = None  # HH:MM
@@ -49,6 +50,7 @@ class SurgeryRecord:
             'attendance_code': self.attendance_code,
             'procedure': self.procedure,
             'specialty': self.specialty,
+            'surgeon': self.surgeon,
             'incision_time': self.incision_time,
             'atb_time': self.atb_time,
             'repique_time': self.repique_time,
@@ -123,6 +125,7 @@ class AuditResult:
             'cod_atendimento': self.surgery_record.attendance_code,
             'procedimento': self.surgery_record.procedure,
             'especialidade': self.surgery_record.specialty,
+            'cirurgiao': self.surgery_record.surgeon,
             'hr_incisao': self.surgery_record.incision_time,
             'atb_administrado': self.surgery_record.atb_given,
             'atb_nome': self.surgery_record.atb_name,

@@ -12,7 +12,7 @@ from typing import Dict, Any, List, Optional
 
 import pandas as pd
 
-from config import EXCEL_COLUMNS
+from config import EXCEL_COLUMNS, EXCEL_COLUMN_ALIASES
 from utils import normalize_text, clean_procedure_name, fuzzy_match_score
 
 
@@ -70,6 +70,38 @@ def _build_rule_index(rules: List[Dict[str, Any]], specialty_set: Optional[set] 
     return out
 
 
+def _resolve_excel_columns(dataframe_columns: List[Any]) -> Dict[str, str]:
+    """Resolve colunas do Excel por nome configurado e aliases conhecidos."""
+    resolved: Dict[str, str] = {}
+
+    all_columns = [str(col).strip() for col in dataframe_columns]
+    exact_lookup = {col: col for col in all_columns if col}
+    normalized_lookup = {
+        normalize_text(col): col
+        for col in all_columns
+        if col and normalize_text(col)
+    }
+
+    for key, configured_name in EXCEL_COLUMNS.items():
+        configured = str(configured_name).strip()
+        if configured in exact_lookup:
+            resolved[key] = exact_lookup[configured]
+            continue
+
+        normalized_configured = normalize_text(configured)
+        if normalized_configured in normalized_lookup:
+            resolved[key] = normalized_lookup[normalized_configured]
+            continue
+
+        for alias in EXCEL_COLUMN_ALIASES.get(key, []):
+            normalized_alias = normalize_text(alias)
+            if normalized_alias in normalized_lookup:
+                resolved[key] = normalized_lookup[normalized_alias]
+                break
+
+    return resolved
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Cria mapa de procedimentos (Excel -> rules.json)")
     parser.add_argument("--excel", required=True, help="Caminho do Excel")
@@ -99,15 +131,19 @@ def main() -> int:
 
     df = pd.read_excel(excel_path, sheet_name=args.sheet or 0)
 
-    col_proc = EXCEL_COLUMNS.get("procedure", "Cirurgia")
-    col_spec = EXCEL_COLUMNS.get("specialty", "Especialidade")
+    resolved_columns = _resolve_excel_columns(df.columns.tolist())
+    col_proc = resolved_columns.get("procedure")
+    col_spec = resolved_columns.get("specialty")
+    col_surgeon = resolved_columns.get("surgeon")
 
-    if col_proc not in df.columns:
-        raise ValueError(f"Coluna de procedimento não encontrada: {col_proc}")
+    if not col_proc:
+        raise ValueError(
+            f"Coluna de procedimento não encontrada: {EXCEL_COLUMNS.get('procedure', 'Cirurgia')}"
+        )
 
     # Gera chaves únicas procedimento + especialidade (se houver)
     specialty_set = set()
-    if col_spec in df.columns:
+    if col_spec:
         for v in df[col_spec].dropna().unique():
             v_str = str(v).strip()
             if v_str:
@@ -121,7 +157,8 @@ def main() -> int:
         proc = str(row.get(col_proc, "")).strip()
         if not proc or len(proc) < 3:
             continue
-        spec = str(row.get(col_spec, "")).strip() if col_spec in df.columns else ""
+        spec = str(row.get(col_spec, "")).strip() if col_spec else ""
+        surgeon = str(row.get(col_surgeon, "")).strip() if col_surgeon else ""
         key = f"{spec} | {proc}" if spec else proc
         if key in mapping:
             continue
@@ -160,6 +197,7 @@ def main() -> int:
         mapping[key] = {
             "cirurgia": proc,
             "especialidade": spec or None,
+            "cirurgiao": surgeon or None,
             "status": status,
             "best_rule_id": best["rule_id"],
             "best_score": best["score"],
@@ -169,6 +207,9 @@ def main() -> int:
         simple_map[key] = {
             "best_rule_id": best["rule_id"],
             "best_score": best["score"],
+            "procedure": proc,
+            "specialty": spec or None,
+            "surgeon": surgeon or None,
             "candidates": [
                 {
                     "rule_id": c["rule_id"],

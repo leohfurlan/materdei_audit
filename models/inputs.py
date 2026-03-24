@@ -69,6 +69,7 @@ class ColumnMap(BaseModel):
 
     procedure: str
     specialty: Optional[str] = None
+    surgeon: Optional[str] = None
 
     incision_datetime: Optional[str] = None
 
@@ -100,6 +101,9 @@ class ProcedureMapItem(BaseModel):
     best_rule_id: Optional[Any] = None
     best_score: Optional[float] = Field(default=None, ge=0, le=1)
     candidates: List[CandidateRule] = Field(default_factory=list)
+    procedure: Optional[str] = None
+    specialty: Optional[str] = None
+    surgeon: Optional[str] = None
 
 
 ProcedureMap = Dict[str, ProcedureMapItem]

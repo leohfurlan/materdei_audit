@@ -53,7 +53,13 @@ if not api_key:
     logger.warning("Nenhuma API key encontrada! Defina GEMINI_API_KEY, GOOGLE_API_KEY, API_KEY_GOOGLE_AI_STUDIO ou LANGEXTRACT_API_KEY no .env")
 
 from models import ProtocolRule, Recommendation, Drug, ProtocolRulesRepository, AntibioticRule, SurgeryType
-from utils import normalize_text, extract_drug_names, fuzzy_match_score
+from utils import (
+    normalize_text,
+    extract_drug_names,
+    fuzzy_match_score,
+    parse_protocol_antibiotic_regimens,
+    recommendation_regimens_from_drugs,
+)
 from config import EXTRACTION_CONFIG, DRUG_DICTIONARY
 
 
@@ -1091,6 +1097,9 @@ class ProtocolExtractor:
                     drugs=primary_drugs,
                     raw_text=extraction_text,
                     notes=notes,
+                    acceptable_regimens=recommendation_regimens_from_drugs(
+                        [drug.name for drug in primary_drugs]
+                    ),
                 ),
                 audit_category=audit_category,
                 metadata={
@@ -1484,9 +1493,16 @@ class ProtocolExtractor:
             )
             drugs.append(drug)
         
+        acceptable_regimens = [list(regimen) for regimen in parse_protocol_antibiotic_regimens(text)]
+        if not acceptable_regimens and drugs:
+            acceptable_regimens = [
+                list(regimen) for regimen in recommendation_regimens_from_drugs([drug.name for drug in drugs])
+            ]
+
         return Recommendation(
             drugs=drugs,
             raw_text=text,
+            acceptable_regimens=acceptable_regimens,
         )
     
     def _extract_dose_from_context(self, text: str, drug_name: str) -> Optional[str]:

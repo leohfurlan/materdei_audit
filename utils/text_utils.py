@@ -260,30 +260,53 @@ def format_conformity_reason(reason_code: str) -> str:
     Returns:
         Descricao legivel da razao
     """
+    if not reason_code:
+        return ""
+
+    if "," in reason_code:
+        return ", ".join(
+            format_conformity_reason(part.strip())
+            for part in reason_code.split(",")
+            if part.strip()
+        )
+
     reasons = {
-        "atb_nao_recomendado": "Antibiotico nao recomendado pelo protocolo",
-        "profilaxia_nao_recomendada": "Profilaxia nao recomendada para o procedimento",
-        "profilaxia_potencial_sem_indicacao": "Profilaxia potencialmente sem indicacao no protocolo",
-        "atb_sem_referencia_protocolo": "Protocolo sem antibiotico de referencia para validar escolha",
-        "dose_incorreta": "Dose administrada diferente da recomendada",
-        "dose_muito_baixa": "Dose significativamente abaixo da recomendada",
-        "dose_muito_alta": "Dose significativamente acima da recomendada",
-        "dose_fora_referencia": "Dose fora da referencia, requer revisao",
-        "timing_fora_janela": "Antibiotico administrado fora da janela de 1 hora",
-        "timing_apos_incisao": "Antibiotico administrado apos a incisao",
-        "atb_nao_administrado": "Antibiotico nao foi administrado",
-        "sem_match_protocolo": "Procedimento nao encontrado no protocolo",
+        "atb_recomendado": "Antibiotico recomendado pelo protocolo",
+        "atb_nao_recomendado": "Erro clinico/logico: antibiotico administrado nao e recomendado pelo protocolo",
+        "profilaxia_nao_recomendada": "Erro clinico/logico: antibiotico administrado quando o protocolo nao indica profilaxia",
+        "profilaxia_potencial_sem_indicacao": "Revisao clinica: profilaxia potencialmente sem indicacao no protocolo",
+        "profilaxia_nao_requerida": "Profilaxia nao requerida para o procedimento",
+        "atb_sem_referencia_protocolo": "Revisao de protocolo: regra sem antibiotico de referencia para validar escolha",
+        "atb_nao_identificado": "Pendencia documental: nao foi possivel identificar o antibiotico administrado",
+        "atb_regime_ambiguo": "Pendencia documental: o registro sugere multiplos antibioticos, mas nem todos puderam ser confirmados",
+        "atb_regime_incompleto": "Erro clinico/logico: o registro documenta apenas parte do regime combinado exigido",
+        "sem_registro_administracao": "Pendencia documental: planilha nao confirma a administracao do antibiotico",
+        "dose_incorreta": "Erro clinico/logico: dose administrada diferente da recomendada",
+        "dose_correta": "Dose administrada conforme a referencia do protocolo",
+        "dose_muito_baixa": "Erro clinico/logico: dose significativamente abaixo da recomendada",
+        "dose_muito_alta": "Erro clinico/logico: dose significativamente acima da recomendada",
+        "dose_fora_referencia": "Alerta clinico: dose fora da referencia, requer revisao",
+        "dose_nao_informada": "Pendencia documental: dose administrada nao informada na planilha",
+        "dose_sem_referencia": "Revisao de protocolo: sem referencia de dose para validacao",
+        "dose_sem_referencia_peso": "Pendencia documental: nao foi possivel validar dose por falta de peso do paciente",
+        "dose_pequena_diferenca": "Alerta clinico: pequena diferenca de dose detectada",
+        "timing_correto": "Timing de administracao dentro da janela recomendada",
+        "timing_fora_janela": "Erro clinico/logico: antibiotico administrado fora da janela de 1 hora",
+        "timing_apos_incisao": "Erro clinico/logico: antibiotico administrado apos a incisao",
+        "horarios_nao_informados": "Pendencia documental: horarios de incisao ou antibiotico nao informados",
+        "erro_calculo_horario": "Pendencia documental: nao foi possivel calcular o intervalo entre os horarios",
+        "atb_nao_administrado": "Erro clinico/logico: antibiotico nao foi administrado",
+        "sem_match_protocolo": "Revisao manual: procedimento nao encontrado no protocolo",
         "sem_match_sem_atb": "Procedimento sem match e sem antibiotico administrado",
         "criterio_nao_aplicavel": "Criterio nao aplicavel para o caso",
         "dados_insuficientes": "Dados insuficientes para avaliar conformidade",
         "alerta_validacao": "Caso com alerta para validacao manual",
-        "dose_pequena_diferenca": "Pequena diferenca de dose detectada (revisar)",
-        "dose_sem_referencia_peso": "Nao foi possivel validar dose (falta peso do paciente)",
         "multiplos_criterios": "Multiplas nao conformidades detectadas",
         "repique_nao_aplicavel": "Repique nao aplicavel para este antibiotico",
-        "repique_horarios_nao_informados": "Horarios de repique nao informados",
+        "repique_horarios_nao_informados": "Pendencia documental: horarios de repique nao informados",
         "repique_no_intervalo": "Repique realizado dentro do intervalo recomendado",
-        "repique_fora_intervalo": "Repique fora do intervalo recomendado",
+        "repique_fora_intervalo": "Erro clinico/logico: repique fora do intervalo recomendado",
+        "todos_criterios_conformes": "Todos os criterios avaliados ficaram conformes",
     }
     
     return reasons.get(reason_code, reason_code)

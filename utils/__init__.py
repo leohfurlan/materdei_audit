@@ -12,6 +12,14 @@ from .text_utils import (
     format_conformity_reason
 )
 
+from .antibiotic_regimens import (
+    normalize_antibiotic_name,
+    extract_documented_antibiotics,
+    has_ambiguous_documented_antibiotics,
+    parse_protocol_antibiotic_regimens,
+    recommendation_regimens_from_drugs,
+)
+
 from .validation import (
     validate_excel_structure,
     validate_rules_structure,
@@ -30,6 +38,11 @@ __all__ = [
     'calculate_time_diff_minutes',
     'clean_procedure_name',
     'format_conformity_reason',
+    'normalize_antibiotic_name',
+    'extract_documented_antibiotics',
+    'has_ambiguous_documented_antibiotics',
+    'parse_protocol_antibiotic_regimens',
+    'recommendation_regimens_from_drugs',
     'validate_excel_structure',
     'validate_rules_structure',
     'validate_row_data',

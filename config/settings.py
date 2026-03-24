@@ -47,6 +47,7 @@ EXTRACTION_CONFIG = {
 AUDIT_CONFIG = {
     "match_threshold": 0.70,  # Score mÃ­nimo para match de procedimento
     "translation_match_similarity_threshold": 0.45,  # Filtro para evitar matches absurdos via procedimentos.json
+    "specialty_match_threshold": 0.60,  # Similaridade minima para usar especialidade na desambiguacao
     "dose_tolerance_percent": 15,  # TolerÃ¢ncia de dose em %
     "hard_dose_tolerance_percent": 100,  # Acima disso vira NAO_CONFORME (faixa intermediaria vira ALERTA)
     "timing_window_minutes": 60,  # Janela de 1 hora antes da incisÃ£o
@@ -70,6 +71,7 @@ EXCEL_COLUMNS = {
     "attendance_code": "Cod Atendimento",
     "procedure": "Cirurgia",
     "specialty": "Especialidade",
+    "surgeon": "Cirurgiao",
     "incision_time": "Hr IncisÃ£o",
     "atb_given": "AdministraÃ§Ã£o de Antibiotico",
     "atb_name": "AntibiÃ³tico",
@@ -82,6 +84,46 @@ EXCEL_COLUMNS = {
     "conf_dose": "Conformidade de Dose",
     "conf_choice": "Conformidade Escolha",
     "conf_final": "Conformidade Final",
+}
+
+EXCEL_COLUMN_ALIASES = {
+    "date": ["dt cirurgia", "data cirurgia", "data da cirurgia"],
+    "attendance_code": [
+        "cod atendimento",
+        "cod. atendimento",
+        "codigo atendimento",
+        "codigo do atendimento",
+    ],
+    "procedure": ["cirurgia", "procedimento"],
+    "specialty": ["especialidade"],
+    "surgeon": [
+        "cirurgiao",
+        "cirurgião",
+        "nome_cirurgiao",
+        "nome do cirurgiao",
+        "nome do cirurgião",
+        "surgeon",
+    ],
+    "incision_time": ["hr incisao", "hora incisao", "hora da incisao"],
+    "atb_given": [
+        "administracao de antibiotico",
+        "administracao de antibioticos",
+        "administracao do antibiotico",
+    ],
+    "atb_name": ["antibiotico", "nome do antibiotico", "atb"],
+    "atb_time": [
+        "hr antibiotico",
+        "hora antibiotico",
+        "hora da administracao do atb",
+        "hora da administracao de antibiotico",
+    ],
+    "repique": ["repique"],
+    "repique_time": ["hora repique", "hr repique"],
+    "patient_weight": ["peso kg", "peso", "peso paciente"],
+    "conf_timing": ["conformidade 1 hora"],
+    "conf_dose": ["conformidade de dose"],
+    "conf_choice": ["conformidade escolha"],
+    "conf_final": ["conformidade final"],
 }
 
 # DicionÃ¡rio de medicamentos conhecidos

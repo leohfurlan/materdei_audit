@@ -17,15 +17,23 @@ from models import (
 )
 from utils import (
     normalize_text,
-    extract_drug_names,
+    extract_documented_antibiotics,
+    has_ambiguous_documented_antibiotics,
     fuzzy_match_score,
     extract_dose_from_text,
     parse_time,
     calculate_time_diff_minutes,
     clean_procedure_name,
     normalize_yes_no,
+    parse_protocol_antibiotic_regimens,
+    recommendation_regimens_from_drugs,
 )
-from config import EXCEL_COLUMNS, DRUG_DICTIONARY, AUDIT_CONFIG, REDOSING_INTERVALS
+from config import (
+    EXCEL_COLUMNS,
+    EXCEL_COLUMN_ALIASES,
+    AUDIT_CONFIG,
+    REDOSING_INTERVALS,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -100,6 +108,7 @@ class SurgeryAuditor:
             "date",
             "attendance_code",
             "specialty",
+            "surgeon",
             "incision_time",
             "atb_given",
             "atb_name",
@@ -141,38 +150,6 @@ class SurgeryAuditor:
             if norm_col and norm_col not in normalized_lookup:
                 normalized_lookup[norm_col] = col
 
-        aliases = {
-            "date": ["dt cirurgia", "data cirurgia", "data da cirurgia"],
-            "attendance_code": [
-                "cod atendimento",
-                "cod. atendimento",
-                "codigo atendimento",
-                "codigo do atendimento",
-            ],
-            "procedure": ["cirurgia", "procedimento"],
-            "specialty": ["especialidade"],
-            "incision_time": ["hr incisao", "hora incisao", "hora da incisao"],
-            "atb_given": [
-                "administracao de antibiotico",
-                "administracao de antibioticos",
-                "administracao do antibiotico",
-            ],
-            "atb_name": ["antibiotico", "nome do antibiotico", "atb"],
-            "atb_time": [
-                "hr antibiotico",
-                "hora antibiotico",
-                "hora da administracao do atb",
-                "hora da administracao de antibiotico",
-            ],
-            "repique": ["repique"],
-            "repique_time": ["hora repique", "hr repique"],
-            "patient_weight": ["peso kg", "peso", "peso paciente"],
-            "conf_timing": ["conformidade 1 hora"],
-            "conf_dose": ["conformidade de dose"],
-            "conf_choice": ["conformidade escolha"],
-            "conf_final": ["conformidade final"],
-        }
-
         for key, configured_name in EXCEL_COLUMNS.items():
             configured = str(configured_name).strip()
 
@@ -185,7 +162,7 @@ class SurgeryAuditor:
                 resolved[key] = normalized_lookup[normalized_configured]
                 continue
 
-            for alias in aliases.get(key, []):
+            for alias in EXCEL_COLUMN_ALIASES.get(key, []):
                 normalized_alias = normalize_text(alias)
                 if normalized_alias in normalized_lookup:
                     resolved[key] = normalized_lookup[normalized_alias]
@@ -311,8 +288,8 @@ class SurgeryAuditor:
         atb_given = normalize_yes_no(self._get_row_value(row, "atb_given", "NAO"))
         atb_name = str(self._get_row_value(row, "atb_name", "")).strip()
         
-        # Detecta medicamentos
-        atb_detected = extract_drug_names(atb_name, DRUG_DICTIONARY) if atb_name else []
+        # Detecta medicamentos documentados, suportando multiplos agentes.
+        atb_detected = extract_documented_antibiotics(atb_name) if atb_name else []
         
         # Extrai dose
         dose_mg = extract_dose_from_text(atb_name) if atb_name else None
@@ -341,6 +318,7 @@ class SurgeryAuditor:
             attendance_code=self._parse_identifier(self._get_row_value(row, "attendance_code", "")),
             procedure=procedure,
             specialty=str(self._get_row_value(row, "specialty", "")).strip(),
+            surgeon=str(self._get_row_value(row, "surgeon", "")).strip(),
             incision_time=incision_time,
             atb_time=atb_time,
             repique_time=repique_time,
@@ -397,7 +375,7 @@ class SurgeryAuditor:
         result.procedure_map_version = self.procedure_translation_map_version
         
         # 1. Faz match com protocolo
-        matched_rule, score, method = self._match_with_protocol(record.procedure)
+        matched_rule, score, method = self._match_with_protocol(record)
         
         if matched_rule:
             result.matched_rule_id = matched_rule.rule_id
@@ -422,27 +400,29 @@ class SurgeryAuditor:
             result.add_observacao("Procedimento nao encontrado no protocolo")
         
         # 2. Valida escolha do antibiotico
-        if record.atb_given == 'SIM':
+        has_documented_administration = self._has_documented_administration(record)
+
+        if has_documented_administration:
             result.conf_escolha, result.conf_escolha_razao = self._validate_choice(
                 record, matched_rule
             )
         else:
             if matched_rule and self._rule_requires_prophylaxis(matched_rule):
-                result.conf_escolha = 'NAO_CONFORME'
-                result.conf_escolha_razao = 'atb_nao_administrado'
+                result.conf_escolha = 'ALERTA'
+                result.conf_escolha_razao = 'sem_registro_administracao'
             elif not matched_rule:
                 result.conf_escolha = 'CONFORME'
                 result.conf_escolha_razao = 'sem_match_sem_atb'
             else:
                 result.conf_escolha = 'CONFORME'
-                result.conf_escolha_razao = 'Profilaxia nao requerida'
+                result.conf_escolha_razao = 'profilaxia_nao_requerida'
         
         # 3. Valida dose
-        if record.atb_given == 'SIM' and record.dose_administered_mg:
+        if has_documented_administration and record.dose_administered_mg:
             result.conf_dose, result.conf_dose_razao = self._validate_dose(
                 record, matched_rule, result
             )
-        elif record.atb_given == 'SIM':
+        elif has_documented_administration:
             result.conf_dose = 'INDETERMINADO'
             result.conf_dose_razao = 'dose_nao_informada'
         else:
@@ -450,7 +430,7 @@ class SurgeryAuditor:
             result.conf_dose_razao = 'criterio_nao_aplicavel'
         
         # 4. Valida timing
-        if record.atb_given == 'SIM':
+        if has_documented_administration:
             result.conf_timing, result.conf_timing_razao = self._validate_timing(
                 record, result
             )
@@ -459,7 +439,7 @@ class SurgeryAuditor:
             result.conf_timing_razao = 'criterio_nao_aplicavel'
 
         # 5. Valida repique (redosing)
-        if record.atb_given == 'SIM':
+        if has_documented_administration:
             result.conf_repique, result.conf_repique_razao = self._validate_redosing(
                 record, result
             )
@@ -471,26 +451,35 @@ class SurgeryAuditor:
         result.conf_final, result.conf_final_razao = self._calculate_final_conformity(result)
         
         return result
-    def _match_with_protocol(self, procedure: str) -> Tuple[Optional[ProtocolRule], float, str]:
+
+    def _has_documented_administration(self, record: SurgeryRecord) -> bool:
+        """Considera administracao confirmada apenas quando a planilha marca SIM."""
+        return normalize_yes_no(record.atb_given) == "SIM"
+
+    def _match_with_protocol(self, record: SurgeryRecord) -> Tuple[Optional[ProtocolRule], float, str]:
         """
         Faz match do procedimento com regra do protocolo.
         
         Args:
-            procedure: Nome do procedimento
+            record: Registro da cirurgia com procedimento e especialidade
             
         Returns:
             Tupla (regra_matched, score, mÃ©todo)
         """
+        procedure = record.procedure
+        specialty = record.specialty
+
         if not procedure:
             return None, 0.0, "no_procedure"
 
         # Prioriza traduÃ§Ã£o direta (Excel -> nomenclatura do protocolo)
         procedure_candidates = self._build_procedure_lookup_variants(procedure)
-        translated = self._translate_procedure_name(procedure)
+        translated = self._translate_procedure_name(record)
         if translated:
             translated_rule, translated_score, translated_method = self._match_translated_procedure(
                 translated_procedure=translated,
                 source_procedure=None,
+                specialty=specialty,
             )
             if translated_rule:
                 return translated_rule, translated_score, translated_method
@@ -499,34 +488,36 @@ class SurgeryAuditor:
         for procedure_candidate in procedure_candidates:
             exact_matches = self.rules_repo.find_by_procedure(procedure_candidate)
             if exact_matches:
-                return exact_matches[0], 1.0, "exact_match"
+                selected_rule, used_specialty = self._select_rule_by_specialty(exact_matches, specialty)
+                if selected_rule:
+                    method = "exact_match_specialty" if used_specialty else "exact_match"
+                    return selected_rule, 1.0, method
 
         # Busca exata por aliases das regras extraidas por LLM (quando disponiveis).
         for procedure_candidate in procedure_candidates:
-            for rule in self.rules_repo.rules:
-                aliases = getattr(rule, "surgery_name", []) or []
-                for alias in aliases:
-                    if normalize_text(str(alias)) == procedure_candidate:
-                        return rule, 1.0, "alias_match"
-        
-        # Busca fuzzy
-        best_rule = None
-        best_score = 0.0
+            alias_matches = self._find_alias_matches(procedure_candidate, self.rules_repo.rules)
+            if alias_matches:
+                selected_rule, used_specialty = self._select_rule_by_specialty(alias_matches, specialty)
+                if selected_rule:
+                    method = "alias_match_specialty" if used_specialty else "alias_match"
+                    return selected_rule, 1.0, method
         
         threshold = self.config.get('match_threshold', 0.70)
-        
-        for rule in self.rules_repo.rules:
-            targets = [rule.procedure_normalized]
-            aliases = getattr(rule, "surgery_name", []) or []
-            targets.extend(normalize_text(str(alias)) for alias in aliases if str(alias).strip())
+        specialty_rules = self._get_rules_matching_specialty(self.rules_repo.rules, specialty)
+        if specialty_rules:
+            best_rule, best_score = self._find_best_rule_match(
+                procedure_candidates,
+                specialty_rules,
+                threshold,
+            )
+            if best_rule:
+                return best_rule, best_score, "fuzzy_match_specialty"
 
-            for procedure_candidate in procedure_candidates:
-                for target in targets:
-                    score = fuzzy_match_score(procedure_candidate, target)
-                    if score > best_score and score >= threshold:
-                        best_score = score
-                        best_rule = rule
-        
+        best_rule, best_score = self._find_best_rule_match(
+            procedure_candidates,
+            self.rules_repo.rules,
+            threshold,
+        )
         if best_rule:
             return best_rule, best_score, "fuzzy_match"
         
@@ -570,13 +561,150 @@ class SurgeryAuditor:
 
         return variants
 
+    def _build_specialty_lookup_variants(self, specialty: str) -> List[str]:
+        """Gera variantes normalizadas de especialidade para desambiguacao."""
+        normalized = normalize_text(specialty)
+        if not normalized:
+            return []
 
-    def _translate_procedure_name(self, procedure: str) -> str:
+        variants: List[str] = []
+
+        def _append(candidate: str) -> None:
+            candidate = candidate.strip()
+            if candidate and candidate not in variants:
+                variants.append(candidate)
+
+        _append(normalized)
+        _append(clean_procedure_name(normalized))
+
+        return variants
+
+    def _build_translation_lookup_variants(self, record: SurgeryRecord) -> List[str]:
+        """Gera chaves de lookup para o mapa revisado, priorizando especialidade + procedimento."""
+        variants: List[str] = []
+
+        def _append_many(raw_value: str) -> None:
+            for candidate in self._build_procedure_lookup_variants(raw_value):
+                if candidate not in variants:
+                    variants.append(candidate)
+
+        if record.specialty and record.procedure:
+            _append_many(f"{record.specialty} | {record.procedure}")
+
+        if record.procedure:
+            _append_many(record.procedure)
+
+        return variants
+
+    def _build_rule_match_targets(self, rule: ProtocolRule) -> List[str]:
+        """Consolida os textos da regra usados no matching."""
+        targets = [rule.procedure_normalized]
+        aliases = getattr(rule, "surgery_name", []) or []
+        targets.extend(normalize_text(str(alias)) for alias in aliases if str(alias).strip())
+        return [target for target in targets if target]
+
+    def _find_alias_matches(
+        self,
+        procedure_candidate: str,
+        rules: List[ProtocolRule],
+    ) -> List[ProtocolRule]:
+        """Busca regras cujos aliases sejam equivalentes ao procedimento informado."""
+        matches: List[ProtocolRule] = []
+
+        for rule in rules:
+            aliases = getattr(rule, "surgery_name", []) or []
+            for alias in aliases:
+                if normalize_text(str(alias)) == procedure_candidate:
+                    matches.append(rule)
+                    break
+
+        return matches
+
+    def _find_best_rule_match(
+        self,
+        procedure_candidates: List[str],
+        rules: List[ProtocolRule],
+        threshold: float,
+    ) -> Tuple[Optional[ProtocolRule], float]:
+        """Executa matching fuzzy de procedimento sobre um subconjunto de regras."""
+        best_rule = None
+        best_score = 0.0
+
+        for rule in rules:
+            for procedure_candidate in procedure_candidates:
+                for target in self._build_rule_match_targets(rule):
+                    score = fuzzy_match_score(procedure_candidate, target)
+                    if score > best_score and score >= threshold:
+                        best_score = score
+                        best_rule = rule
+
+        return best_rule, best_score
+
+    def _calculate_specialty_match_score(self, specialty: str, rule: ProtocolRule) -> float:
+        """Calcula aderencia entre a especialidade do caso e a secao da regra."""
+        specialty_variants = self._build_specialty_lookup_variants(specialty)
+        section_variants = self._build_specialty_lookup_variants(rule.section)
+
+        if not specialty_variants or not section_variants:
+            return 0.0
+
+        best_score = 0.0
+        for specialty_candidate in specialty_variants:
+            for section_candidate in section_variants:
+                if not specialty_candidate or not section_candidate:
+                    continue
+                if (
+                    specialty_candidate == section_candidate
+                    or specialty_candidate in section_candidate
+                    or section_candidate in specialty_candidate
+                ):
+                    return 1.0
+                best_score = max(
+                    best_score,
+                    fuzzy_match_score(specialty_candidate, section_candidate),
+                )
+
+        return best_score
+
+    def _get_rules_matching_specialty(
+        self,
+        rules: List[ProtocolRule],
+        specialty: str,
+    ) -> List[ProtocolRule]:
+        """Seleciona regras cuja secao seja compatível com a especialidade informada."""
+        threshold = float(self.config.get("specialty_match_threshold", 0.60))
+        scored_rules = []
+
+        for rule in rules:
+            score = self._calculate_specialty_match_score(specialty, rule)
+            if score >= threshold:
+                scored_rules.append((score, rule))
+
+        scored_rules.sort(key=lambda item: item[0], reverse=True)
+        return [rule for _, rule in scored_rules]
+
+    def _select_rule_by_specialty(
+        self,
+        rules: List[ProtocolRule],
+        specialty: str,
+    ) -> Tuple[Optional[ProtocolRule], bool]:
+        """Escolhe a melhor regra dentre candidatas equivalentes usando especialidade quando houver."""
+        if not rules:
+            return None, False
+
+        specialty_matches = self._get_rules_matching_specialty(rules, specialty)
+        if specialty_matches:
+            return specialty_matches[0], True
+
+        return rules[0], False
+
+
+    def _translate_procedure_name(self, record: SurgeryRecord) -> str:
         """Traduz o procedimento do Excel para nomenclatura do protocolo."""
         if not self.procedure_translation_map:
             return ""
 
-        for candidate in self._build_procedure_lookup_variants(procedure):
+        for candidate in self._build_translation_lookup_variants(record):
             translated = self.procedure_translation_map.get(candidate, "")
             if translated:
                 return translated
@@ -604,6 +732,7 @@ class SurgeryAuditor:
         self,
         translated_procedure: str,
         source_procedure: Optional[str] = None,
+        specialty: str = "",
     ) -> Tuple[Optional[ProtocolRule], float, str]:
         """
         Faz match a partir do texto traduzido (procedimentos.json).
@@ -618,43 +747,103 @@ class SurgeryAuditor:
                 continue
             exact_matches = self.rules_repo.find_by_procedure(normalize_text(candidate))
             if exact_matches:
-                return exact_matches[0], 1.0, "translated_exact_match"
+                selected_rule, used_specialty = self._select_rule_by_specialty(exact_matches, specialty)
+                if selected_rule:
+                    method = (
+                        "translated_exact_match_specialty"
+                        if used_specialty
+                        else "translated_exact_match"
+                    )
+                    return selected_rule, 1.0, method
 
         # Busca exata por aliases (surgery_name), quando disponiveis nas regras LLM.
         for candidate in candidates:
             if source_procedure and not self._is_translation_candidate_plausible(source_procedure, candidate):
                 continue
             candidate_norm = normalize_text(candidate)
-            for rule in self.rules_repo.rules:
-                aliases = getattr(rule, "surgery_name", []) or []
-                for alias in aliases:
-                    if normalize_text(str(alias)) == candidate_norm:
-                        return rule, 1.0, "translated_alias_match"
+            alias_matches = self._find_alias_matches(candidate_norm, self.rules_repo.rules)
+            if alias_matches:
+                selected_rule, used_specialty = self._select_rule_by_specialty(alias_matches, specialty)
+                if selected_rule:
+                    method = (
+                        "translated_alias_match_specialty"
+                        if used_specialty
+                        else "translated_alias_match"
+                    )
+                    return selected_rule, 1.0, method
 
         threshold = self.config.get('match_threshold', 0.70)
-        best_rule = None
-        best_score = 0.0
 
         for candidate in candidates:
             if source_procedure and not self._is_translation_candidate_plausible(source_procedure, candidate):
                 continue
-            for rule in self.rules_repo.rules:
-                targets = [rule.procedure_normalized]
-                aliases = getattr(rule, "surgery_name", []) or []
-                targets.extend(normalize_text(str(alias)) for alias in aliases if str(alias).strip())
+            specialty_rules = self._get_rules_matching_specialty(self.rules_repo.rules, specialty)
+            if specialty_rules:
+                best_rule, best_score = self._find_best_rule_match(
+                    [candidate],
+                    specialty_rules,
+                    threshold,
+                )
+                if best_rule:
+                    return best_rule, best_score, "translated_fuzzy_match_specialty"
 
-                for target in targets:
-                    score = fuzzy_match_score(candidate, target)
-                    if score > best_score and score >= threshold:
-                        best_score = score
-                        best_rule = rule
-
-        if best_rule:
-            return best_rule, best_score, "translated_fuzzy_match"
+            best_rule, best_score = self._find_best_rule_match(
+                [candidate],
+                self.rules_repo.rules,
+                threshold,
+            )
+            if best_rule:
+                return best_rule, best_score, "translated_fuzzy_match"
 
         return None, 0.0, "translated_no_match"
 
-    def _validate_choice(self, record: SurgeryRecord, 
+    def _recommendation_to_regimens(self, recommendation: Any) -> List[Tuple[str, ...]]:
+        """Converte uma Recommendation em lista de regimes aceitaveis normalizados."""
+        if not recommendation:
+            return []
+
+        normalized_regimens: List[Tuple[str, ...]] = []
+
+        stored_regimens = getattr(recommendation, "acceptable_regimens", []) or []
+        for regimen in stored_regimens:
+            normalized = tuple(sorted({str(item).strip() for item in regimen if str(item).strip()}))
+            if normalized and normalized not in normalized_regimens:
+                normalized_regimens.append(normalized)
+
+        if normalized_regimens:
+            return normalized_regimens
+
+        raw_text = str(getattr(recommendation, "raw_text", "") or "").strip()
+        if raw_text:
+            parsed_regimens = parse_protocol_antibiotic_regimens(raw_text)
+            for regimen in parsed_regimens:
+                if regimen and regimen not in normalized_regimens:
+                    normalized_regimens.append(regimen)
+
+        if normalized_regimens:
+            return normalized_regimens
+
+        drugs = getattr(recommendation, "drugs", []) or []
+        return recommendation_regimens_from_drugs(
+            [getattr(drug, "name", "") for drug in drugs if getattr(drug, "name", "")]
+        )
+
+    def _get_choice_regimens(self, rule: Optional[ProtocolRule]) -> List[Tuple[str, ...]]:
+        """Consolida regimes aceitaveis das recomendacoes primaria e alergica."""
+        if not rule:
+            return []
+
+        acceptable_regimens: List[Tuple[str, ...]] = []
+        recommendations = [rule.primary_recommendation, rule.allergy_recommendation]
+
+        for recommendation in recommendations:
+            for regimen in self._recommendation_to_regimens(recommendation):
+                if regimen and regimen not in acceptable_regimens:
+                    acceptable_regimens.append(regimen)
+
+        return acceptable_regimens
+
+    def _validate_choice(self, record: SurgeryRecord,
                         rule: Optional[ProtocolRule]) -> Tuple[str, str]:
         """
         Valida escolha do antibiotico.
@@ -669,24 +858,29 @@ class SurgeryAuditor:
         if not rule:
             return 'INDETERMINADO', 'sem_match_protocolo'
 
-        recommended_drugs = self._get_recommendation_drugs(rule)
-        if not recommended_drugs:
+        acceptable_regimens = self._get_choice_regimens(rule)
+        if not acceptable_regimens:
             if not self._rule_requires_prophylaxis(rule):
-                return 'ALERTA', 'profilaxia_potencial_sem_indicacao'
+                return 'NAO_CONFORME', 'profilaxia_nao_recomendada'
             return 'INDETERMINADO', 'atb_sem_referencia_protocolo'
         
         if not record.atb_detected:
-            return 'INDETERMINADO', 'atb_nao_identificado'
+            return 'ALERTA', 'atb_nao_identificado'
 
-        acceptable_names = [drug.name for drug in recommended_drugs]
-        for detected_drug in record.atb_detected:
-            if detected_drug in acceptable_names:
-                return 'CONFORME', 'atb_recomendado'
+        documented_regimen = tuple(sorted(set(record.atb_detected)))
+        if documented_regimen in acceptable_regimens:
+            return 'CONFORME', 'atb_recomendado'
+
+        if has_ambiguous_documented_antibiotics(record.atb_name, record.atb_detected):
+            return 'ALERTA', 'atb_regime_ambiguo'
 
         if not self._rule_requires_prophylaxis(rule):
-            return 'ALERTA', 'profilaxia_potencial_sem_indicacao'
+            return 'NAO_CONFORME', 'profilaxia_nao_recomendada'
 
-        return 'ALERTA', 'atb_nao_recomendado'
+        if any(set(documented_regimen).issubset(set(regimen)) for regimen in acceptable_regimens):
+            return 'NAO_CONFORME', 'atb_regime_incompleto'
+
+        return 'NAO_CONFORME', 'atb_nao_recomendado'
 
     def _get_recommendation_drugs(self, rule: Optional[ProtocolRule]) -> List[Any]:
         """Retorna lista consolidada de antibioticos das recomendacoes primaria e alergia."""
@@ -896,12 +1090,6 @@ class SurgeryAuditor:
             result.conf_repique,
         ]
 
-        # Escolha do ATB e match do procedimento sao criterios gate.
-        if result.conf_escolha == 'INDETERMINADO':
-            if result.match_score == 0.0:
-                return 'ALERTA', 'sem_match_protocolo'
-            return 'ALERTA', result.conf_escolha_razao or 'dados_insuficientes'
-        
         # Se qualquer criterio for NAO_CONFORME, final e NAO_CONFORME
         if 'NAO_CONFORME' in statuses:
             reasons = []
@@ -916,16 +1104,27 @@ class SurgeryAuditor:
             
             return 'NAO_CONFORME', ', '.join(reasons)
 
+        # Escolha do ATB e match do procedimento sao criterios gate quando faltam dados.
+        if result.conf_escolha == 'INDETERMINADO':
+            if result.match_score == 0.0:
+                return 'ALERTA', 'sem_match_protocolo'
+            return 'ALERTA', result.conf_escolha_razao or 'dados_insuficientes'
+
         # Se tem ALERTA, final e ALERTA
         if 'ALERTA' in statuses:
-            if result.conf_dose == 'ALERTA':
-                return 'ALERTA', result.conf_dose_razao
             if result.conf_escolha == 'ALERTA':
                 return 'ALERTA', result.conf_escolha_razao
+            if result.conf_dose == 'ALERTA':
+                return 'ALERTA', result.conf_dose_razao
+            if result.conf_timing == 'ALERTA':
+                return 'ALERTA', result.conf_timing_razao
+            if result.conf_repique == 'ALERTA':
+                return 'ALERTA', result.conf_repique_razao
             return 'ALERTA', 'alerta_validacao'
         
         # INDETERMINADO em criterios secundarios (dose/timing/repique) nao derruba o status final.
         return 'CONFORME', 'todos_criterios_conformes'
+
     def get_statistics(self) -> Dict[str, Any]:
         """
         Gera estatÃ­sticas dos resultados de auditoria.
