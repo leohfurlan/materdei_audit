@@ -2,232 +2,378 @@
 
 ## Visão Geral
 
-Sistema para auditoria automatizada de procedimentos cirúrgicos, comparando a profilaxia antimicrobiana administrada com o protocolo institucional do Hospital Mater Dei.
+Sistema CLI para:
 
-**Versão:** 1.0.0  
-**Python:** 3.10+
+1. extrair regras do protocolo institucional a partir de PDF;
+2. montar e revisar o mapeamento entre nomenclaturas do Excel e procedimentos do protocolo;
+3. auditar cirurgias realizadas comparando escolha de antibiótico, dose, timing e repique com as regras extraídas.
 
-## Funcionalidades
+Estado da documentação: revisada em 2026-03-24.
 
-### 1. Extração de Regras do Protocolo (PDF → JSON)
-- Extrai automaticamente regras do protocolo institucional em PDF
-- Identifica procedimentos cirúrgicos e suas recomendações
-- Detecta medicamentos, doses e condições especiais
-- Gera banco de dados estruturado em JSON
+## Fluxo Atual do Projeto
 
-### 2. Auditoria de Cirurgias (Excel → Relatórios)
-- Carrega planilha Excel com cirurgias realizadas
-- Faz match inteligente entre procedimento e protocolo
-- Valida 4 critérios de conformidade:
-  - **Escolha do antibiótico**: medicamento está no protocolo?
-  - **Dose administrada**: dose correta para o procedimento (inclui mg/kg quando aplicável)?
-  - **Timing**: antibiótico dado na janela de 1 hora antes da incisão?
-  - **Repique (redosing)**: repique dentro do intervalo recomendado?
-- Gera relatórios detalhados em Excel, CSV e JSON
+```text
+PDF do protocolo
+  -> extract_rules.py
+  -> rules.json / rules_index.json / rules.meta.json
 
-### 3. Geração de Relatórios
-- Excel com múltiplas abas (todos casos, não conformes, alertas, estatísticas)
-- CSV para análise de dados
-- JSON para integração com outros sistemas
-- Relatório resumido em texto
+Planilha Excel + rules.json
+  -> build_procedure_map.py (apoio à revisão de nomenclatura)
+  -> revisão manual / versionamento de procedimentos.json
 
-## Arquitetura
-
+Planilha Excel + rules.json|raw_extractions.json + procedimentos.json
+  -> audit_surgeries.py
+  -> auditoria_resultado.xlsx / .csv / .json / auditoria_resumo.txt
 ```
+
+## Principais Funcionalidades
+
+- Extração de regras com backend LLM `gemini` ou `langextract`.
+- Modo `preview` para gerar `raw_extractions.json` antes de consolidar `rules.json`.
+- Conversão de `raw_extractions.json` revisado para `rules.json`.
+- Auditoria de 4 critérios: escolha do antibiótico, dose, timing e repique.
+- Uso opcional de `procedimentos.json` para tradução de nomenclaturas do Excel.
+- Resolução versionada do mapa de procedimentos (`current`, `latest` ou versão numérica).
+- Geração de candidatos de mapeamento com suporte a especialidade e inferência via cirurgião.
+- Relatórios em Excel, CSV, JSON e TXT.
+- Suíte automatizada de testes com `pytest`.
+
+## Estrutura do Repositório
+
+```text
 materdei_audit/
-├── models/              # Modelos de dados
-│   ├── protocol_rules.py    # Regras do protocolo
-│   └── audit_data.py         # Dados de auditoria
-├── controllers/         # Lógica de negócio
-│   ├── protocol_extractor.py   # Extração de PDF
-│   ├── surgery_auditor.py      # Auditoria de cirurgias
-│   └── report_generator.py     # Geração de relatórios
-├── utils/               # Utilitários
-│   ├── text_utils.py         # Normalização de texto
-│   └── validation.py         # Validação de dados
-├── config/              # Configurações
-│   └── settings.py           # Configurações globais
-└── data/                # Dados
-    ├── input/           # Arquivos de entrada
-    ├── output/          # Arquivos de saída
-    └── temp/            # Arquivos temporários
+├── audit_surgeries.py
+├── build_procedure_map.py
+├── extract_rules.py
+├── config/
+│   └── settings.py
+├── controllers/
+│   ├── protocol_extractor.py
+│   ├── report_generator.py
+│   └── surgery_auditor.py
+├── models/
+│   ├── audit_data.py
+│   ├── inputs.py
+│   └── protocol_rules.py
+├── utils/
+│   ├── antibiotic_regimens.py
+│   ├── input_loader.py
+│   ├── text_utils.py
+│   └── validation.py
+├── tests/
+├── data/
+│   ├── input/
+│   ├── output/
+│   └── temp/
+└── logs/
 ```
 
 ## Instalação
 
 ### Requisitos
-- Python 3.10 ou superior
-- Ghostscript (para processamento de PDF)
 
-### Passo a Passo
+- Python 3.10+
+- Dependências de `requirements.txt`
+- Ghostscript para o fluxo de extração de PDF com Camelot
+- Chave de API para os backends LLM de extração
 
-1. **Clone ou baixe o projeto:**
+### Ambiente virtual
+
 ```bash
-cd /path/to/project
+python -m venv .venv
 ```
 
-2. **Crie ambiente virtual (recomendado):**
+Linux/macOS:
+
 ```bash
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# ou
-venv\Scripts\activate  # Windows
+source .venv/bin/activate
 ```
 
-3. **Instale dependências:**
+Windows:
+
+```powershell
+.\.venv\Scripts\activate
+```
+
+### Dependências
+
 ```bash
 pip install -r requirements.txt
 ```
 
-4. **Instale Ghostscript (necessário para Camelot):**
+### Variáveis de ambiente
 
-**Linux/Ubuntu:**
+O extractor tenta ler a chave de API nesta ordem:
+
+- `LANGEXTRACT_API_KEY`
+- `GEMINI_API_KEY`
+- `GOOGLE_API_KEY`
+- `API_KEY_GOOGLE_AI_STUDIO`
+
+Exemplo de `.env`:
+
+```env
+GEMINI_API_KEY=seu-token-aqui
+```
+
+### Ghostscript
+
+Necessário para o fluxo de extração de PDF.
+
+Linux/Ubuntu:
+
 ```bash
 sudo apt-get install ghostscript python3-tk
 ```
 
-**MacOS:**
+macOS:
+
 ```bash
 brew install ghostscript
 ```
 
-**Windows:**
-- Baixe de: https://www.ghostscript.com/download/gsdnld.html
-- Instale e adicione ao PATH
+Windows:
+
+- baixar em <https://www.ghostscript.com/download/gsdnld.html>;
+- instalar e adicionar ao `PATH`.
 
 ## Uso
 
-### 1. Extração de Regras do Protocolo
+### 1. Extrair regras do protocolo
 
-Primeiro, extraia as regras do PDF do protocolo institucional:
+Fluxo completo:
 
 ```bash
-python extract_rules.py /caminho/para/protocolo.pdf --output ./data/output
+python extract_rules.py ./data/input/protocolo.pdf --output ./data/output
 ```
 
-**Parâmetros:**
-- `pdf_path`: Caminho para o PDF do protocolo (obrigatório)
-- `--output, -o`: Diretório de saída (padrão: `./data/output`)
-- `--pages, -p`: Páginas a extrair (padrão: "8-35")
+Parâmetros principais:
 
-**Saída:**
-- `rules.json`: Banco de dados com todas as regras
-- `rules_index.json`: Índice para busca rápida
-- `rules.meta.json`: Metadados e hash SHA256
+- `pdf_path`: PDF do protocolo.
+- `--output, -o`: diretório de saída.
+- `--pages, -p`: páginas a extrair.
+- `--backend, -b`: `gemini` ou `langextract`.
+- `--preview`: gera `raw_extractions.json` e não consolida regras.
+- `--from-raw ARQUIVO`: converte `raw_extractions.json` revisado para `rules.json`.
 
-**Exemplo:**
+Exemplos:
+
+Preview para revisão manual:
+
 ```bash
-python extract_rules.py ./protocolo_materdei.pdf \
-  --output ./data/output \
-  --pages "8-35"
+python extract_rules.py ./data/input/protocolo.pdf \
+  --output ./data/output/langextract_preview \
+  --backend langextract \
+  --preview
 ```
 
-### 2. Auditoria de Cirurgias
-
-Com as regras extraídas, audite a planilha de cirurgias:
+Conversão de um `raw_extractions.json` revisado:
 
 ```bash
-python audit_surgeries.py /caminho/para/cirurgias.xlsx ./data/output/rules.json --output ./data/output
+python extract_rules.py ./data/input/protocolo.pdf \
+  --output ./data/output/langextract_preview_full \
+  --from-raw ./data/output/langextract_preview/raw_extractions.json
 ```
 
-**Parâmetros:**
-- `excel_path`: Caminho para planilha Excel com cirurgias (obrigatório)
-- `rules_path`: Caminho para rules.json (obrigatório)
-- `--output, -o`: Diretório de saída para relatórios (padrão: `./data/output`)
-- `--sheet, -s`: Nome da aba do Excel (padrão: primeira aba)
+Artefatos gerados no modo consolidado:
 
-**Saída:**
-- `auditoria_resultado.xlsx`: Relatório completo com múltiplas abas
-- `auditoria_resultado.csv`: Dados em CSV
-- `auditoria_resultado.json`: Dados em JSON
-- `auditoria_resumo.txt`: Relatório resumido em texto
+- `rules.json`
+- `rules_index.json`
+- `rules.meta.json`
 
-**Exemplo:**
+Artefato gerado no modo preview:
+
+- `raw_extractions.json`
+
+### 2. Gerar candidatos de mapeamento de procedimentos
+
+`build_procedure_map.py` é um utilitário de apoio para revisão do mapeamento entre a planilha e o protocolo. Ele não substitui diretamente o `procedimentos.json` consumido pela auditoria; o uso esperado é revisar os candidatos gerados e consolidar o mapa de tradução.
+
 ```bash
-python audit_surgeries.py ./cirurgias_dezembro.xlsx \
+python build_procedure_map.py \
+  --excel ./data/input/cirurgias.xlsx \
+  --rules ./data/output/rules.json \
+  --output ./data/output/procedure_map_review.json \
+  --output-simple ./data/output/procedure_map_review_simple.json \
+  --use-specialty
+```
+
+Parâmetros principais:
+
+- `--excel`: planilha de cirurgias.
+- `--rules`: `rules.json`.
+- `--output`: JSON detalhado com status e candidatos.
+- `--output-simple`: JSON opcional no formato `ProcedureMapItem`.
+- `--sheet`: aba do Excel.
+- `--top-k`: quantidade de candidatos por procedimento.
+- `--min-auto`: score mínimo para status `AUTO`.
+- `--min-review`: score mínimo para status `REVIEW`.
+- `--use-specialty`: considera especialidade no match.
+- `--synonyms`: JSON opcional de sinônimos.
+
+Comportamento relevante do script:
+
+- resolve colunas por nome configurado e aliases;
+- usa `Especialidade` quando presente;
+- quando `Especialidade` estiver vazia, tenta inferi-la pela especialidade predominante do `Cirurgião` na própria planilha;
+- utiliza a especialidade efetiva tanto na chave do mapeamento quanto no `combo_norm` usado no fuzzy match.
+
+### 3. Auditar cirurgias
+
+```bash
+python audit_surgeries.py \
+  ./data/input/cirurgias.xlsx \
   ./data/output/rules.json \
   --output ./data/output \
-  --sheet "DEZEMBRO 2025"
+  --procedures-map ./data/input/procedimentos.json \
+  --procedures-map-version current
 ```
 
-## Formato da Planilha Excel
+`rules_path` aceita:
 
-A planilha de cirurgias deve conter as seguintes colunas:
+- `rules.json`
+- `raw_extractions.json` (convertido automaticamente em memória)
 
-| Coluna                          | Descrição                              | Tipo        |
-|---------------------------------|----------------------------------------|-------------|
-| `Dt Cirurgia`                   | Data da cirurgia                       | Data        |
-| `Cirurgia`                      | Nome do procedimento                   | Texto       |
-| `Especialidade`                 | Especialidade cirúrgica                | Texto       |
-| `Hr Incisão`                    | Horário da incisão (HH:MM)            | Hora        |
-| `Administração de Antibiotico`  | SIM ou NÃO                            | Texto       |
-| `Antibiótico`                   | Nome e dose do antibiótico            | Texto       |
-| `Hr Antibiótico`                | Horário de administração (HH:MM)      | Hora        |
-| `Repique`                       | SIM ou NÃO                            | Texto       |
-| `Hora Repique`                  | Horário do repique (HH:MM)            | Hora        |
-| `Peso (kg)`                     | Peso do paciente (opcional)           | Número      |
+Parâmetros principais:
 
-**Exemplo de linha:**
-```
-Data: 01/12/2025
-Cirurgia: Colecistectomia videolaparoscópica
-Especialidade: Cirurgia Geral
-Hr Incisão: 10:00
-Administração de Antibiotico: SIM
-Antibiótico: KEFAZOL 2G
-Hr Antibiótico: 09:15
-Repique: NÃO
-Peso (kg): 75
-```
+- `excel_path`: planilha Excel com as cirurgias.
+- `rules_path`: `rules.json` ou `raw_extractions.json`.
+- `--output, -o`: diretório de saída.
+- `--sheet, -s`: aba do Excel.
+- `--procedures-map`: arquivo JSON com tradução Excel -> protocolo.
+- `--procedures-map-version`: `current`, `latest` ou uma versão numérica.
 
-## Critérios de Conformidade
+Saídas:
 
-### 1. Escolha do Antibiótico
-- **CONFORME**: Antibiótico está nas recomendações do protocolo
-- **NÃO CONFORME**: Antibiótico não recomendado ou não administrado quando requerido
-- **INDETERMINADO**: Procedimento não encontrado no protocolo ou dados insuficientes
+- `auditoria_resultado.xlsx`
+- `auditoria_resultado.csv`
+- `auditoria_resultado.json`
+- `auditoria_resumo.txt`
 
-### 2. Dose
-- **CONFORME**: Dose dentro da tolerância (±10%)
-- **ALERTA**: Pequena diferença (10-15%)
-- **NÃO CONFORME**: Diferença >15% ou dose muito baixa/alta
-- **INDETERMINADO**: Dose não informada ou sem referência no protocolo
-**Observação:** quando a regra do protocolo estiver em mg/kg, a dose esperada é calculada com base no peso do paciente.
-Para Cefazolina, aplica-se teto de 2g (<120kg) ou 3g (≥120kg).
+## Arquivos de Entrada
 
-### 3. Timing
-- **CONFORME**: Antibiótico administrado 0-60 minutos antes da incisão
-- **NÃO CONFORME**: Fora da janela ou após incisão
-- **INDETERMINADO**: Horários não informados
+### Planilha Excel
 
-### 4. Repique (Redosing)
-- **CONFORME**: Repique realizado dentro do intervalo recomendado (±30 min)
-- **NÃO CONFORME**: Repique fora do intervalo
-- **INDETERMINADO**: Horários de repique não informados
-- **NÃO APLICÁVEL**: Antibiótico sem intervalo de repique configurado
+O sistema resolve colunas pelo nome configurado em `config/settings.py` e por aliases normalizados. As colunas mais relevantes são:
 
-### Conformidade Final
-A conformidade final é determinada pela combinação dos quatro critérios:
-- **CONFORME**: Todos os critérios conformes
-- **ALERTA**: Pelo menos um critério em alerta, nenhum não conforme
-- **NÃO CONFORME**: Pelo menos um critério não conforme
-- **INDETERMINADO**: Dados insuficientes para avaliar
+| Campo canônico | Coluna típica | Observação |
+|---|---|---|
+| procedimento | `Cirurgia` | obrigatória |
+| especialidade | `Especialidade` | recomendada |
+| cirurgião | `Cirurgiao` / `Nome do Cirurgião` | recomendada para melhorar o mapeamento |
+| data | `Dt Cirurgia` | opcional para auditoria consolidada |
+| atendimento | `Cod Atendimento` | opcional |
+| incisão | `Hr Incisão` | usada em timing |
+| antibiótico administrado | `Administração de Antibiotico` | usada em escolha |
+| antibiótico | `Antibiótico` | usada em escolha e dose |
+| horário do antibiótico | `Hr Antibiótico` | usada em timing |
+| repique | `Repique` | usada em redosing |
+| horário do repique | `Hora Repique` | usada em redosing |
+| peso | `Peso (kg)` | necessário para regras em mg/kg |
 
-## Configuração
+Observações:
 
-As configurações do sistema estão em `materdei_audit/config/settings.py`:
+- `Especialidade` pode vir vazia na planilha, mas o `build_procedure_map.py` consegue inferi-la a partir do cirurgião quando houver histórico suficiente no próprio arquivo.
+- Para melhorar a qualidade do match, manter a coluna do cirurgião preenchida é fortemente recomendado.
 
-### Tolerâncias de Auditoria
-```python
-AUDIT_CONFIG = {
-    "match_threshold": 0.70,              # Score mínimo para match
-    "dose_tolerance_percent": 15,         # Tolerância de dose
-    "timing_window_minutes": 60,          # Janela de timing
-    "alert_dose_tolerance_percent": 10,   # Tolerância para alertas
+### `procedimentos.json`
+
+Formato simples:
+
+```json
+{
+  "APENDICECTOMIA POR VIDEOLAPAROSCOPIA": "Apendicectomia não complicada",
+  "CESARIANA": "Parto cesariana"
 }
 ```
 
-### Intervalos de Repique
+Formato versionado:
+
+```json
+{
+  "metadata": {
+    "version": 2,
+    "description": "mapa revisado",
+    "generated_at": "2026-03-24T10:00:00"
+  },
+  "mappings": {
+    "PROC A": "MAP A"
+  }
+}
+```
+
+Resolução de versão:
+
+- `current`: usa exatamente o arquivo informado em `--procedures-map`;
+- `latest`: procura o maior sufixo `_vN.json`;
+- `3`: resolve para `*_v3.json`.
+
+## Critérios de Conformidade
+
+### Escolha do antibiótico
+
+- `CONFORME`: antibiótico compatível com o protocolo.
+- `NAO_CONFORME`: antibiótico inadequado, não administrado quando necessário ou regime incompleto.
+- `INDETERMINADO`: dados insuficientes.
+
+### Dose
+
+- `CONFORME`: dentro da tolerância configurada.
+- `ALERTA`: pequena diferença.
+- `NAO_CONFORME`: diferença relevante.
+- `INDETERMINADO`: sem dose utilizável ou sem referência.
+
+Regras ponderais em mg/kg usam o peso do paciente. Para cefazolina, aplica-se teto de 2 g para pacientes com menos de 120 kg e 3 g para pacientes com 120 kg ou mais.
+
+### Timing
+
+- `CONFORME`: antibiótico administrado de 0 a 60 minutos antes da incisão.
+- `NAO_CONFORME`: fora da janela ou após a incisão.
+- `INDETERMINADO`: horários ausentes ou inválidos.
+
+### Repique
+
+- `CONFORME`: repique dentro do intervalo configurado.
+- `NAO_CONFORME`: repique fora do intervalo.
+- `INDETERMINADO`: horários ausentes quando o critério é aplicável.
+- `NÃO APLICÁVEL`: implícito quando o antibiótico não exige redosing.
+
+## Configuração
+
+As configurações centrais estão em `config/settings.py`.
+
+### Auditoria
+
+```python
+AUDIT_CONFIG = {
+    "match_threshold": 0.70,
+    "translation_match_similarity_threshold": 0.45,
+    "specialty_match_threshold": 0.60,
+    "dose_tolerance_percent": 15,
+    "hard_dose_tolerance_percent": 100,
+    "timing_window_minutes": 60,
+    "alert_dose_tolerance_percent": 10,
+}
+```
+
+### Extração
+
+```python
+EXTRACTION_CONFIG = {
+    "pages_to_extract": "8-35",
+    "llm_backend": "langextract",
+    "gemini_model": "gemini-2.5-flash",
+    "langextract_model": "gemini-2.5-flash",
+    "llm_pages_per_chunk": 3,
+    "langextract_batch_length": 4,
+    "langextract_max_workers": 4,
+    "langextract_extraction_passes": 2,
+    "camelot_flavor": "lattice",
+}
+```
+
+### Intervalos de repique
+
 ```python
 REDOSING_INTERVALS = {
     "CEFAZOLINA": 240,
@@ -240,118 +386,59 @@ REDOSING_INTERVALS = {
 }
 ```
 
-### Extração de PDF
-```python
-EXTRACTION_CONFIG = {
-    "pages_to_extract": "8-35",
-    "camelot_flavor": "lattice",
-    "similarity_threshold": 0.7,
-}
+## Relatórios
+
+O Excel exportado contém as abas:
+
+- `Todos os Casos`
+- `Não Conformes`
+- `Alertas`
+- `Problemas de Dose`
+- `Sem Match Protocolo`
+- `Estatísticas`
+
+O sistema também gera logs em `logs/audit.log` e replica as mensagens principais no console.
+
+## Testes
+
+Executar a suíte:
+
+```bash
+pytest -q
 ```
 
-### Dicionário de Medicamentos
-Edite `DRUG_DICTIONARY` em `settings.py` para adicionar novos medicamentos:
-```python
-DRUG_DICTIONARY = {
-    "CEFAZOLINA": ["KEFAZOL", "CEFAZOLINA", "ANCEF"],
-    # ... adicione mais aqui
-}
-```
+Atualmente o repositório possui testes para:
 
-## Estrutura dos Relatórios Excel
-
-### Aba: "Todos os Casos"
-Todos os casos auditados com todas as colunas de dados e conformidade.
-
-### Aba: "Não Conformes"
-Apenas casos com conformidade final = NAO_CONFORME.
-Use para identificar casos que requerem ação corretiva.
-
-### Aba: "Alertas"
-Casos com pequenas diferenças de dose que merecem revisão.
-
-### Aba: "Problemas de Dose"
-Casos onde o antibiótico estava correto mas a dose estava incorreta.
-Estes casos são particularmente importantes para feedback à equipe.
-
-### Aba: "Sem Match Protocolo"
-Procedimentos que não foram encontrados no protocolo.
-Pode indicar necessidade de atualização do protocolo ou erros na nomenclatura.
-
-### Aba: "Estatísticas"
-Resumo quantitativo da auditoria:
-- Total de cirurgias
-- Conformidade por status
-- Conformidade por critério
-- Qualidade do match com protocolo
-- Taxas de conformidade
-
-## Logs
-
-O sistema gera logs detalhados em `logs/audit.log`:
-- DEBUG: Informações detalhadas de processamento
-- INFO: Progresso geral da auditoria
-- WARNING: Alertas e problemas não críticos
-- ERROR: Erros que impedem o processamento
-
-Logs também são exibidos no console durante a execução.
+- auditoria de cirurgias;
+- extração com LLM;
+- carregamento de mapas de procedimentos;
+- geração de candidatos de `build_procedure_map`;
+- utilitários de regimes antibióticos.
 
 ## Solução de Problemas
 
-### Erro: "Arquivo PDF não encontrado"
-- Verifique se o caminho está correto
-- Use caminhos absolutos se necessário
+### Muitos casos sem match
 
-### Erro: "Nenhuma regra extraída"
-- Verifique o parâmetro `--pages`
-- Confirme que o PDF não está corrompido
-- Teste com uma única página primeiro
+- revise e atualize `procedimentos.json`;
+- gere candidatos com `build_procedure_map.py`;
+- prefira preencher `Especialidade` e `Cirurgião` na planilha;
+- revise nomenclaturas que estejam muito distantes do protocolo.
 
-### Erro: "Colunas faltantes na planilha"
-- Verifique os nomes das colunas no Excel
-- Os nomes devem corresponder exatamente aos configurados
-- Veja seção "Formato da Planilha Excel"
+### Mapa de procedimentos não encontrado
 
-### Baixa taxa de conformidade
-- Revise casos não conformes no relatório
-- Verifique se o protocolo está atualizado
-- Confirme se os nomes dos procedimentos correspondem
+`audit_surgeries.py` continua a execução sem o mapa, mas a qualidade do matching tende a cair. Verifique:
 
-### Muitos casos "Sem Match"
-- Procedimentos podem ter nomenclaturas diferentes
-- Considere adicionar sinônimos no código
-- Revise a normalização de texto
+- caminho de `--procedures-map`;
+- versão pedida em `--procedures-map-version`;
+- existência dos arquivos `*_vN.json` quando usar `latest` ou uma versão específica.
 
-## Desenvolvimento Futuro
+### Extração incompleta
 
-### Planejado para versão 2.0:
-- [ ] Interface web Flask para upload e visualização
-- [ ] API REST para integração com outros sistemas
-- [ ] Dashboard interativo com gráficos
-- [ ] Autenticação e controle de acesso
-- [ ] Histórico de auditorias
-- [ ] Geração de relatórios em PDF
-- [ ] Notificações por email de não conformidades
-- [ ] Machine learning para sugestões de melhoria
-
-### Para Contribuir
-O código está modularizado e documentado para facilitar extensões:
-1. Novos medicamentos: edite `DRUG_DICTIONARY` em `config/settings.py`
-2. Novos critérios: adicione em `controllers/surgery_auditor.py`
-3. Novos relatórios: estenda `controllers/report_generator.py`
-4. Novas validações: adicione em `utils/validation.py`
+- teste com menos páginas em `--pages`;
+- use `--preview` para inspecionar o bruto antes da consolidação;
+- revise `raw_extractions.json` e use `--from-raw`;
+- confirme a presença da API key e do Ghostscript.
 
 ## Licença
 
-© 2025 Hospital Mater Dei - Sistema Interno de Auditoria
-
-## Suporte
-
-Para dúvidas ou problemas:
-1. Verifique a documentação acima
-2. Consulte os logs em `logs/audit.log`
-3. Entre em contato com a equipe de TI ou SECIH
-
----
-
-**Sistema desenvolvido para automatizar e padronizar a auditoria de profilaxia antimicrobiana, contribuindo para a segurança do paciente e conformidade com protocolos institucionais.**
+Uso interno Hospital Mater Dei.

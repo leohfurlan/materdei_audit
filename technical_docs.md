@@ -1,567 +1,420 @@
 # Documentação Técnica - Sistema de Auditoria Mater Dei
 
-## Arquitetura do Sistema
+Documentação revisada em 2026-03-24.
 
-### Padrão MVC Adaptado
+## Visão Geral Técnica
 
-O sistema segue uma arquitetura baseada em MVC (Model-View-Controller), adaptada para aplicação CLI:
+O repositório implementa um pipeline CLI dividido em três frentes:
 
-```
-┌─────────────────────────────────────────────┐
-│           Scripts de Entrada                │
-│  extract_rules.py | audit_surgeries.py      │
-└──────────────┬──────────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────────┐
-│            CONTROLLERS                       │
-│  ┌─────────────────────────────────────┐   │
-│  │ ProtocolExtractor                    │   │
-│  │  - extract_all_rules()               │   │
-│  │  - save_rules()                      │   │
-│  └─────────────────────────────────────┘   │
-│                                              │
-│  ┌─────────────────────────────────────┐   │
-│  │ SurgeryAuditor                       │   │
-│  │  - load_surgeries_from_excel()       │   │
-│  │  - audit_all_surgeries()             │   │
-│  │  - audit_surgery()                   │   │
-│  └─────────────────────────────────────┘   │
-│                                              │
-│  ┌─────────────────────────────────────┐   │
-│  │ ReportGenerator                      │   │
-│  │  - export_excel()                    │   │
-│  │  - export_csv()                      │   │
-│  │  - export_json()                     │   │
-│  └─────────────────────────────────────┘   │
-└──────────────┬──────────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────────┐
-│              MODELS                          │
-│  ┌─────────────────────────────────────┐   │
-│  │ ProtocolRule                         │   │
-│  │  + rule_id: str                      │   │
-│  │  + procedure: str                    │   │
-│  │  + primary_recommendation            │   │
-│  │  + allergy_recommendation            │   │
-│  └─────────────────────────────────────┘   │
-│                                              │
-│  ┌─────────────────────────────────────┐   │
-│  │ SurgeryRecord                        │   │
-│  │  + procedure: str                    │   │
-│  │  + atb_name: str                     │   │
-│  │  + incision_time: str                │   │
-│  └─────────────────────────────────────┘   │
-│                                              │
-│  ┌─────────────────────────────────────┐   │
-│  │ AuditResult                          │   │
-│  │  + surgery_record: SurgeryRecord     │   │
-│  │  + matched_rule_id: str              │   │
-│  │  + conf_final: str                   │   │
-│  └─────────────────────────────────────┘   │
-└──────────────┬──────────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────────┐
-│              UTILS                           │
-│  - text_utils: Normalização e fuzzy match   │
-│  - validation: Validação de dados           │
-└─────────────────────────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────────┐
-│              CONFIG                          │
-│  - settings.py: Todas as configurações      │
-└─────────────────────────────────────────────┘
-```
+1. extração de regras do protocolo a partir de PDF;
+2. preparação e revisão do mapa de tradução de procedimentos do Excel para o protocolo;
+3. auditoria das cirurgias com geração de relatórios.
 
-## Fluxo de Dados
+## Módulos Principais
 
-### 1. Extração de Regras (PDF → JSON)
+### Scripts de entrada
 
-```
-PDF do Protocolo
-      │
-      ▼
-┌──────────────────┐
-│ Camelot/         │ Extrai tabelas do PDF
-│ pdfplumber       │ usando múltiplas estratégias
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐
-│ ProtocolExtractor│ Parseia tabelas em objetos
-│                  │ ProtocolRule
-└────────┬─────────┘
-         │
-         ▼
-┌──────────────────┐
-│ ProtocolRules    │ Valida e salva regras
-│ Repository       │ em JSON + índice
-└────────┬─────────┘
-         │
-         ▼
-   rules.json
-   rules_index.json
-   rules.meta.json
+- `extract_rules.py`: extrai regras do protocolo e salva artefatos em JSON.
+- `build_procedure_map.py`: gera candidatos de mapeamento entre planilha e protocolo.
+- `audit_surgeries.py`: executa a auditoria completa.
+
+### Controllers
+
+- `controllers/protocol_extractor.py`
+  - extrai texto e tabelas do PDF;
+  - chama backend `gemini` ou `langextract`;
+  - suporta preview em `raw_extractions.json`;
+  - converte `raw_extractions.json` revisado para `rules.json`.
+- `controllers/surgery_auditor.py`
+  - carrega registros do Excel;
+  - aplica tradução opcional via `procedimentos.json`;
+  - faz match com o protocolo;
+  - avalia escolha, dose, timing e repique.
+- `controllers/report_generator.py`
+  - exporta relatórios em Excel, CSV, JSON e TXT.
+
+### Models
+
+- `models/protocol_rules.py`
+  - `ProtocolRule`
+  - `Recommendation`
+  - `Drug`
+  - `ProtocolRulesRepository`
+- `models/audit_data.py`
+  - `SurgeryRecord`
+  - `AuditResult`
+- `models/inputs.py`
+  - schemas Pydantic para arquivos auxiliares de configuração e formatos de mapa.
+
+### Utils
+
+- `utils/text_utils.py`
+  - normalização de texto;
+  - fuzzy matching;
+  - parsing de dose e horário.
+- `utils/antibiotic_regimens.py`
+  - extração e comparação de regimes antibióticos.
+- `utils/input_loader.py`
+  - carga de YAML/JSON;
+  - resolução versionada de `procedimentos.json`.
+- `utils/validation.py`
+  - validações de apoio.
+
+### Configuração
+
+- `config/settings.py`
+  - thresholds de matching;
+  - tolerâncias de dose e timing;
+  - intervalos de repique;
+  - nomes canônicos e aliases de colunas;
+  - configurações dos backends de extração.
+
+## Arquitetura de Fluxo
+
+### 1. Extração do protocolo
+
+```text
+PDF
+  -> ProtocolExtractor
+  -> raw_extractions.json (modo preview)
+  -> convert_raw_to_rules / build_from_raw
+  -> ProtocolRulesRepository
+  -> rules.json + rules_index.json + rules.meta.json
 ```
 
-### 2. Auditoria de Cirurgias (Excel → Relatórios)
+Pontos relevantes:
 
-```
-Excel de Cirurgias + rules.json
-           │
-           ▼
-┌──────────────────────┐
-│ SurgeryAuditor       │ Carrega Excel e rules
-│ .load_surgeries()    │
-└──────────┬───────────┘
-           │
-           ▼
-┌──────────────────────┐
-│ Para cada cirurgia:  │
-│                      │
-│ 1. Match com         │ Fuzzy matching
-│    protocolo         │ procedure → rule
-│                      │
-│ 2. Valida escolha    │ ATB no protocolo?
-│                      │
-│ 3. Valida dose       │ Dose correta?
-│                      │
-│ 4. Valida timing     │ Dentro de 1h?
-│                      │
-│ 5. Valida repique    │ Intervalo ok?
-│                      │
-│ 6. Conformidade      │ Combina critérios
-│    final             │
-└──────────┬───────────┘
-           │
-           ▼
-┌──────────────────────┐
-│ ReportGenerator      │ Gera relatórios em
-│                      │ múltiplos formatos
-└──────────┬───────────┘
-           │
-           ▼
-  Excel, CSV, JSON, TXT
+- o extractor carrega `.env` automaticamente;
+- a API key é procurada em `LANGEXTRACT_API_KEY`, `GEMINI_API_KEY`, `GOOGLE_API_KEY` ou `API_KEY_GOOGLE_AI_STUDIO`;
+- o backend configurável em runtime é `gemini` ou `langextract`;
+- `audit_surgeries.py` também aceita `raw_extractions.json` como entrada e faz a conversão em memória.
+
+### 2. Construção do mapa de procedimentos
+
+```text
+Excel + rules.json
+  -> build_procedure_map.py
+  -> candidatos AUTO / REVIEW / NO_MATCH
+  -> revisão manual
+  -> procedimentos.json
 ```
 
-## Algoritmos Principais
+O script não produz automaticamente o arquivo final consumido pela auditoria. Ele produz material de apoio para revisão do mapeamento.
 
-### 1. Fuzzy Matching de Procedimentos
+### 3. Auditoria
 
-```python
-def fuzzy_match_score(text1: str, text2: str) -> float:
-    """
-    Usa rapidfuzz.token_set_ratio para comparação
-    resistente a ordem de palavras e stopwords.
-    
-    Exemplo:
-    "Colecistectomia videolaparoscópica"
-    vs
-    "colecistectomia video laparoscopica"
-    → Score: 0.95 (match)
-    """
-    norm1 = normalize_text(text1)  # Remove acentos, lowercase
-    norm2 = normalize_text(text2)
-    
-    score = fuzz.token_set_ratio(norm1, norm2) / 100.0
-    return score
+```text
+Excel + rules.json|raw_extractions.json + procedimentos.json
+  -> SurgeryAuditor
+  -> AuditResult[]
+  -> ReportGenerator
+  -> xlsx / csv / json / txt
 ```
 
-### 2. Detecção de Medicamentos
+## Fluxo Atual das CLIs
 
-```python
-def extract_drug_names(text: str, drug_dict: dict) -> List[str]:
-    """
-    Busca por aliases de medicamentos em texto normalizado.
-    
-    Exemplo:
-    "KEFAZOL 2G" → ["CEFAZOLINA"]
-    "Cefazolina 2g + Metronidazol 500mg" → ["CEFAZOLINA", "METRONIDAZOL"]
-    """
-    normalized = normalize_text(text)
-    found_drugs = []
-    
-    for standard_name, aliases in drug_dict.items():
-        for alias in aliases:
-            if normalize_text(alias) in normalized:
-                found_drugs.append(standard_name)
-                break
-    
-    return found_drugs
-```
+### `extract_rules.py`
 
-### 3. Validação de Dose
+Argumentos relevantes:
 
-```python
-def _validate_dose(record, rule, result):
-    """
-    Compara dose administrada com dose recomendada.
-    Usa tolerância configurável para classificar.
-    Suporta dose ponderal (mg/kg) quando definida no protocolo.
-    
-    Lógica:
-    - Se a dose for mg/kg: calcula dose esperada com base no peso
-      (teto para Cefazolina: 2g <120kg, 3g ≥120kg)
-    - ≤10% diferença → CONFORME
-    - 10-15% diferença → ALERTA
-    - >15% diferença → NAO_CONFORME
-    """
-    if dose_regra_em_mgkg:
-        if not peso_paciente:
-            return 'INDETERMINADO'
-        recom = mg_por_kg * peso
-        if droga == 'CEFAZOLINA':
-            recom = min(recom, 2000 if peso < 120 else 3000)
+- `pdf_path`
+- `--output`
+- `--pages`
+- `--backend`
+- `--preview`
+- `--from-raw`
 
-    diff_pct = abs((admin - recom) / recom * 100)
-    
-    if diff_pct <= 10:
-        return 'CONFORME'
-    elif diff_pct <= 15:
-        return 'ALERTA'
-    else:
-        return 'NAO_CONFORME'
-```
+Modos operacionais:
 
-### 4. Validação de Timing
+- completo: `PDF -> LLM -> rules.json`
+- preview: `PDF -> raw_extractions.json`
+- from-raw: `raw_extractions.json -> rules.json`
 
-```python
-def _validate_timing(record, result):
-    """
-    Verifica se ATB foi dado 0-60 minutos antes da incisão.
-    
-    Lógica:
-    - ATB após incisão → NAO_CONFORME
-    - ATB 0-60min antes → CONFORME
-    - ATB >60min antes → NAO_CONFORME
-    """
-    diff_min = calc_time_diff(atb_time, incision_time)
-    
-    if diff_min < 0:
-        return 'NAO_CONFORME'  # Após incisão
-    elif 0 <= diff_min <= 60:
-        return 'CONFORME'
-    else:
-        return 'NAO_CONFORME'  # Muito antes
-```
+Arquivos produzidos:
 
-### 5. Validação de Repique (Redosing)
+- `rules.json`
+- `rules_index.json`
+- `rules.meta.json`
+- `raw_extractions.json` no modo preview
 
-```python
-def _validate_redosing(record, result):
-    """
-    Valida repique com base nos intervalos configurados (REDOSING_INTERVALS).
-    
-    Lógica:
-    - Se repique_done != 'SIM' → CONFORME (não aplicável)
-    - Se antibiótico sem intervalo ou intervalo = 0 → CONFORME
-    - Se horários ausentes → INDETERMINADO
-    - Se dentro do intervalo ±30min → CONFORME
-    - Caso contrário → NAO_CONFORME
-    """
-```
+### `build_procedure_map.py`
 
-## Estruturas de Dados
+Argumentos relevantes:
 
-### ProtocolRule (JSON)
+- `--excel`
+- `--rules`
+- `--output`
+- `--sheet`
+- `--top-k`
+- `--min-auto`
+- `--min-review`
+- `--use-specialty`
+- `--synonyms`
+- `--output-simple`
+
+Saídas:
+
+- JSON detalhado com status por chave;
+- JSON opcional no formato `ProcedureMapItem`.
+
+### `audit_surgeries.py`
+
+Argumentos relevantes:
+
+- `excel_path`
+- `rules_path`
+- `--output`
+- `--sheet`
+- `--procedures-map`
+- `--procedures-map-version`
+
+Comportamento operacional:
+
+- aceita `rules.json` ou `raw_extractions.json`;
+- carrega `procedimentos.json` quando disponível;
+- continua executando sem mapa de procedimentos, emitindo warning;
+- grava relatórios e estatísticas no diretório de saída.
+
+## Algoritmos e Regras de Negócio
+
+### Normalização e fuzzy matching
+
+`utils.text_utils.normalize_text()`:
+
+- remove acentos;
+- converte para minúsculo;
+- remove pontuação;
+- compacta espaços.
+
+`utils.text_utils.clean_procedure_name()`:
+
+- aplica `normalize_text()`;
+- remove stopwords comuns de procedimentos.
+
+`utils.text_utils.fuzzy_match_score()`:
+
+- usa `rapidfuzz.fuzz.token_set_ratio`;
+- retorna score entre 0 e 1.
+
+### Resolução do mapa de tradução de procedimentos
+
+`utils.input_loader.load_procedure_translation_map()` suporta dois formatos:
+
+1. legado:
 
 ```json
 {
-  "rule_id": "rule_ORTOPEDIA_5_12",
-  "section": "ORTOPEDIA",
-  "procedure": "Artroscopia",
-  "procedure_normalized": "artroscopia",
-  "is_prophylaxis_required": true,
-  "primary_recommendation": {
-    "drugs": [
-      {
-        "name": "CEFAZOLINA",
-        "dose": "2g",
-        "route": "IV",
-        "timing": null
-      }
-    ],
-    "raw_text": "Cefazolina 2g IV",
-    "notes": ""
-  },
-  "allergy_recommendation": {
-    "drugs": [
-      {
-        "name": "CLINDAMICINA",
-        "dose": "600mg",
-        "route": "IV",
-        "timing": null
-      }
-    ],
-    "raw_text": "Clindamicina 600mg IV",
-    "notes": ""
-  },
-  "postoperative": "",
-  "audit_category": "OK"
+  "PROC EXCEL": "PROC PROTOCOLO"
 }
 ```
 
-### AuditResult (exportado)
+2. versionado:
 
 ```json
 {
-  "data": "2025-12-01",
-  "procedimento": "Colecistectomia videolaparoscópica",
-  "atb_administrado": "SIM",
-  "atb_detectado": "CEFAZOLINA",
-  "dose_administrada_mg": 2000.0,
-  "match_rule_id": "rule_CIRURGIA_GERAL_3_8",
-  "match_score": 0.95,
-  "protocolo_atb_recomendados": "CEFAZOLINA",
-  "protocolo_dose_esperada": "2g",
-  "conf_escolha": "CONFORME",
-  "conf_dose": "CONFORME",
-  "conf_timing": "CONFORME",
-  "conf_repique": "CONFORME",
-  "conf_repique_razao": "repique_no_intervalo",
-  "conf_final": "CONFORME",
-  "dose_diferenca_mg": 0.0,
-  "dose_diferenca_pct": 0.0,
-  "timing_diferenca_minutos": 45,
-  "repique_diferenca_minutos": 240
+  "metadata": {
+    "version": 2
+  },
+  "mappings": {
+    "PROC EXCEL": "PROC PROTOCOLO"
+  }
 }
 ```
 
-## Performance
+Regras de resolução:
 
-### Benchmarks Estimados
+- `current`: usa o caminho informado;
+- `latest`: escolhe o maior `_vN.json`;
+- `N`: resolve para `_vN.json`.
 
-- **Extração de regras**: ~30-60 segundos para PDF de 30 páginas
-- **Auditoria**: ~0.1-0.2 segundos por cirurgia
-- **Geração de relatórios**: ~2-5 segundos para 1000 cirurgias
+### Construção do mapa em `build_procedure_map.py`
 
-### Otimizações Implementadas
+Etapas principais:
 
-1. **Índice de procedimentos**: Busca O(1) por procedimento normalizado
-2. **Caching de normalização**: Evita processar mesmo texto múltiplas vezes
-3. **Fuzzy matching otimizado**: Usa rapidfuzz (C implementation)
-4. **ProtocolRulesRepository Singleton**: evita recarregar rules.json em múltiplas instâncias
-5. **Processamento em lote**: pandas para operações vetorizadas
+1. resolve colunas reais do Excel usando `EXCEL_COLUMNS` e `EXCEL_COLUMN_ALIASES`;
+2. constrói um conjunto de especialidades observadas para evitar matches com cabeçalhos genéricos;
+3. indexa regras combinando `section + procedure`;
+4. percorre o Excel e avalia candidatos por score;
+5. classifica cada item como `AUTO`, `REVIEW` ou `NO_MATCH`.
+
+#### Inferência de especialidade via cirurgião
+
+Estado atual do script:
+
+- antes do `iterrows()`, é criado um dicionário `cirurgião normalizado -> especialidade predominante`;
+- em caso de empate, vence a primeira especialidade não nula encontrada;
+- se a linha atual vier sem `Especialidade`, o script tenta inferi-la usando o cirurgião;
+- a especialidade inferida passa a compor:
+  - a chave de agrupamento;
+  - o `combo_norm` usado no fuzzy match;
+  - o campo exportado de especialidade.
+
+Esse comportamento melhora o matching quando a planilha está incompleta em `Especialidade`, mas possui `Cirurgião` consistente.
+
+### Auditoria de cirurgias
+
+O `SurgeryAuditor` executa as etapas abaixo para cada registro:
+
+1. traduz o nome do procedimento com `procedimentos.json`, se houver mapa;
+2. tenta localizar a melhor regra do protocolo;
+3. avalia antibiótico documentado e recomendações primárias/alergia;
+4. valida dose, incluindo regras ponderais em mg/kg;
+5. valida timing em relação ao horário de incisão;
+6. valida repique conforme `REDOSING_INTERVALS`;
+7. calcula `conf_final`.
+
+### Critérios de conformidade
+
+#### Escolha
+
+- considera compatibilidade do antibiótico ou regime documentado com o protocolo;
+- trata explicitamente cenários como:
+  - antibiótico não recomendado;
+  - profilaxia não requerida;
+  - procedimento sem match;
+  - registro insuficiente.
+
+#### Dose
+
+- usa `dose_tolerance_percent` e `alert_dose_tolerance_percent`;
+- aceita cálculo ponderal por peso;
+- aplica regra especial para cefazolina:
+  - até 2 g para peso abaixo de 120 kg;
+  - até 3 g para peso igual ou acima de 120 kg.
+
+#### Timing
+
+- janela padrão de 0 a 60 minutos antes da incisão;
+- classifica como não conforme quando após a incisão ou fora da janela.
+
+#### Repique
+
+- usa `REDOSING_INTERVALS`;
+- considera tolerância operacional em torno do intervalo esperado;
+- devolve status apropriado para antibióticos sem necessidade de redosing ou com dados ausentes.
+
+## Artefatos Persistidos
+
+### Regras do protocolo
+
+- `rules.json`: lista de regras serializadas.
+- `rules_index.json`: índice por procedimento normalizado.
+- `rules.meta.json`: hash, contagem e metadados de geração.
+
+Observação:
+
+- `ProtocolExtractor.get_validation_report()` retorna estatísticas em memória;
+- o repositório não gera `rules.validation.json`.
+
+### Relatórios de auditoria
+
+- `auditoria_resultado.xlsx`
+- `auditoria_resultado.csv`
+- `auditoria_resultado.json`
+- `auditoria_resumo.txt`
+
+### Mapeamentos auxiliares
+
+- `procedimentos.json`: mapa consumido pela auditoria;
+- saídas do `build_procedure_map.py`: base de revisão para manter esse mapa.
+
+## Configuração
+
+### `AUDIT_CONFIG`
+
+Parâmetros mais relevantes:
+
+- `match_threshold`
+- `translation_match_similarity_threshold`
+- `specialty_match_threshold`
+- `dose_tolerance_percent`
+- `hard_dose_tolerance_percent`
+- `timing_window_minutes`
+- `alert_dose_tolerance_percent`
+
+### `EXTRACTION_CONFIG`
+
+Parâmetros mais relevantes:
+
+- `pages_to_extract`
+- `llm_backend`
+- `gemini_model`
+- `langextract_model`
+- `llm_max_chunk_chars`
+- `llm_pages_per_chunk`
+- `langextract_batch_length`
+- `langextract_max_workers`
+- `langextract_extraction_passes`
+- `camelot_flavor`
+- parâmetros finos de `lattice` e `stream`
+
+### `EXCEL_COLUMNS` e aliases
+
+O sistema não depende apenas de nomes exatos. Há resolução por alias para colunas como:
+
+- procedimento;
+- especialidade;
+- cirurgião;
+- horários de incisão e antibiótico;
+- repique;
+- peso.
 
 ## Testes
 
-### Estrutura de Testes (futuro)
+Estado atual:
 
-```
-tests/
-├── test_text_utils.py       # Testes de normalização
-├── test_validation.py        # Testes de validação
-├── test_protocol_rules.py    # Testes de modelo de regras
-├── test_audit_data.py        # Testes de modelo de auditoria
-├── test_extractor.py         # Testes de extração
-├── test_auditor.py           # Testes de auditoria
-└── test_report_generator.py  # Testes de relatórios
-```
+- a suíte é executável com `pytest`;
+- o repositório já possui testes automatizados, não é mais um item futuro.
 
-### Executar testes (quando implementados)
+Arquivos de teste presentes:
 
-```bash
-pytest tests/ -v
-```
+- `tests/test_antibiotic_regimens.py`
+- `tests/test_build_procedure_map.py`
+- `tests/test_input_loader.py`
+- `tests/test_llm_extraction.py`
+- `tests/test_surgery_auditor.py`
 
-## Segurança e Privacidade
+Cobertura qualitativa atual:
 
-### Dados Sensíveis
+- extração de regras com Gemini e Langextract;
+- carregamento de versões do mapa de procedimentos;
+- regras de auditoria e calibragem;
+- geração de candidatos de mapeamento, incluindo inferência de especialidade por cirurgião.
 
-O sistema NÃO armazena:
-- Nomes de pacientes
-- Prontuários
-- Dados clínicos além do necessário para auditoria
+## Operação e Manutenção
+
+### Atualizar o protocolo institucional
+
+1. rodar `extract_rules.py` no modo completo ou preview;
+2. revisar `raw_extractions.json` quando necessário;
+3. consolidar `rules.json`;
+4. validar resultados com um conjunto conhecido de cirurgias.
+
+### Atualizar o mapa de procedimentos
+
+1. rodar `build_procedure_map.py` sobre uma amostra recente do Excel;
+2. revisar itens `AUTO`, `REVIEW` e `NO_MATCH`;
+3. consolidar o mapa final em `data/input/procedimentos.json` ou em versão `*_vN.json`;
+4. executar a auditoria apontando para a versão desejada.
+
+### Quando a taxa de sem-match aumenta
+
+Checklist prático:
+
+- verificar se `procedimentos.json` está desatualizado;
+- validar se a planilha está preenchendo `Especialidade` e `Cirurgião`;
+- revisar novos nomes comerciais ou abreviações;
+- reexecutar `build_procedure_map.py` com `--use-specialty`.
 
 ### Logs
 
-- Logs não contêm dados identificáveis de pacientes
-- Apenas procedimentos e resultados de auditoria
+O logging é centralizado em `LOGGING_CONFIG` e grava em:
 
-### Recomendações
+- console;
+- `logs/audit.log`.
 
-1. Mantenha arquivos Excel e relatórios em local seguro
-2. Limite acesso ao sistema apenas à equipe autorizada
-3. Faça backup regular dos arquivos de regras (rules.json)
-4. Revise logs periodicamente para detectar anomalias
+## Limitações Conhecidas
 
-## Manutenção
-
-### Atualização do Protocolo
-
-Quando o protocolo institucional mudar:
-
-1. Execute novamente a extração:
-   ```bash
-   python extract_rules.py novo_protocolo.pdf --output ./data/output
-   ```
-
-2. Verifique o arquivo `rules.validation.json` para confirmar extração completa
-
-3. Teste com amostra de cirurgias antigas para comparar resultados
-
-4. Faça backup da versão anterior de `rules.json`
-
-### Adição de Novos Medicamentos
-
-Edite `materdei_audit/config/settings.py`:
-
-```python
-DRUG_DICTIONARY = {
-    # ... existentes ...
-    "NOVO_MEDICAMENTO": ["ALIAS1", "ALIAS2", "NOME_COMERCIAL"],
-}
-```
-
-### Ajuste de Tolerâncias
-
-Edite `materdei_audit/config/settings.py`:
-
-```python
-AUDIT_CONFIG = {
-    "dose_tolerance_percent": 20,  # Aumentar se muitos alertas
-    "timing_window_minutes": 90,   # Expandir janela se necessário
-}
-```
-
-### Intervalos de Repique (Redosing)
-
-Edite `materdei_audit/config/settings.py`:
-
-```python
-REDOSING_INTERVALS = {
-    "CEFAZOLINA": 240,
-    "CEFUROXIMA": 240,
-    "CEFOXITINA": 120,
-    "CLINDAMICINA": 360,
-    "VANCOMICINA": 0,
-    "GENTAMICINA": 0,
-    "CIPROFLOXACINO": 0,
-}
-```
-
-**Observação:** a validação considera tolerância de ±30 minutos em torno do intervalo.
-
-## Integração com Flask (Futuro)
-
-### Estrutura Planejada
-
-```python
-# app.py (futuro)
-from flask import Flask, request, jsonify
-from materdei_audit.controllers import SurgeryAuditor
-from materdei_audit.models import ProtocolRulesRepository
-
-app = Flask(__name__)
-
-@app.route('/api/audit', methods=['POST'])
-def audit_surgery():
-    """Endpoint para auditoria via API."""
-    data = request.json
-    # ... lógica de auditoria ...
-    return jsonify(result)
-
-@app.route('/api/upload/excel', methods=['POST'])
-def upload_excel():
-    """Endpoint para upload de planilha."""
-    file = request.files['file']
-    # ... processamento ...
-    return jsonify({"status": "success"})
-```
-
-### Endpoints Planejados
-
-- `POST /api/audit` - Audita cirurgia individual
-- `POST /api/audit/batch` - Audita lote de cirurgias
-- `POST /api/upload/excel` - Upload de planilha
-- `GET /api/reports/{id}` - Baixa relatório
-- `GET /api/protocol/rules` - Lista regras do protocolo
-- `GET /api/statistics` - Estatísticas gerais
-
-## Extensibilidade
-
-### Adicionando Novo Critério de Conformidade
-
-1. Adicione método em `controllers/surgery_auditor.py`:
-```python
-def _validate_novo_criterio(self, record, rule, result):
-    # Sua lógica aqui
-    return status, razao
-```
-
-2. Chame no método `audit_surgery()`:
-```python
-result.conf_novo = self._validate_novo_criterio(record, rule, result)
-```
-
-3. Atualize `_calculate_final_conformity()` para incluir novo critério
-
-### Adicionando Novo Formato de Relatório
-
-1. Adicione método em `controllers/report_generator.py`:
-```python
-def export_novo_formato(self, output_path: Path):
-    df = self.prepare_dataframe()
-    # Gera arquivo no novo formato
-```
-
-2. Chame no script `audit_surgeries.py`:
-```python
-report_gen.export_novo_formato(output_dir / 'relatorio.ext')
-```
-
-## Troubleshooting Avançado
-
-### Problema: Extração Incompleta
-
-**Sintoma**: Menos de 100 regras extraídas
-
-**Diagnóstico**:
-```python
-# Teste uma única página
-python extract_rules.py protocolo.pdf --pages "15"
-```
-
-**Soluções**:
-1. Ajuste parâmetros do Camelot em `settings.py`
-2. Tente flavor 'stream' ao invés de 'lattice'
-3. Verifique se PDF não está protegido ou corrompido
-
-### Problema: Muitos Casos Sem Match
-
-**Sintoma**: >20% de casos com match_score = 0
-
-**Diagnóstico**:
-```python
-# Adicione log de procedimentos não matched
-logger.debug(f"Procedimento não matched: {procedure}")
-```
-
-**Soluções**:
-1. Reduza `match_threshold` em `settings.py`
-2. Adicione sinônimos de procedimentos
-3. Normalize melhor os nomes de procedimentos no Excel
-
-### Problema: Performance Lenta
-
-**Sintoma**: >1 segundo por cirurgia
-
-**Diagnóstico**:
-```python
-import time
-start = time.time()
-result = auditor.audit_surgery(record)
-print(f"Tempo: {time.time() - start:.2f}s")
-```
-
-**Soluções**:
-1. Verifique se índice está sendo usado corretamente
-2. Profile o código com cProfile
-3. Considere processamento paralelo para lotes grandes
-
----
-
-**Documentação atualizada em: Janeiro 2025**
+- o mapa final consumido pela auditoria ainda depende de revisão manual;
+- a qualidade da extração do protocolo depende de PDF, backend LLM e API key válidos;
+- planilhas com horários ausentes ou texto muito inconsistente aumentam `INDETERMINADO` e `SEM_MATCH`.
