@@ -30,6 +30,7 @@ class TestSurgeryAuditorCalibration(unittest.TestCase):
         self.repo._index = {}
         self.repo._metadata = {}
         self.repo._is_loaded = True
+        self.workspace = Path(__file__).parent.parent
 
     def _build_auditor_with_rule(self, rule: ProtocolRule) -> SurgeryAuditor:
         self.repo.rules = [rule]
@@ -398,6 +399,173 @@ class TestSurgeryAuditorCalibration(unittest.TestCase):
 
         self.assertEqual(result.conf_escolha, "CONFORME")
         self.assertEqual(result.conf_final, "CONFORME")
+
+    def test_optional_addition_is_not_required_but_is_accepted(self):
+        rule = ProtocolRule(
+            rule_id="rule_optional",
+            procedure="Cirurgia potencialmente contaminada para câncer",
+            procedure_normalized="cirurgia potencialmente contaminada para câncer",
+            is_prophylaxis_required=True,
+            primary_recommendation=Recommendation(
+                drugs=[
+                    Drug(name="CEFAZOLINA", dose="2000mg", route="EV", timing="na inducao"),
+                    Drug(name="METRONIDAZOL", dose="500mg", route="EV", timing="na inducao"),
+                ],
+                raw_text="Cefazolina + Metronidazol",
+                acceptable_regimens=[["CEFAZOLINA", "METRONIDAZOL"]],
+                metadata={},
+            ),
+            allergy_recommendation=Recommendation(
+                drugs=[Drug(name="CLINDAMICINA", dose="900mg", route="EV", timing="na inducao")],
+                raw_text="Clindamicina",
+                acceptable_regimens=[["CLINDAMICINA"]],
+                metadata={
+                    "optional_additions": [
+                        {
+                            "raw_text": "Associação com gentamicina opcional",
+                            "regimens": [["GENTAMICINA"]],
+                            "combine_with_base": True,
+                        }
+                    ]
+                },
+            ),
+        )
+        auditor = self._build_auditor_with_rule(rule)
+
+        clinda_only = auditor.audit_surgery(
+            SurgeryRecord(
+                procedure="Cirurgia potencialmente contaminada para câncer",
+                atb_given="SIM",
+                atb_name="Clindamicina 900mg",
+                atb_detected=extract_documented_antibiotics("Clindamicina 900mg"),
+                atb_time="07:00",
+                incision_time="07:30",
+                repique_done="NAO",
+            )
+        )
+        clinda_plus_genta = auditor.audit_surgery(
+            SurgeryRecord(
+                procedure="Cirurgia potencialmente contaminada para câncer",
+                atb_given="SIM",
+                atb_name="Clindamicina + Gentamicina",
+                atb_detected=extract_documented_antibiotics("Clindamicina + Gentamicina"),
+                atb_time="07:00",
+                incision_time="07:30",
+                repique_done="NAO",
+            )
+        )
+
+        self.assertEqual(clinda_only.conf_escolha, "CONFORME")
+        self.assertEqual(clinda_plus_genta.conf_escolha, "CONFORME")
+        self.assertEqual(clinda_plus_genta.conf_escolha_razao, "atb_recomendado_com_adjuvante_opcional")
+
+    def test_conditional_addition_without_context_is_alert_instead_of_conforme(self):
+        rule = ProtocolRule(
+            rule_id="rule_conditional",
+            procedure="Fístula arteriovenosa com ou sem próteses - revisão",
+            procedure_normalized="fistula arteriovenosa com ou sem proteses revisao",
+            is_prophylaxis_required=True,
+            primary_recommendation=Recommendation(
+                drugs=[Drug(name="CEFAZOLINA", dose="2000mg", route="EV", timing="na inducao")],
+                raw_text="Cefazolina 2g EV",
+                acceptable_regimens=[["CEFAZOLINA"]],
+                metadata={
+                    "conditional_additions": [
+                        {
+                            "raw_text": "Adicionar Vancomicina se alto risco de infecção por Staphylococcus oxacilina resistente",
+                            "condition": "alto risco de infecção por Staphylococcus oxacilina resistente",
+                            "regimens": [["VANCOMICINA"]],
+                            "combine_with_base": True,
+                        }
+                    ]
+                },
+            ),
+            allergy_recommendation=Recommendation(
+                drugs=[Drug(name="CLINDAMICINA", dose="900mg", route="EV", timing="na inducao")],
+                raw_text="Clindamicina 900mg EV",
+                acceptable_regimens=[["CLINDAMICINA"]],
+            ),
+        )
+        auditor = self._build_auditor_with_rule(rule)
+
+        result = auditor.audit_surgery(
+            SurgeryRecord(
+                procedure="Fístula arteriovenosa com ou sem próteses - revisão",
+                atb_given="SIM",
+                atb_name="Cefazolina + Vancomicina",
+                atb_detected=extract_documented_antibiotics("Cefazolina + Vancomicina"),
+                atb_time="07:00",
+                incision_time="07:30",
+                repique_done="NAO",
+            )
+        )
+
+        self.assertEqual(result.conf_escolha, "ALERTA")
+        self.assertEqual(result.conf_escolha_razao, "atb_adjuvante_condicional_sem_contexto")
+
+    def test_legacy_flattened_rule_does_not_trigger_incomplete_regimen_false_negative(self):
+        rule = ProtocolRule(
+            rule_id="legacy_rule",
+            procedure="Cirurgia limpa, com implantes",
+            procedure_normalized="cirurgia limpa com implantes",
+            is_prophylaxis_required=True,
+            primary_recommendation=Recommendation(
+                drugs=[
+                    Drug(name="CEFAZOLINA", dose="2000mg", route="EV", timing="na inducao"),
+                    Drug(name="CLINDAMICINA", dose="900mg", route="EV", timing="na inducao"),
+                ],
+                raw_text="Cirurgia limpa, com implantes",
+                acceptable_regimens=[],
+                metadata={"legacy_flattened_ambiguous": True},
+            ),
+            allergy_recommendation=Recommendation(drugs=[]),
+        )
+        auditor = self._build_auditor_with_rule(rule)
+
+        result = auditor.audit_surgery(
+            SurgeryRecord(
+                procedure="Cirurgia limpa, com implantes",
+                atb_given="SIM",
+                atb_name="Cefazolina 2g",
+                atb_detected=extract_documented_antibiotics("Cefazolina 2g"),
+                dose_administered_mg=2000.0,
+                atb_time="07:00",
+                incision_time="07:30",
+                repique_done="NAO",
+            )
+        )
+
+        self.assertEqual(result.conf_escolha, "ALERTA")
+        self.assertEqual(result.conf_escolha_razao, "regra_ambigua_legado")
+        self.assertNotEqual(result.conf_final, "NAO_CONFORME")
+
+    def test_real_legacy_rules_json_regression_for_implant_clean_surgery(self):
+        repo = ProtocolRulesRepository()
+        repo.rules = []
+        repo._index = {}
+        repo._metadata = {}
+        repo._is_loaded = False
+        repo.load_from_json(
+            self.workspace / "data" / "output" / "langextract_preview_full" / "rules.json"
+        )
+        auditor = SurgeryAuditor(repo, AUDIT_CONFIG)
+
+        result = auditor.audit_surgery(
+            SurgeryRecord(
+                procedure="Cirurgia limpa, com implantes",
+                atb_given="SIM",
+                atb_name="Cefazolina 2g",
+                atb_detected=extract_documented_antibiotics("Cefazolina 2g"),
+                dose_administered_mg=2000.0,
+                atb_time="07:00",
+                incision_time="07:30",
+                repique_done="NAO",
+            )
+        )
+
+        self.assertEqual(result.protocolo_procedimento, "Cirurgia limpa, com implantes")
+        self.assertEqual(result.conf_escolha, "ALERTA")
+        self.assertEqual(result.conf_escolha_razao, "regra_ambigua_legado")
 
     def test_prophylaxis_not_indicated_with_antibiotic_is_nao_conforme(self):
         rule = ProtocolRule(

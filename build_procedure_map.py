@@ -156,6 +156,37 @@ def _resolve_excel_columns(dataframe_columns: List[Any]) -> Dict[str, str]:
     return resolved
 
 
+def _detect_excel_header_row(excel_path: Path, sheet_name: Any, preview_rows: int = 10) -> int:
+    """
+    Detecta a linha de cabeçalho mais provável analisando as primeiras linhas.
+
+    Prioriza linhas que contenham a coluna de procedimento e o maior número de
+    cabeçalhos reconhecidos pela configuração.
+    """
+    preview_df = pd.read_excel(excel_path, sheet_name=sheet_name, header=None, nrows=preview_rows)
+    best_row_idx = 0
+    best_score = -1
+    best_has_procedure = False
+
+    for row_idx, row in preview_df.iterrows():
+        row_values = [_cell_text(value) for value in row.tolist()]
+        resolved = _resolve_excel_columns(row_values)
+        score = len(resolved)
+        has_procedure = "procedure" in resolved
+
+        if has_procedure and not best_has_procedure:
+            best_row_idx = int(row_idx)
+            best_score = score
+            best_has_procedure = True
+            continue
+
+        if has_procedure == best_has_procedure and score > best_score:
+            best_row_idx = int(row_idx)
+            best_score = score
+
+    return best_row_idx
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Cria mapa de procedimentos (Excel -> rules.json)")
     parser.add_argument("--excel", required=True, help="Caminho do Excel")
@@ -183,7 +214,9 @@ def main() -> int:
 
     synonyms = _load_synonyms(args.synonyms)
 
-    df = pd.read_excel(excel_path, sheet_name=args.sheet or 0)
+    sheet_name = args.sheet or 0
+    header_row = _detect_excel_header_row(excel_path, sheet_name)
+    df = pd.read_excel(excel_path, sheet_name=sheet_name, header=header_row)
 
     resolved_columns = _resolve_excel_columns(df.columns.tolist())
     col_proc = resolved_columns.get("procedure")

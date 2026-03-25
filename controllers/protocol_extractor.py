@@ -57,8 +57,7 @@ from utils import (
     normalize_text,
     extract_drug_names,
     fuzzy_match_score,
-    parse_protocol_antibiotic_regimens,
-    recommendation_regimens_from_drugs,
+    infer_recommendation_structure,
 )
 from config import EXTRACTION_CONFIG, DRUG_DICTIONARY
 
@@ -251,12 +250,23 @@ class ProtocolExtractor:
                - extraction_text: nome da cirurgia como aparece no texto
                - attributes.surgery_name: lista de nomes equivalentes
                - attributes.surgery_type: categoria de contaminacao (ex: Limpa, Limpa-contaminada, Contaminada, Infectada)
-               - attributes.antibiotics: lista de objetos com name, dose, route e time
-               - attributes.notes: observacoes complementares (opcional)
+               - attributes.primary_recommendation_text: texto bruto da coluna "1a opcao"
+               - attributes.allergy_recommendation_text: texto bruto da coluna "2a opcao ou alergia a penicilina"
+               - attributes.postoperative_text: texto bruto da coluna "dose pos-operatoria"
+               - attributes.notes: observacoes complementares e notas fora da tabela
             3. Se algum campo nao estiver claro, retorne string vazia nesse campo.
             4. Se houver perda de formatacao da tabela (colunas deslocadas), recupere semanticamente:
-               nome do antibiotico, dose, via e tempo, mesmo que estejam fora da coluna original.
-            5. Retorne somente JSON valido, sem markdown e sem texto adicional.
+               o texto bruto da 1a opcao, da 2a opcao/alergia e do pos-operatorio,
+               mesmo que as colunas estejam visualmente deslocadas.
+            5. Nao achate antibioticos em uma lista unica quando existirem colunas separadas.
+            6. Preserve obrigatoriamente a semantica:
+               - "+" = combinacao obrigatoria no mesmo regime
+               - "OU" = alternativa entre regimes completos
+               - "A/B + C" = (A + C) OU (B + C)
+               - a coluna de alergia nunca pode ser fundida com a 1a opcao
+               - adicoes opcionais ou condicionais devem permanecer em notes e nao no regime base
+            7. Se houver incerteza estrutural, preserve o texto bruto; nao invente um combo obrigatorio.
+            8. Retorne somente JSON valido, sem markdown e sem texto adicional.
         """)
 
         response_schema: Dict[str, Any] = {
@@ -276,23 +286,19 @@ class ProtocolExtractor:
                                 "items": {"type": "string"},
                             },
                             "surgery_type": {"type": "string"},
-                            "antibiotics": {
-                                "type": "array",
-                                "items": {
-                                    "type": "object",
-                                    "additionalProperties": False,
-                                    "properties": {
-                                        "name": {"type": "string"},
-                                        "dose": {"type": "string"},
-                                        "route": {"type": "string"},
-                                        "time": {"type": "string"},
-                                    },
-                                    "required": ["name", "dose", "route", "time"],
-                                },
-                            },
+                            "primary_recommendation_text": {"type": "string"},
+                            "allergy_recommendation_text": {"type": "string"},
+                            "postoperative_text": {"type": "string"},
                             "notes": {"type": "string"},
                         },
-                        "required": ["surgery_name", "surgery_type", "antibiotics", "notes"],
+                        "required": [
+                            "surgery_name",
+                            "surgery_type",
+                            "primary_recommendation_text",
+                            "allergy_recommendation_text",
+                            "postoperative_text",
+                            "notes",
+                        ],
                     },
                 },
                 "required": ["extraction_class", "extraction_text", "attributes"],
@@ -310,20 +316,21 @@ class ProtocolExtractor:
             Campos obrigatorios em attributes:
             - surgery_name: lista de nomes equivalentes do procedimento
             - surgery_type: classificacao (Limpa, Limpa-contaminada, Contaminada, Infectada, Suja/Infectada)
-            - antibiotic_names: lista de nomes de antibioticos na mesma ordem das doses/rotas/tempos
-            - antibiotic_doses: lista de doses correspondentes (ex: 2g, 900mg)
-            - antibiotic_routes: lista de vias correspondentes (ex: EV, IV)
-            - antibiotic_times: lista de tempos correspondentes (ex: na inducao, 30 min antes)
+            - primary_recommendation_text: texto bruto da coluna 1a opcao
+            - allergy_recommendation_text: texto bruto da coluna 2a opcao ou alergia a penicilina
+            - postoperative_text: texto bruto da coluna dose pos-operatoria
             - notes: observacoes complementares
 
             Regras:
             - extraction_class deve ser sempre "regra_cirurgia".
             - extraction_text deve ser o nome exato do procedimento no texto.
             - Ignore cabecalhos, rodapes e metadados administrativos.
-            - Quando nao houver antibiotico recomendado, retorne listas vazias.
+            - Quando nao houver antibiotico recomendado, preserve o texto bruto em primary_recommendation_text.
             - Quando algum campo nao existir, use string vazia.
             - Se a tabela estiver desformatada e os campos deslocados, reorganize semanticamente
-              antibiotic_names, antibiotic_doses, antibiotic_routes e antibiotic_times.
+              primary_recommendation_text, allergy_recommendation_text e postoperative_text.
+            - Nao una a 1a opcao com a coluna de alergia em uma lista plana.
+            - Se houver associacao opcional ou condicional, mantenha isso em notes.
         """)
 
         if ExampleData is None or Extraction is None:
@@ -342,10 +349,9 @@ class ProtocolExtractor:
                         attributes={
                             "surgery_name": ["Colecistectomia laparoscopica"],
                             "surgery_type": "Limpa-contaminada",
-                            "antibiotic_names": ["Cefazolina", "Clindamicina"],
-                            "antibiotic_doses": ["2g", "900mg"],
-                            "antibiotic_routes": ["EV", "EV"],
-                            "antibiotic_times": ["na inducao", "na inducao"],
+                            "primary_recommendation_text": "Cefazolina 2g EV na inducao",
+                            "allergy_recommendation_text": "Clindamicina 900mg EV na inducao",
+                            "postoperative_text": "",
                             "notes": "",
                         },
                     )
@@ -363,10 +369,9 @@ class ProtocolExtractor:
                         attributes={
                             "surgery_name": ["Parotidectomia sem implantes"],
                             "surgery_type": "Limpa",
-                            "antibiotic_names": [],
-                            "antibiotic_doses": [],
-                            "antibiotic_routes": [],
-                            "antibiotic_times": [],
+                            "primary_recommendation_text": "Nao recomendado",
+                            "allergy_recommendation_text": "Nao recomendado",
+                            "postoperative_text": "Nao recomendado",
                             "notes": "Nao recomendado",
                         },
                     )
@@ -395,6 +400,7 @@ class ProtocolExtractor:
         doses = self._coerce_attr_list(attrs.get("antibiotic_doses"), split_delimited=True)
         routes = self._coerce_attr_list(attrs.get("antibiotic_routes"), split_delimited=True)
         times = self._coerce_attr_list(attrs.get("antibiotic_times"), split_delimited=True)
+        antibiotics: List[Dict[str, str]] = []
 
         # Compatibilidade com eventuais respostas em "antibiotics"
         raw_antibiotics = attrs.get("antibiotics")
@@ -403,10 +409,18 @@ class ProtocolExtractor:
                 for item in raw_antibiotics:
                     if isinstance(item, str) and item.strip():
                         names.append(item.strip())
+                    elif isinstance(item, dict):
+                        entry = {
+                            "name": str(item.get("name") or "").strip(),
+                            "dose": str(item.get("dose") or "").strip(),
+                            "route": str(item.get("route") or "").strip(),
+                            "time": str(item.get("time") or "").strip(),
+                        }
+                        if any(entry.values()):
+                            antibiotics.append(entry)
             elif isinstance(raw_antibiotics, str):
                 names = self._coerce_attr_list(raw_antibiotics, split_delimited=True)
 
-        antibiotics: List[Dict[str, str]] = []
         for name, dose, route, time_text in zip_longest(names, doses, routes, times, fillvalue=""):
             entry = {
                 "name": (name or "").strip(),
@@ -418,6 +432,119 @@ class ProtocolExtractor:
                 antibiotics.append(entry)
 
         return antibiotics
+
+    def _normalize_recommendation_payload(
+        self,
+        payload: Any,
+        *,
+        fallback_raw_text: str = "",
+        fallback_notes: str = "",
+        fallback_antibiotics: Optional[List[Dict[str, str]]] = None,
+    ) -> Dict[str, Any]:
+        """Normaliza o payload bruto de uma recomendacao para o formato canonico."""
+        fallback_antibiotics = fallback_antibiotics or []
+
+        if isinstance(payload, dict):
+            raw_text = str(payload.get("raw_text") or fallback_raw_text or "").strip()
+            notes = str(payload.get("notes") or fallback_notes or "").strip()
+            antibiotics = payload.get("antibiotics", fallback_antibiotics)
+        elif isinstance(payload, str):
+            raw_text = payload.strip() or fallback_raw_text.strip()
+            notes = str(fallback_notes or "").strip()
+            antibiotics = fallback_antibiotics
+        else:
+            raw_text = str(fallback_raw_text or "").strip()
+            notes = str(fallback_notes or "").strip()
+            antibiotics = fallback_antibiotics
+
+        if isinstance(antibiotics, (str, dict)):
+            antibiotics = [antibiotics]
+        if not isinstance(antibiotics, list):
+            antibiotics = []
+
+        normalized_antibiotics: List[Dict[str, str]] = []
+        for antibiotic in antibiotics:
+            if isinstance(antibiotic, str):
+                name = antibiotic.strip()
+                if name:
+                    normalized_antibiotics.append(
+                        {"name": name, "dose": "", "route": "", "time": ""}
+                    )
+                continue
+
+            if not isinstance(antibiotic, dict):
+                continue
+
+            normalized_antibiotics.append(
+                {
+                    "name": str(antibiotic.get("name") or "").strip(),
+                    "dose": str(antibiotic.get("dose") or "").strip(),
+                    "route": str(antibiotic.get("route") or "").strip(),
+                    "time": str(antibiotic.get("time") or "").strip(),
+                }
+            )
+
+        return {
+            "raw_text": raw_text,
+            "notes": notes,
+            "antibiotics": normalized_antibiotics,
+        }
+
+    def _normalize_extraction_attributes(self, attrs: Dict[str, Any]) -> Dict[str, Any]:
+        """Converte atributos heterogeneos para o schema bruto canonico."""
+        if not isinstance(attrs, dict):
+            attrs = {}
+
+        legacy_antibiotics = self._build_antibiotics_from_flat_attributes(attrs)
+
+        primary_payload = self._normalize_recommendation_payload(
+            attrs.get("primary_recommendation"),
+            fallback_raw_text=str(attrs.get("primary_recommendation_text") or "").strip(),
+            fallback_notes=str(attrs.get("primary_notes") or "").strip(),
+            fallback_antibiotics=self._build_antibiotics_from_flat_attributes(
+                {
+                    "antibiotics": attrs.get("primary_antibiotics"),
+                    "antibiotic_names": attrs.get("primary_antibiotic_names"),
+                    "antibiotic_doses": attrs.get("primary_antibiotic_doses"),
+                    "antibiotic_routes": attrs.get("primary_antibiotic_routes"),
+                    "antibiotic_times": attrs.get("primary_antibiotic_times"),
+                }
+            ),
+        )
+        allergy_payload = self._normalize_recommendation_payload(
+            attrs.get("allergy_recommendation"),
+            fallback_raw_text=str(attrs.get("allergy_recommendation_text") or "").strip(),
+            fallback_notes=str(attrs.get("allergy_notes") or "").strip(),
+            fallback_antibiotics=self._build_antibiotics_from_flat_attributes(
+                {
+                    "antibiotics": attrs.get("allergy_antibiotics"),
+                    "antibiotic_names": attrs.get("allergy_antibiotic_names"),
+                    "antibiotic_doses": attrs.get("allergy_antibiotic_doses"),
+                    "antibiotic_routes": attrs.get("allergy_antibiotic_routes"),
+                    "antibiotic_times": attrs.get("allergy_antibiotic_times"),
+                }
+            ),
+        )
+
+        if (
+            not primary_payload.get("raw_text")
+            and not primary_payload.get("antibiotics")
+            and legacy_antibiotics
+        ):
+            primary_payload = self._normalize_recommendation_payload(
+                {"antibiotics": legacy_antibiotics},
+                fallback_notes=str(attrs.get("notes") or "").strip(),
+            )
+            primary_payload["legacy_flattened_source"] = True
+
+        return {
+            "surgery_name": self._coerce_attr_list(attrs.get("surgery_name")),
+            "surgery_type": str(attrs.get("surgery_type") or "").strip(),
+            "primary_recommendation": primary_payload,
+            "allergy_recommendation": allergy_payload,
+            "postoperative_text": str(attrs.get("postoperative_text") or attrs.get("postoperative") or "").strip(),
+            "notes": str(attrs.get("notes") or "").strip(),
+        }
 
     def _normalize_langextract_extractions(self, extractions: List[Any]) -> List[Dict[str, Any]]:
         """Converte saida do langextract para o formato bruto interno."""
@@ -439,16 +566,15 @@ class ProtocolExtractor:
             if not surgery_names and extraction_text:
                 surgery_names = [extraction_text]
 
+            normalized_attrs = self._normalize_extraction_attributes(attrs)
+            if not normalized_attrs["surgery_name"]:
+                normalized_attrs["surgery_name"] = surgery_names
+
             normalized.append(
                 {
                     "extraction_class": extraction_class or "regra_cirurgia",
                     "extraction_text": extraction_text or (surgery_names[0] if surgery_names else ""),
-                    "attributes": {
-                        "surgery_name": surgery_names,
-                        "surgery_type": str(attrs.get("surgery_type") or "").strip(),
-                        "antibiotics": self._build_antibiotics_from_flat_attributes(attrs),
-                        "notes": str(attrs.get("notes") or "").strip(),
-                    },
+                    "attributes": normalized_attrs,
                 }
             )
 
@@ -608,46 +734,19 @@ class ProtocolExtractor:
             else:
                 surgery_names = []
 
-            antibiotics_raw = attrs.get("antibiotics", [])
-            if isinstance(antibiotics_raw, (str, dict)):
-                antibiotics_raw = [antibiotics_raw]
-            elif not isinstance(antibiotics_raw, list):
-                antibiotics_raw = []
-
-            antibiotics: List[Dict[str, str]] = []
-            for antibiotic in antibiotics_raw:
-                if isinstance(antibiotic, str):
-                    name = antibiotic.strip()
-                    if name:
-                        antibiotics.append({"name": name, "dose": "", "route": "", "time": ""})
-                    continue
-
-                if not isinstance(antibiotic, dict):
-                    continue
-
-                antibiotics.append(
-                    {
-                        "name": str(antibiotic.get("name") or "").strip(),
-                        "dose": str(antibiotic.get("dose") or "").strip(),
-                        "route": str(antibiotic.get("route") or "").strip(),
-                        "time": str(antibiotic.get("time") or "").strip(),
-                    }
-                )
-
             extraction_text = str(item.get("extraction_text") or "").strip()
             if not extraction_text and surgery_names:
                 extraction_text = surgery_names[0]
+
+            normalized_attrs = self._normalize_extraction_attributes(attrs)
+            if not normalized_attrs["surgery_name"]:
+                normalized_attrs["surgery_name"] = surgery_names
 
             normalized.append(
                 {
                     "extraction_class": str(item.get("extraction_class") or "regra_cirurgia").strip() or "regra_cirurgia",
                     "extraction_text": extraction_text,
-                    "attributes": {
-                        "surgery_name": surgery_names,
-                        "surgery_type": str(attrs.get("surgery_type") or "").strip(),
-                        "antibiotics": antibiotics,
-                        "notes": str(attrs.get("notes") or "").strip(),
-                    },
+                    "attributes": normalized_attrs,
                 }
             )
 
@@ -1023,6 +1122,83 @@ class ProtocolExtractor:
 
         return normalized
 
+    def _merge_recommendation_drugs(
+        self,
+        recommendation: Recommendation,
+        antibiotics_objs: List[AntibioticRule],
+    ) -> Recommendation:
+        """Mescla drogas derivadas do texto com antibioticos estruturados pelo LLM."""
+        merged_by_name: Dict[str, Drug] = {
+            drug.name: Drug(
+                name=drug.name,
+                dose=drug.dose,
+                route=drug.route,
+                timing=drug.timing,
+            )
+            for drug in recommendation.drugs
+            if getattr(drug, "name", "")
+        }
+
+        for antibiotic in antibiotics_objs:
+            if not antibiotic.name:
+                continue
+
+            current = merged_by_name.get(antibiotic.name)
+            if current is None:
+                merged_by_name[antibiotic.name] = Drug(
+                    name=antibiotic.name,
+                    dose=antibiotic.dose or None,
+                    route=antibiotic.route or None,
+                    timing=antibiotic.time or None,
+                )
+                continue
+
+            if antibiotic.dose:
+                current.dose = antibiotic.dose
+            if antibiotic.route:
+                current.route = antibiotic.route
+            if antibiotic.time:
+                current.timing = antibiotic.time
+
+        recommendation.drugs = list(merged_by_name.values())
+        return recommendation
+
+    def _build_recommendation(
+        self,
+        payload: Dict[str, Any],
+        recommendation_kind: str,
+        fallback_notes: str = "",
+    ) -> Recommendation:
+        """Constroi Recommendation canonica a partir do payload bruto."""
+        if not isinstance(payload, dict):
+            payload = {}
+
+        raw_text = str(payload.get("raw_text") or "").strip()
+        notes = str(payload.get("notes") or fallback_notes or "").strip()
+        antibiotics_objs = self._normalize_antibiotics(payload.get("antibiotics", []))
+
+        recommendation = self._parse_recommendation(
+            raw_text,
+            notes=notes,
+            recommendation_kind=recommendation_kind,
+        )
+        recommendation = self._merge_recommendation_drugs(recommendation, antibiotics_objs)
+
+        recommendation.metadata = dict(recommendation.metadata or {})
+        if payload.get("legacy_flattened_source"):
+            recommendation.metadata["legacy_flattened_source"] = True
+
+        structured = infer_recommendation_structure(
+            raw_text=recommendation.raw_text,
+            notes=recommendation.notes,
+            drug_names=[drug.name for drug in recommendation.drugs if getattr(drug, "name", "")],
+            recommendation_kind=recommendation_kind,
+        )
+        recommendation.acceptable_regimens = structured["acceptable_regimens"]
+        recommendation.metadata.update(structured["metadata"])
+
+        return recommendation
+
     def convert_raw_to_rules(self, raw_extractions: List[Dict]) -> List[ProtocolRule]:
         """
         Converte lista de dicts brutos (do LLM) para objetos ProtocolRule.
@@ -1030,10 +1206,7 @@ class ProtocolExtractor:
         rules = []
         
         for idx, entry in enumerate(raw_extractions):
-            attrs = entry.get("attributes", {})
-            
-            antibiotics_raw = attrs.get("antibiotics", [])
-            antibiotics_objs = self._normalize_antibiotics(antibiotics_raw)
+            attrs = self._normalize_extraction_attributes(entry.get("attributes", {}))
             
             s_type_str = attrs.get("surgery_type", "").upper().replace("-", "_")
             try:
@@ -1064,28 +1237,58 @@ class ProtocolExtractor:
             extraction_text = str(entry.get("extraction_text") or "").strip()
             procedure = surgery_names[0] if surgery_names else extraction_text
             notes = str(attrs.get("notes") or "").strip()
+            primary_recommendation = self._build_recommendation(
+                attrs.get("primary_recommendation", {}),
+                recommendation_kind="primary",
+                fallback_notes=notes,
+            )
+            allergy_recommendation = self._build_recommendation(
+                attrs.get("allergy_recommendation", {}),
+                recommendation_kind="allergy",
+            )
+            postoperative_text = str(attrs.get("postoperative_text") or "").strip()
 
             # Recomendacoes extraidas com antibioticos devem ser tratadas como profilaxia requerida.
             # Algumas notas trazem "nao recomendado dose pos-operatoria", o que nao invalida
             # a profilaxia pre-operatoria da regra.
-            is_prophylaxis_required = bool(antibiotics_objs)
+            has_structured_recommendation = any(
+                [
+                    primary_recommendation.drugs,
+                    allergy_recommendation.drugs,
+                    primary_recommendation.acceptable_regimens,
+                    allergy_recommendation.acceptable_regimens,
+                ]
+            )
+            is_prophylaxis_required = has_structured_recommendation
+            if not is_prophylaxis_required:
+                source_text = primary_recommendation.raw_text or extraction_text
+                if source_text:
+                    is_prophylaxis_required = self._requires_prophylaxis(source_text)
 
-            primary_drugs = [
-                Drug(
-                    name=ab.name,
-                    dose=ab.dose or None,
-                    route=ab.route or None,
-                    timing=ab.time or None,
-                )
-                for ab in antibiotics_objs
-            ]
-
-            if antibiotics_objs:
+            if has_structured_recommendation:
                 audit_category = "OK"
             elif is_prophylaxis_required:
                 audit_category = "REQUIRES_VALIDATION"
             else:
                 audit_category = "NO_PROPHYLAXIS"
+
+            antibiotics_objs = self._normalize_antibiotics(
+                attrs.get("primary_recommendation", {}).get("antibiotics", [])
+                + attrs.get("allergy_recommendation", {}).get("antibiotics", [])
+            )
+            if not antibiotics_objs:
+                antibiotics_objs = [
+                    AntibioticRule(
+                        name=drug.name,
+                        dose=drug.dose or "",
+                        route=drug.route or "",
+                        time=drug.timing or "",
+                    )
+                    for drug in (
+                        primary_recommendation.drugs + allergy_recommendation.drugs
+                    )
+                    if getattr(drug, "name", "")
+                ]
             
             rule = ProtocolRule(
                 rule_id=f"llm_rule_{idx:04d}",
@@ -1093,19 +1296,15 @@ class ProtocolExtractor:
                 procedure=procedure,
                 procedure_normalized=normalize_text(procedure),
                 is_prophylaxis_required=is_prophylaxis_required,
-                primary_recommendation=Recommendation(
-                    drugs=primary_drugs,
-                    raw_text=extraction_text,
-                    notes=notes,
-                    acceptable_regimens=recommendation_regimens_from_drugs(
-                        [drug.name for drug in primary_drugs]
-                    ),
-                ),
+                primary_recommendation=primary_recommendation,
+                allergy_recommendation=allergy_recommendation,
+                postoperative=postoperative_text,
                 audit_category=audit_category,
                 metadata={
                     "source": "llm",
                     "backend": self.llm_backend,
                     "dose_unit_standard": "mg",
+                    "extraction_text": extraction_text,
                 },
                 surgery_name=surgery_names,
                 surgery_type=surgery_enum,
@@ -1407,8 +1606,8 @@ class ProtocolExtractor:
         is_prophylaxis_required = self._requires_prophylaxis(primary_text)
         
         # Parseia recomendaÃ§Ãµes
-        primary_rec = self._parse_recommendation(primary_text)
-        allergy_rec = self._parse_recommendation(allergy_text)
+        primary_rec = self._parse_recommendation(primary_text, recommendation_kind="primary")
+        allergy_rec = self._parse_recommendation(allergy_text, recommendation_kind="allergy")
         
         # Gera ID Ãºnico
         rule_id = f"rule_{section}_{table_index}_{row_index}"
@@ -1464,7 +1663,12 @@ class ProtocolExtractor:
         
         return True  # Default: requer
     
-    def _parse_recommendation(self, text: str) -> Recommendation:
+    def _parse_recommendation(
+        self,
+        text: str,
+        notes: str = "",
+        recommendation_kind: str = "",
+    ) -> Recommendation:
         """
         Parseia texto de recomendaÃ§Ã£o em objeto Recommendation.
         
@@ -1475,7 +1679,18 @@ class ProtocolExtractor:
             Objeto Recommendation
         """
         if not text or len(text) < 3:
-            return Recommendation(raw_text=text)
+            structured = infer_recommendation_structure(
+                raw_text=text,
+                notes=notes,
+                drug_names=[],
+                recommendation_kind=recommendation_kind,
+            )
+            return Recommendation(
+                raw_text=text,
+                notes=notes,
+                acceptable_regimens=structured["acceptable_regimens"],
+                metadata=structured["metadata"],
+            )
         
         # Extrai medicamentos
         drug_names = extract_drug_names(text, DRUG_DICTIONARY)
@@ -1493,16 +1708,19 @@ class ProtocolExtractor:
             )
             drugs.append(drug)
         
-        acceptable_regimens = [list(regimen) for regimen in parse_protocol_antibiotic_regimens(text)]
-        if not acceptable_regimens and drugs:
-            acceptable_regimens = [
-                list(regimen) for regimen in recommendation_regimens_from_drugs([drug.name for drug in drugs])
-            ]
+        structured = infer_recommendation_structure(
+            raw_text=text,
+            notes=notes,
+            drug_names=[drug.name for drug in drugs],
+            recommendation_kind=recommendation_kind,
+        )
 
         return Recommendation(
             drugs=drugs,
             raw_text=text,
-            acceptable_regimens=acceptable_regimens,
+            notes=notes,
+            acceptable_regimens=structured["acceptable_regimens"],
+            metadata=structured["metadata"],
         )
     
     def _extract_dose_from_context(self, text: str, drug_name: str) -> Optional[str]:

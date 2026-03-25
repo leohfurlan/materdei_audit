@@ -3,11 +3,12 @@ Utilitarios para normalizacao, parsing e comparacao de regimes de antibioticos.
 """
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 import re
 import unicodedata
 from functools import lru_cache
 from itertools import product
-from typing import Dict, Iterable, List, Sequence, Tuple
+from typing import Any, Dict, Iterable, List, Sequence, Tuple
 
 from rapidfuzz import fuzz
 
@@ -15,6 +16,42 @@ from config import DRUG_DICTIONARY
 
 
 Regimen = Tuple[str, ...]
+
+
+OPTIONAL_KEYWORDS = (
+    "opcional",
+    "opcionalmente",
+    "pode ser associado",
+    "associacao com",
+    "associado a",
+)
+
+CONDITIONAL_KEYWORDS = (
+    " se ",
+    " quando ",
+    "alto risco",
+    "risco elevado",
+    "mrsa",
+    "resistente",
+    "oxacilina resistente",
+    "colonizado",
+    "colonizacao",
+    "adicionar",
+    "associar",
+    "considerar",
+)
+
+
+@dataclass
+class StructuredRecommendationParse:
+    """Resultado estruturado do parsing de uma recomendacao."""
+
+    acceptable_regimens: List[Regimen] = field(default_factory=list)
+    optional_additions: List[Dict[str, Any]] = field(default_factory=list)
+    conditional_additions: List[Dict[str, Any]] = field(default_factory=list)
+    warnings: List[str] = field(default_factory=list)
+    confidence: str = "none"
+    cleaned_text: str = ""
 
 
 def _strip_accents(text: str) -> str:
@@ -58,6 +95,9 @@ def _expand_alias_variants(alias: str) -> List[str]:
         variants.add(normalized.replace("+", "/"))
         variants.add(normalized.replace("/", "+"))
         variants.add(normalized.replace("+", " ").replace("/", " "))
+        variants.add(normalized.replace(" + ", "+").replace(" / ", "/"))
+        variants.add(normalized.replace(" + ", "/").replace(" / ", "/"))
+        variants.add(normalized.replace(" / ", "+").replace(" + ", "+"))
 
     return [variant.strip() for variant in variants if variant.strip()]
 
@@ -253,6 +293,8 @@ def _classify_separator(separator_text: str) -> str:
         return "SLASH"
     if re.fullmatch(r"[\s,;:()\-]+", separator_text or ""):
         return "PLUS"
+    if re.search(r"[a-z]", normalized):
+        return "UNKNOWN"
     return "PLUS"
 
 
@@ -285,6 +327,9 @@ def parse_protocol_antibiotic_regimens(text: str) -> List[Regimen]:
         elif operator == "OR":
             regime_specs.append(current_regime)
             current_regime = [[next_antibiotic]]
+        elif operator == "UNKNOWN":
+            regime_specs.append(current_regime)
+            current_regime = [[next_antibiotic]]
         else:
             current_regime.append([next_antibiotic])
 
@@ -313,3 +358,234 @@ def recommendation_regimens_from_drugs(drug_names: Sequence[str]) -> List[Regime
     """Cria um regime unico obrigatorio a partir da lista de drogas ja estruturadas."""
     regimen = _normalize_regimen_components(normalize_antibiotic_name(name) for name in drug_names)
     return [regimen] if regimen else []
+
+
+def _normalize_regimen_list(regimens: Iterable[Regimen]) -> List[Regimen]:
+    """Normaliza e remove duplicatas de uma lista de regimes."""
+    normalized: List[Regimen] = []
+    for regimen in regimens:
+        normalized_regimen = _normalize_regimen_components(regimen)
+        if normalized_regimen and normalized_regimen not in normalized:
+            normalized.append(normalized_regimen)
+    return normalized
+
+
+def _regimens_from_text_fragment(text: str) -> List[Regimen]:
+    """Extrai regimes de um fragmento curto, preservando fallback seguro."""
+    regimens = parse_protocol_antibiotic_regimens(text)
+    if regimens:
+        return regimens
+
+    mentions = [canonical for _, _, canonical in _find_antibiotic_mentions(text)]
+    if len(mentions) == 1:
+        return [_normalize_regimen_components(mentions)]
+
+    return []
+
+
+def _classify_modifier_clause(text: str) -> str:
+    """Classifica um trecho como adicao opcional ou condicional."""
+    normalized = f" {normalize_antibiotic_text(text, preserve_operators=True)} "
+    if not normalized.strip():
+        return ""
+
+    has_drug = bool(_find_antibiotic_mentions(text))
+    if not has_drug:
+        return ""
+
+    if any(keyword in normalized for keyword in OPTIONAL_KEYWORDS):
+        return "optional"
+    if any(keyword in normalized for keyword in CONDITIONAL_KEYWORDS):
+        return "conditional"
+    return ""
+
+
+def _extract_condition_text(text: str) -> str:
+    """Extrai a condicao explicita de um trecho condicional."""
+    cleaned = re.sub(r"\s+", " ", str(text or "")).strip(" .;:,()")
+    if not cleaned:
+        return ""
+
+    normalized = normalize_antibiotic_text(cleaned, preserve_operators=True)
+    condition_match = re.search(r"\bse\b\s+(.+)", cleaned, flags=re.IGNORECASE)
+    if condition_match:
+        return condition_match.group(1).strip(" .;:,()")
+
+    for marker in (
+        "alto risco",
+        "risco elevado",
+        "mrsa",
+        "resistente",
+        "oxacilina resistente",
+        "colonizado",
+        "colonizacao",
+        "quando",
+    ):
+        if marker in normalized:
+            return cleaned
+
+    return cleaned
+
+
+def _build_modifier_payload(text: str, modifier_type: str) -> Dict[str, Any]:
+    """Converte um trecho opcional/condicional em payload serializavel."""
+    regimens = [list(regimen) for regimen in _regimens_from_text_fragment(text)]
+    payload: Dict[str, Any] = {
+        "raw_text": re.sub(r"\s+", " ", str(text or "")).strip(),
+        "regimens": regimens,
+        "combine_with_base": True,
+    }
+
+    if modifier_type == "conditional":
+        payload["condition"] = _extract_condition_text(text)
+
+    return payload
+
+
+def _extract_parenthetical_modifiers(text: str) -> Tuple[str, List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """Remove trechos parenteticos opcionais/condicionais do texto base."""
+    if not text:
+        return "", [], []
+
+    optional_additions: List[Dict[str, Any]] = []
+    conditional_additions: List[Dict[str, Any]] = []
+    pieces: List[str] = []
+    last_end = 0
+
+    for match in re.finditer(r"\(([^()]*)\)", text):
+        clause = match.group(1).strip()
+        modifier_type = _classify_modifier_clause(clause)
+        if modifier_type:
+            pieces.append(text[last_end:match.start()])
+            payload = _build_modifier_payload(clause, modifier_type)
+            if payload["regimens"]:
+                if modifier_type == "optional":
+                    optional_additions.append(payload)
+                else:
+                    conditional_additions.append(payload)
+            last_end = match.end()
+
+    pieces.append(text[last_end:])
+    cleaned_text = re.sub(r"\s+", " ", "".join(pieces)).strip(" ,;")
+    return cleaned_text, optional_additions, conditional_additions
+
+
+def _extract_note_modifiers(text: str) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """Identifica adicoes opcionais/condicionais em observacoes."""
+    optional_additions: List[Dict[str, Any]] = []
+    conditional_additions: List[Dict[str, Any]] = []
+
+    if not text:
+        return optional_additions, conditional_additions
+
+    segments = [
+        segment.strip(" .;:,")
+        for segment in re.split(r"[\n;]+|(?<=[.])\s+", text)
+        if segment and segment.strip(" .;:,")
+    ]
+
+    for segment in segments:
+        modifier_type = _classify_modifier_clause(segment)
+        if not modifier_type:
+            continue
+
+        payload = _build_modifier_payload(segment, modifier_type)
+        if not payload["regimens"]:
+            continue
+
+        if modifier_type == "optional":
+            optional_additions.append(payload)
+        else:
+            conditional_additions.append(payload)
+
+    return optional_additions, conditional_additions
+
+
+def parse_structured_recommendation(text: str, notes: str = "") -> StructuredRecommendationParse:
+    """
+    Parseia uma recomendacao preservando regimes base e adicoes opcionais/condicionais.
+    """
+    raw_text = re.sub(r"\s+", " ", str(text or "")).strip()
+    raw_notes = re.sub(r"\s+", " ", str(notes or "")).strip()
+
+    if not raw_text and not raw_notes:
+        return StructuredRecommendationParse(cleaned_text="")
+
+    cleaned_text, optional_from_text, conditional_from_text = _extract_parenthetical_modifiers(raw_text)
+    optional_from_notes, conditional_from_notes = _extract_note_modifiers(raw_notes)
+
+    acceptable_regimens = _normalize_regimen_list(_regimens_from_text_fragment(cleaned_text))
+    optional_additions = optional_from_text + optional_from_notes
+    conditional_additions = conditional_from_text + conditional_from_notes
+
+    warnings: List[str] = []
+    confidence = "none"
+
+    if acceptable_regimens:
+        confidence = "high"
+    elif _find_antibiotic_mentions(cleaned_text):
+        confidence = "low"
+        warnings.append("raw_text_sem_semantica_suficiente")
+
+    if optional_additions or conditional_additions:
+        confidence = "high" if acceptable_regimens else "low"
+
+    return StructuredRecommendationParse(
+        acceptable_regimens=acceptable_regimens,
+        optional_additions=optional_additions,
+        conditional_additions=conditional_additions,
+        warnings=warnings,
+        confidence=confidence,
+        cleaned_text=cleaned_text,
+    )
+
+
+def infer_recommendation_structure(
+    raw_text: str,
+    notes: str = "",
+    drug_names: Sequence[str] = (),
+    recommendation_kind: str = "",
+) -> Dict[str, Any]:
+    """
+    Infere semantica segura de uma recomendacao.
+
+    Nunca promove uma lista plana de multiplas drogas a combo obrigatorio sem
+    evidencia textual suficiente.
+    """
+    parsed = parse_structured_recommendation(raw_text, notes)
+    normalized_drug_names = [
+        normalize_antibiotic_name(name)
+        for name in drug_names
+        if normalize_antibiotic_name(name)
+    ]
+    normalized_drug_names = list(dict.fromkeys(normalized_drug_names))
+
+    acceptable_regimens = [list(regimen) for regimen in parsed.acceptable_regimens]
+    parse_source = "raw_text"
+    legacy_flattened_ambiguous = False
+
+    if not acceptable_regimens:
+        if len(normalized_drug_names) == 1:
+            acceptable_regimens = [
+                list(regimen)
+                for regimen in recommendation_regimens_from_drugs(normalized_drug_names)
+            ]
+            parse_source = "single_drug_fallback"
+        elif len(normalized_drug_names) > 1:
+            parse_source = "legacy_drug_list_ambiguous"
+            legacy_flattened_ambiguous = True
+
+    metadata = {
+        "recommendation_kind": recommendation_kind,
+        "parsing_confidence": parsed.confidence,
+        "parsing_source": parse_source,
+        "legacy_flattened_ambiguous": legacy_flattened_ambiguous,
+        "parsing_warnings": parsed.warnings,
+        "optional_additions": parsed.optional_additions,
+        "conditional_additions": parsed.conditional_additions,
+    }
+
+    return {
+        "acceptable_regimens": acceptable_regimens,
+        "metadata": metadata,
+    }

@@ -26,7 +26,6 @@ from utils import (
     clean_procedure_name,
     normalize_yes_no,
     parse_protocol_antibiotic_regimens,
-    recommendation_regimens_from_drugs,
 )
 from config import (
     EXCEL_COLUMNS,
@@ -797,51 +796,191 @@ class SurgeryAuditor:
 
         return None, 0.0, "translated_no_match"
 
-    def _recommendation_to_regimens(self, recommendation: Any) -> List[Tuple[str, ...]]:
-        """Converte uma Recommendation em lista de regimes aceitaveis normalizados."""
-        if not recommendation:
-            return []
-
+    def _normalize_regimens(self, regimens: List[Any]) -> List[Tuple[str, ...]]:
+        """Normaliza regimes para comparacao deterministica."""
         normalized_regimens: List[Tuple[str, ...]] = []
 
-        stored_regimens = getattr(recommendation, "acceptable_regimens", []) or []
-        for regimen in stored_regimens:
-            normalized = tuple(sorted({str(item).strip() for item in regimen if str(item).strip()}))
+        for regimen in regimens or []:
+            normalized = tuple(
+                sorted({str(item).strip() for item in regimen if str(item).strip()})
+            )
             if normalized and normalized not in normalized_regimens:
                 normalized_regimens.append(normalized)
 
-        if normalized_regimens:
-            return normalized_regimens
+        return normalized_regimens
+
+    def _recommendation_to_regimens(self, recommendation: Any) -> List[Tuple[str, ...]]:
+        """Converte uma Recommendation em lista de regimes base aceitaveis."""
+        if not recommendation:
+            return []
+
+        stored_regimens = self._normalize_regimens(
+            getattr(recommendation, "acceptable_regimens", []) or []
+        )
+        if stored_regimens:
+            return stored_regimens
 
         raw_text = str(getattr(recommendation, "raw_text", "") or "").strip()
         if raw_text:
-            parsed_regimens = parse_protocol_antibiotic_regimens(raw_text)
-            for regimen in parsed_regimens:
-                if regimen and regimen not in normalized_regimens:
-                    normalized_regimens.append(regimen)
-
-        if normalized_regimens:
-            return normalized_regimens
+            parsed_regimens = self._normalize_regimens(
+                parse_protocol_antibiotic_regimens(raw_text)
+            )
+            if parsed_regimens:
+                return parsed_regimens
 
         drugs = getattr(recommendation, "drugs", []) or []
-        return recommendation_regimens_from_drugs(
-            [getattr(drug, "name", "") for drug in drugs if getattr(drug, "name", "")]
-        )
+        drug_names = [
+            getattr(drug, "name", "")
+            for drug in drugs
+            if getattr(drug, "name", "")
+        ]
+        if len(drug_names) == 1:
+            return [tuple(sorted(set(drug_names)))]
 
-    def _get_choice_regimens(self, rule: Optional[ProtocolRule]) -> List[Tuple[str, ...]]:
-        """Consolida regimes aceitaveis das recomendacoes primaria e alergica."""
-        if not rule:
+        return []
+
+    def _metadata_regimens(self, recommendation: Any, key: str) -> List[Dict[str, Any]]:
+        """Normaliza listas de adicoes opcionais/condicionais vindas do metadata."""
+        metadata = getattr(recommendation, "metadata", {}) or {}
+        items = metadata.get(key, [])
+        if not isinstance(items, list):
             return []
 
-        acceptable_regimens: List[Tuple[str, ...]] = []
-        recommendations = [rule.primary_recommendation, rule.allergy_recommendation]
+        normalized_items: List[Dict[str, Any]] = []
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            normalized_items.append(
+                {
+                    "raw_text": str(item.get("raw_text") or "").strip(),
+                    "condition": str(item.get("condition") or "").strip(),
+                    "combine_with_base": bool(item.get("combine_with_base", True)),
+                    "regimens": self._normalize_regimens(item.get("regimens", [])),
+                }
+            )
+        return normalized_items
 
-        for recommendation in recommendations:
-            for regimen in self._recommendation_to_regimens(recommendation):
-                if regimen and regimen not in acceptable_regimens:
-                    acceptable_regimens.append(regimen)
+    def _build_optional_variants(
+        self,
+        base_regimens: List[Tuple[str, ...]],
+        optional_additions: List[Dict[str, Any]],
+    ) -> List[Tuple[str, ...]]:
+        """Expande variantes com adjuvantes opcionais sem torna-los obrigatorios."""
+        optional_variants: List[Tuple[str, ...]] = []
 
-        return acceptable_regimens
+        for addition in optional_additions:
+            addition_regimens = addition.get("regimens", [])
+            if not addition_regimens:
+                continue
+
+            if addition.get("combine_with_base", True) and base_regimens:
+                for base_regimen in base_regimens:
+                    for addition_regimen in addition_regimens:
+                        merged = tuple(sorted(set(base_regimen) | set(addition_regimen)))
+                        if merged and merged not in optional_variants:
+                            optional_variants.append(merged)
+            else:
+                for addition_regimen in addition_regimens:
+                    if addition_regimen and addition_regimen not in optional_variants:
+                        optional_variants.append(addition_regimen)
+
+        return optional_variants
+
+    def _build_conditional_variants(
+        self,
+        base_regimens: List[Tuple[str, ...]],
+        conditional_additions: List[Dict[str, Any]],
+    ) -> List[Dict[str, Any]]:
+        """Expande variantes condicionais preservando a condicao textual."""
+        conditional_variants: List[Dict[str, Any]] = []
+
+        for addition in conditional_additions:
+            addition_regimens = addition.get("regimens", [])
+            if not addition_regimens:
+                continue
+
+            candidate_regimens: List[Tuple[str, ...]] = []
+            if addition.get("combine_with_base", True) and base_regimens:
+                for base_regimen in base_regimens:
+                    for addition_regimen in addition_regimens:
+                        merged = tuple(sorted(set(base_regimen) | set(addition_regimen)))
+                        if merged and merged not in candidate_regimens:
+                            candidate_regimens.append(merged)
+            else:
+                candidate_regimens.extend(addition_regimens)
+
+            for regimen in candidate_regimens:
+                conditional_variants.append(
+                    {
+                        "regimen": regimen,
+                        "condition": addition.get("condition", ""),
+                        "raw_text": addition.get("raw_text", ""),
+                    }
+                )
+
+        return conditional_variants
+
+    def _recommendation_semantics(self, recommendation: Any) -> Dict[str, Any]:
+        """Consolida semantica de uma recomendacao individual."""
+        base_regimens = self._recommendation_to_regimens(recommendation)
+        optional_additions = self._metadata_regimens(recommendation, "optional_additions")
+        conditional_additions = self._metadata_regimens(
+            recommendation, "conditional_additions"
+        )
+        drugs = getattr(recommendation, "drugs", []) or []
+        drug_names = sorted(
+            {
+                getattr(drug, "name", "")
+                for drug in drugs
+                if getattr(drug, "name", "")
+            }
+        )
+        metadata = getattr(recommendation, "metadata", {}) or {}
+        ambiguous_legacy = bool(metadata.get("legacy_flattened_ambiguous")) and not base_regimens
+
+        return {
+            "base_regimens": base_regimens,
+            "optional_regimens": self._build_optional_variants(
+                base_regimens, optional_additions
+            ),
+            "conditional_variants": self._build_conditional_variants(
+                base_regimens, conditional_additions
+            ),
+            "ambiguous_legacy": ambiguous_legacy,
+            "listed_drugs": set(drug_names),
+        }
+
+    def _collect_choice_semantics(self, rule: Optional[ProtocolRule]) -> Dict[str, Any]:
+        """Consolida regimes base/opcionais/condicionais das recomendacoes da regra."""
+        semantics = {
+            "base_regimens": [],
+            "optional_regimens": [],
+            "conditional_variants": [],
+            "ambiguous_legacy": False,
+            "listed_drugs": set(),
+        }
+
+        if not rule:
+            return semantics
+
+        for recommendation in (rule.primary_recommendation, rule.allergy_recommendation):
+            recommendation_semantics = self._recommendation_semantics(recommendation)
+
+            for key in ("base_regimens", "optional_regimens"):
+                for regimen in recommendation_semantics[key]:
+                    if regimen and regimen not in semantics[key]:
+                        semantics[key].append(regimen)
+
+            for variant in recommendation_semantics["conditional_variants"]:
+                if variant not in semantics["conditional_variants"]:
+                    semantics["conditional_variants"].append(variant)
+
+            semantics["ambiguous_legacy"] = (
+                semantics["ambiguous_legacy"] or recommendation_semantics["ambiguous_legacy"]
+            )
+            semantics["listed_drugs"].update(recommendation_semantics["listed_drugs"])
+
+        return semantics
 
     def _validate_choice(self, record: SurgeryRecord,
                         rule: Optional[ProtocolRule]) -> Tuple[str, str]:
@@ -858,10 +997,18 @@ class SurgeryAuditor:
         if not rule:
             return 'INDETERMINADO', 'sem_match_protocolo'
 
-        acceptable_regimens = self._get_choice_regimens(rule)
-        if not acceptable_regimens:
+        choice_semantics = self._collect_choice_semantics(rule)
+        acceptable_regimens = choice_semantics["base_regimens"]
+        optional_regimens = choice_semantics["optional_regimens"]
+        conditional_variants = choice_semantics["conditional_variants"]
+
+        if not acceptable_regimens and not optional_regimens and not conditional_variants:
             if not self._rule_requires_prophylaxis(rule):
                 return 'NAO_CONFORME', 'profilaxia_nao_recomendada'
+            if choice_semantics["ambiguous_legacy"] and record.atb_detected:
+                documented_set = set(record.atb_detected)
+                if documented_set and documented_set.issubset(choice_semantics["listed_drugs"]):
+                    return 'ALERTA', 'regra_ambigua_legado'
             return 'INDETERMINADO', 'atb_sem_referencia_protocolo'
         
         if not record.atb_detected:
@@ -870,6 +1017,11 @@ class SurgeryAuditor:
         documented_regimen = tuple(sorted(set(record.atb_detected)))
         if documented_regimen in acceptable_regimens:
             return 'CONFORME', 'atb_recomendado'
+        if documented_regimen in optional_regimens:
+            return 'CONFORME', 'atb_recomendado_com_adjuvante_opcional'
+        for variant in conditional_variants:
+            if documented_regimen == variant["regimen"]:
+                return 'ALERTA', 'atb_adjuvante_condicional_sem_contexto'
 
         if has_ambiguous_documented_antibiotics(record.atb_name, record.atb_detected):
             return 'ALERTA', 'atb_regime_ambiguo'
@@ -877,7 +1029,15 @@ class SurgeryAuditor:
         if not self._rule_requires_prophylaxis(rule):
             return 'NAO_CONFORME', 'profilaxia_nao_recomendada'
 
-        if any(set(documented_regimen).issubset(set(regimen)) for regimen in acceptable_regimens):
+        if choice_semantics["ambiguous_legacy"]:
+            documented_set = set(documented_regimen)
+            if documented_set and documented_set.issubset(choice_semantics["listed_drugs"]):
+                return 'ALERTA', 'regra_ambigua_legado'
+
+        if any(
+            set(documented_regimen).issubset(set(regimen)) and set(documented_regimen) != set(regimen)
+            for regimen in acceptable_regimens
+        ):
             return 'NAO_CONFORME', 'atb_regime_incompleto'
 
         return 'NAO_CONFORME', 'atb_nao_recomendado'

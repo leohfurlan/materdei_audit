@@ -63,6 +63,7 @@ class Recommendation:
     raw_text: str = ""
     notes: str = ""
     acceptable_regimens: List[List[str]] = field(default_factory=list)
+    metadata: Dict[str, Any] = field(default_factory=dict)
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -70,6 +71,7 @@ class Recommendation:
             'raw_text': self.raw_text,
             'notes': self.notes,
             'acceptable_regimens': self.acceptable_regimens,
+            'metadata': self.metadata,
         }
     
     @classmethod
@@ -81,9 +83,10 @@ class Recommendation:
             notes=data.get('notes', ''),
             acceptable_regimens=[
                 [str(item).strip() for item in regimen if str(item).strip()]
-                for regimen in data.get('acceptable_regimens', [])
+                for regimen in (data.get('acceptable_regimens') or [])
                 if isinstance(regimen, list)
             ],
+            metadata=data.get('metadata', {}) if isinstance(data.get('metadata'), dict) else {},
         )
 
 @dataclass
@@ -173,10 +176,16 @@ class ProtocolRulesRepository:
         
         self.rules = [ProtocolRule.from_dict(r) for r in rules_data]
         repaired_rules = self._repair_inconsistent_rules()
+        normalized_recommendations = self._normalize_recommendation_semantics()
         if repaired_rules:
             logger.info(
                 "Ajustadas %s regras com profilaxia inconsistente (drugs presentes + is_prophylaxis_required=False).",
                 repaired_rules,
+            )
+        if normalized_recommendations:
+            logger.info(
+                "Normalizadas %s recomendacoes para preservar semantica e sinalizar flattening ambiguo.",
+                normalized_recommendations,
             )
         self._build_index()
         self._load_metadata(filepath)
@@ -200,6 +209,49 @@ class ProtocolRulesRepository:
                 repaired += 1
 
         return repaired
+
+    def _normalize_recommendation_semantics(self) -> int:
+        """
+        Enriquecimento local de recomendacoes carregadas do rules.json.
+
+        Reconstroi acceptable_regimens a partir de raw_text quando houver
+        evidencia semantica; quando houver apenas lista plana de multiplas
+        drogas, marca a recomendacao como ambigua em vez de assumir combo
+        obrigatorio.
+        """
+        from utils import infer_recommendation_structure
+
+        normalized = 0
+
+        for rule in self.rules:
+            for recommendation_kind, recommendation in (
+                ("primary", rule.primary_recommendation),
+                ("allergy", rule.allergy_recommendation),
+            ):
+                if not recommendation:
+                    continue
+
+                structured = infer_recommendation_structure(
+                    raw_text=recommendation.raw_text,
+                    notes=recommendation.notes,
+                    drug_names=[drug.name for drug in recommendation.drugs if getattr(drug, "name", "")],
+                    recommendation_kind=recommendation_kind,
+                )
+
+                if structured["acceptable_regimens"] and not recommendation.acceptable_regimens:
+                    recommendation.acceptable_regimens = structured["acceptable_regimens"]
+                    normalized += 1
+
+                merged_metadata = dict(recommendation.metadata or {})
+                for key, value in structured["metadata"].items():
+                    if key not in merged_metadata or merged_metadata.get(key) in ("", [], {}, None, False):
+                        merged_metadata[key] = value
+
+                if merged_metadata != recommendation.metadata:
+                    recommendation.metadata = merged_metadata
+                    normalized += 1
+
+        return normalized
     
     def save_to_json(self, filepath: Path) -> None:
         """
