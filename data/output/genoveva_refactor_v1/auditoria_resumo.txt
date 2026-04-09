@@ -1,0 +1,46 @@
+======================================================================
+RELATÓRIO DE AUDITORIA - PROFILAXIA ANTIMICROBIANA
+======================================================================
+
+Data do Relatório: 09/04/2026 12:42
+Total de Cirurgias Auditadas: 793
+
+----------------------------------------------------------------------
+RESUMO DE CONFORMIDADE
+----------------------------------------------------------------------
+  Conforme:               403 ( 50.8%)
+  Alerta:                 334 ( 42.1%)
+  Não Conforme:            56 (  7.1%)
+  Indeterminado:            0 (  0.0%)
+
+  Taxa de Conformidade Total:   92.9%
+  Taxa de Conformidade Estrita: 50.8%
+
+----------------------------------------------------------------------
+CONFORMIDADE POR CRITÉRIO
+----------------------------------------------------------------------
+  Escolha de Antibiótico:  424/793 (53.5%)
+  Dose Correta:            477/793 (60.2%)
+  Timing Adequado:         780/793 (98.4%)
+  Repique Adequado:        786/793 (99.1%)
+
+----------------------------------------------------------------------
+PRINCIPAIS NÃO CONFORMIDADES
+----------------------------------------------------------------------
+
+  Problemas de Escolha:
+    - Erro clinico/logico: antibiotico administrado nao e recomendado pelo protocolo: 35 casos
+    - Erro clinico/logico: o registro documenta apenas parte do regime combinado exigido: 11 casos
+    - Revisao manual: procedimento nao encontrado no protocolo: 5 casos
+
+  Problemas de Dose:
+    - Pendencia documental: dose administrada nao informada na planilha: 25 casos
+    - Dose administrada conforme a referencia do protocolo: 15 casos
+    - Revisao de protocolo: sem referencia de dose para validacao: 12 casos
+
+  Problemas de Timing:
+    - Timing de administracao dentro da janela recomendada: 46 casos
+    - Erro clinico/logico: antibiotico administrado apos a incisao: 8 casos
+    - Erro clinico/logico: antibiotico administrado fora da janela de 1 hora: 2 casos
+
+======================================================================

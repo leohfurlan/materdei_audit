@@ -1,0 +1,143 @@
+{
+  "adult": {
+    "CEFAZOLINA": {
+      "standard_dose_mg": 2000,
+      "weight_threshold_kg": 120,
+      "high_weight_dose_mg": 3000,
+      "route": "EV",
+      "timing": "na inducao",
+      "redose_interval_min": 240,
+      "weight_based_mg_per_kg": null
+    },
+    "CEFUROXIMA": {
+      "standard_dose_mg": 1500,
+      "weight_threshold_kg": null,
+      "high_weight_dose_mg": null,
+      "route": "EV",
+      "timing": "na inducao",
+      "redose_interval_min": 240,
+      "weight_based_mg_per_kg": null
+    },
+    "CLINDAMICINA": {
+      "standard_dose_mg": 900,
+      "weight_threshold_kg": null,
+      "high_weight_dose_mg": null,
+      "route": "EV",
+      "timing": "na inducao",
+      "redose_interval_min": 360,
+      "weight_based_mg_per_kg": 10
+    },
+    "GENTAMICINA": {
+      "standard_dose_mg": null,
+      "weight_threshold_kg": null,
+      "high_weight_dose_mg": null,
+      "route": "EV",
+      "timing": "na inducao",
+      "redose_interval_min": 0,
+      "weight_based_mg_per_kg": 5,
+      "note": "Dose ajustada pelo peso. Usar peso ideal em obesos."
+    },
+    "VANCOMICINA": {
+      "standard_dose_mg": null,
+      "weight_threshold_kg": null,
+      "high_weight_dose_mg": 2000,
+      "route": "EV",
+      "timing": "60-120 min antes da incisao",
+      "redose_interval_min": 0,
+      "weight_based_mg_per_kg": 15,
+      "infusion_min": 60,
+      "note": "Infundir em no mínimo 60 min. Iniciar 60-120 min antes da incisão."
+    },
+    "METRONIDAZOL": {
+      "standard_dose_mg": 500,
+      "weight_threshold_kg": null,
+      "high_weight_dose_mg": null,
+      "route": "EV",
+      "timing": "na inducao",
+      "redose_interval_min": 0,
+      "weight_based_mg_per_kg": 5
+    },
+    "CIPROFLOXACINO": {
+      "standard_dose_mg": 400,
+      "weight_threshold_kg": null,
+      "high_weight_dose_mg": null,
+      "route": "EV",
+      "timing": "60-120 min antes da incisao",
+      "redose_interval_min": 0,
+      "weight_based_mg_per_kg": null,
+      "note": "Iniciar 60-120 min antes da incisão."
+    },
+    "AZITROMICINA": {
+      "standard_dose_mg": 500,
+      "weight_threshold_kg": null,
+      "high_weight_dose_mg": null,
+      "route": "EV",
+      "timing": "60 min antes da incisao",
+      "redose_interval_min": 0,
+      "weight_based_mg_per_kg": null
+    }
+  },
+  "pediatric": {
+    "CEFAZOLINA": {
+      "weight_based_mg_per_kg": 30,
+      "max_dose_mg": 2000,
+      "route": "EV",
+      "redose_interval_min": 240
+    },
+    "CEFUROXIMA": {
+      "weight_based_mg_per_kg": 30,
+      "max_dose_mg": 2000,
+      "route": "EV",
+      "redose_interval_min": 240
+    },
+    "CLINDAMICINA": {
+      "weight_based_mg_per_kg": 10,
+      "max_dose_mg": 900,
+      "route": "EV",
+      "redose_interval_min": 360
+    },
+    "GENTAMICINA": {
+      "weight_based_mg_per_kg": 2.5,
+      "max_dose_mg": null,
+      "route": "EV",
+      "redose_interval_min": 0
+    },
+    "METRONIDAZOL": {
+      "weight_based_mg_per_kg": 2.5,
+      "max_dose_mg": null,
+      "route": "EV",
+      "redose_interval_min": 0
+    },
+    "VANCOMICINA": {
+      "weight_based_mg_per_kg": 15,
+      "max_dose_mg": 2000,
+      "route": "EV",
+      "infusion_min": 60,
+      "redose_interval_min": 0
+    }
+  },
+  "neonatal": {
+    "METRONIDAZOL": {
+      "note": "Neonatos <1200g: 7.5 mg/kg. Neonatos >1200g: 15 mg/kg.",
+      "weight_based_low_g": {
+        "threshold_g": 1200,
+        "mg_per_kg": 7.5
+      },
+      "weight_based_high_g": {
+        "threshold_g": 1200,
+        "mg_per_kg": 15
+      }
+    },
+    "GENTAMICINA": {
+      "weight_based_mg_per_kg": 2.5,
+      "route": "EV"
+    },
+    "VANCOMICINA": {
+      "weight_based_mg_per_kg": 15,
+      "max_dose_mg": 2000,
+      "infusion_min": 60
+    }
+  },
+  "_source": "deterministic_pdf",
+  "_note": "Doses extraídas das tabelas de referência do protocolo"
+}

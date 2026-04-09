@@ -242,7 +242,41 @@ LOGGING_CONFIG = {
 }
 
 # VersÃ£o do sistema
-SYSTEM_VERSION = "1.0.0"
+# Excecoes de timing por antibiotico (janela de administracao diferente do padrao 0-60 min)
+# Vancomicina e Ciprofloxacino exigem inicio 60-120 min antes da incisao (infusao lenta)
+TIMING_EXCEPTIONS: Dict[str, Dict[str, int]] = {
+    "VANCOMICINA": {"min_minutes_before": 60, "max_minutes_before": 120},
+    "CIPROFLOXACINO": {"min_minutes_before": 60, "max_minutes_before": 120},
+    "AZITROMICINA": {"min_minutes_before": 60, "max_minutes_before": 120},
+}
+
+# Regras de dose por peso (complementa REDOSING_INTERVALS)
+WEIGHT_DOSE_RULES: Dict[str, Any] = {
+    "CEFAZOLINA": {
+        "standard_dose_mg": 2000,
+        "high_weight_threshold_kg": 120,
+        "high_weight_dose_mg": 3000,
+    },
+    "VANCOMICINA": {
+        "weight_based_mg_per_kg": 15,
+        "max_dose_mg": 2000,
+        "min_infusion_minutes": 60,
+    },
+    "GENTAMICINA": {
+        "weight_based_mg_per_kg": 5,
+        "use_adjusted_weight_if_obese": True,
+    },
+    "CLINDAMICINA": {
+        "weight_based_mg_per_kg": 10,
+        "standard_dose_mg": 900,
+    },
+    "METRONIDAZOL": {
+        "weight_based_mg_per_kg": 5,
+        "standard_dose_mg": 500,
+    },
+}
+
+SYSTEM_VERSION = "2.0.0"
 SYSTEM_NAME = "Mater Dei - Sistema de Auditoria de Profilaxia Antimicrobiana"
 
 

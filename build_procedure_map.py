@@ -15,6 +15,45 @@ import pandas as pd
 from config import EXCEL_COLUMNS, EXCEL_COLUMN_ALIASES
 from utils import normalize_text, clean_procedure_name, fuzzy_match_score
 
+# Caminho padrão dos sinônimos clínicos
+_DEFAULT_SYNONYMS_PATH = Path(__file__).parent / "data" / "input" / "clinical_synonyms.json"
+
+# Mapeamento de seções do protocolo para termos de especialidade médica
+# Permite calcular specialty_match_bonus ao comparar seção da regra com especialidade do cirurgião
+_SECTION_SPECIALTY_MAP: Dict[str, List[str]] = {
+    "ORTOPEDICA": ["ortopedia", "traumatologia", "ortopedia e traumatologia"],
+    "GINECOLOGICA": ["ginecologia", "ginecologia e obstetricia"],
+    "OBSTETRICA": ["obstetricia", "ginecologia e obstetricia", "obstetrica"],
+    "UROLOGICA": ["urologia"],
+    "CARDIACA": ["cardiologia", "cirurgia cardiovascular", "cirurgia cardiaca"],
+    "VASCULAR": ["cirurgia vascular", "vascular"],
+    "GASTROINTESTINAL": ["cirurgia geral", "gastroenterologia", "cirurgia do aparelho digestivo"],
+    "TORACICA": ["cirurgia toracica", "toracica", "pneumologia"],
+    "NEUROCIRURGIA": ["neurocirurgia", "neurologia"],
+    "PLASTICA": ["cirurgia plastica", "plastica"],
+    "TRAUMA": ["cirurgia geral", "traumatologia", "ortopedia e traumatologia"],
+    "NEONATAL E PEDIATRICA": ["pediatria", "neonatologia", "cirurgia pediatrica"],
+    "CABECA E PESCOCO": ["otorrinolaringologia", "cabeca e pescoco", "cirurgia de cabeca e pescoco"],
+}
+
+
+def _section_specialty_bonus(section: str, specialty: str) -> float:
+    """
+    Retorna 1.0 se a seção do protocolo é compatível com a especialidade do cirurgião,
+    0.0 caso contrário. Usado no score composto de matching.
+    """
+    if not section or not specialty:
+        return 0.0
+    section_norm = normalize_text(section).replace(" ", "").replace("-", "")
+    spec_norm = normalize_text(specialty)
+
+    for section_key, spec_variants in _SECTION_SPECIALTY_MAP.items():
+        key_norm = normalize_text(section_key).replace(" ", "")
+        if section_norm.startswith(key_norm) or key_norm in section_norm:
+            if any(v in spec_norm or spec_norm in v for v in spec_variants):
+                return 1.0
+    return 0.0
+
 
 def _load_synonyms(path: Optional[str]) -> Dict[str, List[str]]:
     if not path:
@@ -197,7 +236,11 @@ def main() -> int:
     parser.add_argument("--min-auto", type=float, default=0.45, help="Score mínimo para AUTO")
     parser.add_argument("--min-review", type=float, default=0.35, help="Score mínimo para REVIEW")
     parser.add_argument("--use-specialty", action="store_true", help="Considerar especialidade no match")
-    parser.add_argument("--synonyms", default=None, help="JSON de sinônimos (opcional)")
+    parser.add_argument(
+        "--synonyms",
+        default=str(_DEFAULT_SYNONYMS_PATH) if _DEFAULT_SYNONYMS_PATH.exists() else None,
+        help=f"JSON de sinônimos clínicos (default: {_DEFAULT_SYNONYMS_PATH})",
+    )
     parser.add_argument("--output-simple", default=None, help="Saída opcional no formato ProcedureMapItem")
 
     args = parser.parse_args()
@@ -265,9 +308,18 @@ def main() -> int:
             score_combo = score_proc
             if args.use_specialty and spec:
                 score_combo = fuzzy_match_score(combo_norm, r["combo_norm"])
-            score = max(score_proc, score_combo)
+            text_score = max(score_proc, score_combo)
+
+            # Score composto: 60% similaridade textual + 40% bônus de especialidade
+            if args.use_specialty and spec:
+                spec_bonus = _section_specialty_bonus(r["section"], spec)
+                composite = 0.6 * text_score + 0.4 * spec_bonus
+            else:
+                composite = text_score
+
             candidates.append({
-                "score": round(float(score), 4),
+                "score": round(float(composite), 4),
+                "text_score": round(float(text_score), 4),
                 "rule_id": r["rule_id"],
                 "rule_index": r["rule_index"],
                 "procedure": r["procedure"],

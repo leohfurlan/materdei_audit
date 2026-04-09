@@ -1,0 +1,6003 @@
+[
+  {
+    "rule_id": "det_rule_0000",
+    "section": "NAO_CLASSIFICADO",
+    "procedure": "Título do Documento:\nPROFILAXIA ANTIMICROBIANA PARA PREVENÇÃO DE INFECÇÃO DE SÍTIO CIRÚRGICO\nHOSPITAL MATER DEI SANTA CLARA",
+    "procedure_normalized": "titulo do documento: profilaxia antimicrobiana para prevencao de infeccao de sitio cirurgico hospital mater dei santa clara",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 8
+    }
+  },
+  {
+    "rule_id": "det_rule_0002",
+    "section": "CABEÇA E PESCOÇO",
+    "procedure": "Cirurgias limpas, sem implantes (ex.: parotidectomia,\nsubmandibulectomia)",
+    "procedure_normalized": "cirurgias limpas, sem implantes (ex.: parotidectomia, submandibulectomia)",
+    "is_prophylaxis_required": false,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "Não recomendado",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "Não recomendado",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "NO_PROPHYLAXIS",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 9
+    }
+  },
+  {
+    "rule_id": "det_rule_0003",
+    "section": "CABEÇA E PESCOÇO",
+    "procedure": "Cirurgia limpa, com implantes (exclui tubos de timpanostomia)",
+    "procedure_normalized": "cirurgia limpa, com implantes (exclui tubos de timpanostomia)",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Manter por até 24h a partir do\ninício da cirurgia (mais 2 doses\n8/8h para ambos)",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Manter por até 24h a partir do\ninício da cirurgia (mais 2 doses\n8/8h para ambos)",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 9
+    }
+  },
+  {
+    "rule_id": "det_rule_0004",
+    "section": "CABEÇA E PESCOÇO",
+    "procedure": "Cirurgia potencialmente contaminada para câncer",
+    "procedure_normalized": "cirurgia potencialmente contaminada para cancer",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina + Metronidazol",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "CEFAZOLINA",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "OPCIONAL, POIS NÃO É DEFINIDO NA LITERATURA)",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina (associação com gentamicina\nopcional, pois não é definido na literatura)",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ],
+        [
+          "OPCIONAL, POIS NÃO É DEFINIDO NA LITERATURA)"
+        ],
+        [
+          "CLINDAMICINA",
+          "OPCIONAL, POIS NÃO É DEFINIDO NA LITERATURA)"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 9
+    }
+  },
+  {
+    "rule_id": "det_rule_0005",
+    "section": "CABEÇA E PESCOÇO",
+    "procedure": "Amidalectomia (tonsilectomia)/\nAdenoamigdalectomia/ Timpanotomia para colocação\nde tubo de ventilação/ Ressecção de tumores\nglomicos / Ligadura de artéria esfenopalatina/\nMicrocirurgia de laringe (pólipo, cisto e nódulo)",
+    "procedure_normalized": "amidalectomia (tonsilectomia)/ adenoamigdalectomia/ timpanotomia para colocacao de tubo de ventilacao/ resseccao de tumores glomicos / ligadura de arteria esfenopalatina/ microcirurgia de laringe (polipo, cisto e nodulo)",
+    "is_prophylaxis_required": false,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "Não recomendado",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "Não recomendado",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "NO_PROPHYLAXIS",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 9
+    }
+  },
+  {
+    "rule_id": "det_rule_0006",
+    "section": "CABEÇA E PESCOÇO",
+    "procedure": "Cirurgia endoscópica de seios paranasais (sinusite crônica)\npoliposes nasais/ Papilomas nasais",
+    "procedure_normalized": "cirurgia endoscopica de seios paranasais (sinusite cronica) poliposes nasais/ papilomas nasais",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Intraoperatório",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Intraoperatório",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 9
+    }
+  },
+  {
+    "rule_id": "det_rule_0007",
+    "section": "CARDÍACA",
+    "procedure": "Inserção de dispositivo cardíaco (por exemplo, implantação de\nmarcapasso)",
+    "procedure_normalized": "insercao de dispositivo cardiaco (por exemplo, implantacao de marcapasso)",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 9
+    }
+  },
+  {
+    "rule_id": "det_rule_0009",
+    "section": "VASCULAR",
+    "procedure": "Varizes- Baixo risco: ligaduras de perfurantes e colaterais",
+    "procedure_normalized": "varizes- baixo risco: ligaduras de perfurantes e colaterais",
+    "is_prophylaxis_required": false,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "Não recomendado",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "NO_PROPHYLAXIS",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 10
+    }
+  },
+  {
+    "rule_id": "det_rule_0010",
+    "section": "VASCULAR",
+    "procedure": "Varizes- Alto risco*: safenectomias, tromboflebites,\ndermatofibrose, úlceras de estase, fibredemea, distúrbios de\nimunidade, varizes exuberantes",
+    "procedure_normalized": "varizes- alto risco*: safenectomias, tromboflebites, dermatofibrose, ulceras de estase, fibredemea, disturbios de imunidade, varizes exuberantes",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 10
+    }
+  },
+  {
+    "rule_id": "det_rule_0011",
+    "section": "VASCULAR",
+    "procedure": "Embolectomia -Baixo risco: (CPK < 150)",
+    "procedure_normalized": "embolectomia -baixo risco: (cpk < 150)",
+    "is_prophylaxis_required": false,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "Não recomendado",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "NO_PROPHYLAXIS",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 10
+    }
+  },
+  {
+    "rule_id": "det_rule_0012",
+    "section": "VASCULAR",
+    "procedure": "Embolectomia -Alto risco*: extensas, em MMI, com alterações\nneurológicas",
+    "procedure_normalized": "embolectomia -alto risco*: extensas, em mmi, com alteracoes neurologicas",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 10
+    }
+  },
+  {
+    "rule_id": "det_rule_0013",
+    "section": "VASCULAR",
+    "procedure": "Enxerto com prótese vascular sem Lesão Trófica Infectada (LTI-\nlesão trófica infectada)",
+    "procedure_normalized": "enxerto com protese vascular sem lesao trofica infectada (lti- lesao trofica infectada)",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 10
+    }
+  },
+  {
+    "rule_id": "det_rule_0014",
+    "section": "VASCULAR",
+    "procedure": "Enxerto com veia autóloga (sem LTI)",
+    "procedure_normalized": "enxerto com veia autologa (sem lti)",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 10
+    }
+  },
+  {
+    "rule_id": "det_rule_0016",
+    "section": "VASCULAR",
+    "procedure": "Artéria carótida sem material de prótese e sem fatores de risco\n Endarterectomia de carótida sem prótese e sem fatores de risco\n Implante de cateter venoso central de longa permanência (Port,\nHickman, Permcath)\n Simpatectomia por toracoscopia\n Trombectomia percutânea",
+    "procedure_normalized": "arteria carotida sem material de protese e sem fatores de risco endarterectomia de carotida sem protese e sem fatores de risco implante de cateter venoso central de longa permanencia (port, hickman, permcath) simpatectomia por toracoscopia trombectomia percutanea",
+    "is_prophylaxis_required": false,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "Não recomendado",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "NO_PROPHYLAXIS",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 11
+    }
+  },
+  {
+    "rule_id": "det_rule_0017",
+    "section": "VASCULAR",
+    "procedure": "Aneurisma de aorta abdominal\n Endarterectomia de carótida com prótese\n Fasciotomia Fistula arteriovenosa com ou sem próteses\n Fistula arteriovenosa com ou sem próteses - revisão**",
+    "procedure_normalized": "aneurisma de aorta abdominal endarterectomia de carotida com protese fasciotomia fistula arteriovenosa com ou sem proteses fistula arteriovenosa com ou sem proteses - revisao**",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 11
+    }
+  },
+  {
+    "rule_id": "det_rule_0018",
+    "section": "VASCULAR",
+    "procedure": "Amputações por necrose úmida",
+    "procedure_normalized": "amputacoes por necrose umida",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CIPROFLOXACINO",
+          "dose": "400mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Ciprofloxacina 400mg EV +\nClindamicina 900mg EV",
+      "notes": "Adequar conforme culturas e\nmanter segundo a evolução",
+      "acceptable_regimens": [
+        [
+          "CIPROFLOXACINO"
+        ],
+        [
+          "CLINDAMICINA"
+        ],
+        [
+          "CIPROFLOXACINO",
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "Adequar conforme culturas e\nmanter segundo a evolução",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 11
+    }
+  },
+  {
+    "rule_id": "det_rule_0020",
+    "section": "GASTROINTESTINAL",
+    "procedure": "Cirurgia bariátrica com manipulação de alças abaixo do\nduodeno",
+    "procedure_normalized": "cirurgia bariatrica com manipulacao de alcas abaixo do duodeno",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Ceftriaxone/Cefazolina + Metronidazol",
+      "notes": "Manter até por 24hrs",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "CEFAZOLINA",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "GENTAMICINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "AJUSTADO",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Metronidazol: 1g\n+ Gentamicina: 5 mg/kg com base no Peso\nAjustado",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "AJUSTADO"
+        ],
+        [
+          "AJUSTADO",
+          "GENTAMICINA",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Manter até por 24hrs",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 12
+    }
+  },
+  {
+    "rule_id": "det_rule_0021",
+    "section": "GASTROINTESTINAL",
+    "procedure": "Esôfago(incisão em mucosa)",
+    "procedure_normalized": "esofago(incisao em mucosa)",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Ceftriaxone/Cefazolina + Metronidazol",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "CEFAZOLINA",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "GENTAMICINA",
+          "dose": "5mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Gentamicina 5 mg/kg EV\n+\nClindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "CLINDAMICINA"
+        ],
+        [
+          "CLINDAMICINA",
+          "GENTAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 12
+    }
+  },
+  {
+    "rule_id": "det_rule_0022",
+    "section": "GASTROINTESTINAL",
+    "procedure": "Esôfago (neoplasia)",
+    "procedure_normalized": "esofago (neoplasia)",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFUROXIMA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefuroxima + Metronidazol",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFUROXIMA"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "CEFUROXIMA",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "GENTAMICINA",
+          "dose": "5mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Gentamicina 5 mg/kg EV\n+\nClindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "CLINDAMICINA"
+        ],
+        [
+          "CLINDAMICINA",
+          "GENTAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 12
+    }
+  },
+  {
+    "rule_id": "det_rule_0023",
+    "section": "GASTROINTESTINAL",
+    "procedure": "Gastrostomia",
+    "procedure_normalized": "gastrostomia",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CIPLRFLOXACINO",
+          "dose": "400mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "AMPICILINA",
+          "dose": "3000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Ciplrfloxacino 400mg EV ou\nAmpicilina/Sulbactam 3 g EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CIPLRFLOXACINO"
+        ],
+        [
+          "AMPICILINA"
+        ],
+        [
+          "AMPICILINA",
+          "CIPLRFLOXACINO"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 12
+    }
+  },
+  {
+    "rule_id": "det_rule_0025",
+    "section": "GASTROINTESTINAL",
+    "procedure": "perfuração gastroduodenal, obstrução esofageana, obstrução\ngástrica, sangramento gástrico, obesidade grau 2, ASA,\nneoplasia.",
+    "procedure_normalized": "perfuracao gastroduodenal, obstrucao esofageana, obstrucao gastrica, sangramento gastrico, obesidade grau 2, asa, neoplasia.",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 13
+    }
+  },
+  {
+    "rule_id": "det_rule_0026",
+    "section": "GASTROINTESTINAL",
+    "procedure": ". Intestino delgado (duodeno, jejuno e íleo)",
+    "procedure_normalized": ". intestino delgado (duodeno, jejuno e ileo)",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "ASSOCIADO A",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV + Associado a\nMetronidazol se obstrução",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ],
+        [
+          "ASSOCIADO A"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "ASSOCIADO A",
+          "CEFAZOLINA",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "GENTAMICINA",
+          "dose": "5mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": "500mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Gentamicina 5mg/kg EV\n+\nMetronidazol 500 mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "GENTAMICINA",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 13
+    }
+  },
+  {
+    "rule_id": "det_rule_0027",
+    "section": "GASTROINTESTINAL",
+    "procedure": ". Apendicectomia não complicada",
+    "procedure_normalized": ". apendicectomia nao complicada",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "CEFTRIAXONE",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV\nOU\nCeftriaxona + Metronidazol",
+      "notes": "Intra-operatório. Se\nperfuração,presença de abscesso\nou peritonite, converter para\ntratamento com\nantibioticoterapia",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ],
+        [
+          "CEFTRIAXONE"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "CEFAZOLINA",
+          "CEFTRIAXONE",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "GENTAMICINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "GENTAMICINA",
+          "dose": "5mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": "500mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV + Gentamicina\nOU\nGentamicina 5mg/kg EV\n+\nMetronidazol 500 mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ],
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "CLINDAMICINA",
+          "GENTAMICINA",
+          "GENTAMICINA",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Intra-operatório. Se\nperfuração,presença de abscesso\nou peritonite, converter para\ntratamento com\nantibioticoterapia",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 13
+    }
+  },
+  {
+    "rule_id": "det_rule_0028",
+    "section": "GASTROINTESTINAL",
+    "procedure": ". Apendicectomia complicada (abscesso/perfuração)",
+    "procedure_normalized": ". apendicectomia complicada (abscesso/perfuracao)",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFTRIAXONE",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Ceftriaxona + Metronidazol",
+      "notes": "Manter pelo menos 5 dias",
+      "acceptable_regimens": [
+        [
+          "CEFTRIAXONE"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "CEFTRIAXONE",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "GENTAMICINA",
+          "dose": "5mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": "500mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Gentamicina 5mg/kg EV 1x dia\n+\nMetronidazol 500 mg EV 8/8h",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "GENTAMICINA",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Manter pelo menos 5 dias",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 13
+    }
+  },
+  {
+    "rule_id": "det_rule_0029",
+    "section": "GASTROINTESTINAL",
+    "procedure": ". Com obstrução",
+    "procedure_normalized": ". com obstrucao",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFTRIAXONE",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Ceftriaxone + Metronidazol",
+      "notes": "Intra-operatório. Se\nperfuração, presença de\nabscesso ou peritonite, converter\npara antibioticoterapia",
+      "acceptable_regimens": [
+        [
+          "CEFTRIAXONE"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "CEFTRIAXONE",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "GENTAMICINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV + Gentamicina\n5mg/kg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ],
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "CLINDAMICINA",
+          "GENTAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Intra-operatório. Se\nperfuração, presença de\nabscesso ou peritonite, converter\npara antibioticoterapia",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 13
+    }
+  },
+  {
+    "rule_id": "det_rule_0030",
+    "section": "GASTROINTESTINAL",
+    "procedure": ". Cirurgias colorretais",
+    "procedure_normalized": ". cirurgias colorretais",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "CEFTRIAXONE",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina + Metronidazol\nOU\nCeftriaxona + Metronidazol",
+      "notes": "Gentamicina: dose total diária\nantes da indução anestésica.\nDemais, manter por até 24h a\npartir do início da cirurgia, sendo:\n• Cefazolina: mais 2 doses\nde 8/8h",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "CEFTRIAXONE"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "CEFAZOLINA",
+          "CEFTRIAXONE",
+          "METRONIDAZOL",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "GENTAMICINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "GENTAMICINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV + Gentamicina\nOU\nMetronidazol + Gentamicina",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ],
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "CLINDAMICINA",
+          "GENTAMICINA",
+          "GENTAMICINA",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Gentamicina: dose total diária\nantes da indução anestésica.\nDemais, manter por até 24h a\npartir do início da cirurgia, sendo:\n• Cefazolina: mais 2 doses\nde 8/8h",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 13
+    }
+  },
+  {
+    "rule_id": "det_rule_0032",
+    "section": "GASTROINTESTINAL",
+    "procedure": ". Polipectomia cólon",
+    "procedure_normalized": ". polipectomia colon",
+    "is_prophylaxis_required": false,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "Não recomendado",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "NO_PROPHYLAXIS",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 14
+    }
+  },
+  {
+    "rule_id": "det_rule_0033",
+    "section": "GASTROINTESTINAL",
+    "procedure": ". Colangiopancreatografia Retrógrada Endoscópica (CPRE)\nIncluso: drenagem de pseudocisto transpapilar ou transmural\nCom evidência de obstrução de trato biliar e caso a drenagem\nbiliar completa não possa ser alcançada\nPaciente com comunicação entre cisto pancreático ou\npseudocisto",
+    "procedure_normalized": ". colangiopancreatografia retrograda endoscopica (cpre) incluso: drenagem de pseudocisto transpapilar ou transmural com evidencia de obstrucao de trato biliar e caso a drenagem biliar completa nao possa ser alcancada paciente com comunicacao entre cisto pancreatico ou pseudocisto",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFTRIAXONE",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "CEFUROXIMA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Ceftriaxone ou Cefuroxima",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFTRIAXONE"
+        ],
+        [
+          "CEFUROXIMA"
+        ],
+        [
+          "CEFTRIAXONE",
+          "CEFUROXIMA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CIPROFLOXACINO",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Ciprofloxacino",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CIPROFLOXACINO"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 14
+    }
+  },
+  {
+    "rule_id": "det_rule_0034",
+    "section": "GASTROINTESTINAL",
+    "procedure": ". Colecistectomia (aberta) ou aparoscópica",
+    "procedure_normalized": ". colecistectomia (aberta) ou aparoscopica",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "GENTAMICINA",
+          "dose": "2mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Gentamicina 2mg/kg EV\n+\nClindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "CLINDAMICINA"
+        ],
+        [
+          "CLINDAMICINA",
+          "GENTAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 14
+    }
+  },
+  {
+    "rule_id": "det_rule_0035",
+    "section": "GASTROINTESTINAL",
+    "procedure": ". Esplenectomia***",
+    "procedure_normalized": ". esplenectomia***",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 14
+    }
+  },
+  {
+    "rule_id": "det_rule_0037",
+    "section": "GASTROINTESTINAL",
+    "procedure": ". Pâncreas com abertura do trato gastrintestinal",
+    "procedure_normalized": ". pancreas com abertura do trato gastrintestinal",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "Gentamicina 5mg/kg EV 1x dia\n+\nMetronidazol 500 mg EV 8/8h",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFTRIAXONE",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Ceftriaxone + Metronidazol",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CEFTRIAXONE"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "CEFTRIAXONE",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Gentamicina 5mg/kg EV 1x dia\n+\nMetronidazol 500 mg EV 8/8h",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 15
+    }
+  },
+  {
+    "rule_id": "det_rule_0038",
+    "section": "GASTROINTESTINAL",
+    "procedure": ". Hepatectomia--Neoplasia",
+    "procedure_normalized": ". hepatectomia--neoplasia",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "Gentamicina 5mg/kg EV 1x dia\n+\nClindamicina 900mg EV no\nintraoperatório, seguido de 600mg EV\n8/8h no POi",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFTRIAXONE",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Ceftriaxone + Metronidazol",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CEFTRIAXONE"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "CEFTRIAXONE",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Gentamicina 5mg/kg EV 1x dia\n+\nClindamicina 900mg EV no\nintraoperatório, seguido de 600mg EV\n8/8h no POi",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 15
+    }
+  },
+  {
+    "rule_id": "det_rule_0039",
+    "section": "GASTROINTESTINAL",
+    "procedure": ". Hernioplastia e herniorrafia\n. Trauma abdominal\npenetrante",
+    "procedure_normalized": ". hernioplastia e herniorrafia . trauma abdominal penetrante",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": ". SEM ENCARCERAMENTO",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": ". COM ENCARCERAMENTO",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": ". Sem encarceramento\n. Com Encarceramento",
+      "notes": "Clindamicina 900mg EV no intraoperatório,\nseguido de 600mg EV 8/8h no POi",
+      "acceptable_regimens": [
+        [
+          ". SEM ENCARCERAMENTO"
+        ],
+        [
+          ". COM ENCARCERAMENTO"
+        ],
+        [
+          ". COM ENCARCERAMENTO",
+          ". SEM ENCARCERAMENTO"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Clindamicina 900mg EV no intraoperatório,\nseguido de 600mg EV 8/8h no POi",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 15
+    }
+  },
+  {
+    "rule_id": "det_rule_0040",
+    "section": "GASTROINTESTINAL",
+    "procedure": ". Abscesso perirretal ou\nperianal",
+    "procedure_normalized": ". abscesso perirretal ou perianal",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFTRIAXONE",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Ceftriaxone + Metronidazol",
+      "notes": "Amoxacilina 875/Clavulanato 125 mg 1 cp\nVO de 12/12h por 5 dias OU Ciprofloxacina\n500 mg VO 12/12h + metronidazol 250 mg\nVO de 8/8h por 5 dias",
+      "acceptable_regimens": [
+        [
+          "CEFTRIAXONE"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "CEFTRIAXONE",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "GENTAMICINA",
+          "dose": "5mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": "500mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Gentamicina 5mg/kg EV 1x dia\n+\nMetronidazol 500 mg EV 8/8h",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "GENTAMICINA",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Amoxacilina 875/Clavulanato 125 mg 1 cp\nVO de 12/12h por 5 dias OU Ciprofloxacina\n500 mg VO 12/12h + metronidazol 250 mg\nVO de 8/8h por 5 dias",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 15
+    }
+  },
+  {
+    "rule_id": "det_rule_0041",
+    "section": "GASTROINTESTINAL",
+    "procedure": ". Cisto pilonidal, plicoma",
+    "procedure_normalized": ". cisto pilonidal, plicoma",
+    "is_prophylaxis_required": false,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "Não recomendado",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "NO_PROPHYLAXIS",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 15
+    }
+  },
+  {
+    "rule_id": "det_rule_0042",
+    "section": "GASTROINTESTINAL",
+    "procedure": ". Esfíncter anal -\nreconstrução após lesão\nperineal obstétrica de 3º e 4º\ngrau, lesão de esfíncter",
+    "procedure_normalized": ". esfincter anal - reconstrucao apos lesao perineal obstetrica de 3o e 4o grau, lesao de esfincter",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFTRIAXONE",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Ceftriaxone + Metronidazol",
+      "notes": "Ceftriaxone + Metronidazol EV 6/6h por 7\ndias ou Amoxacilina 875/Clavulanato 125\nmg 1 cp VO de 12/12h por 7 dias",
+      "acceptable_regimens": [
+        [
+          "CEFTRIAXONE"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "CEFTRIAXONE",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "GENTAMICINA",
+          "dose": "5mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": "500mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Gentamicina 5mg/kg EV\n+\nMetronidazol 500 mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "GENTAMICINA",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Ceftriaxone + Metronidazol EV 6/6h por 7\ndias ou Amoxacilina 875/Clavulanato 125\nmg 1 cp VO de 12/12h por 7 dias",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 15
+    }
+  },
+  {
+    "rule_id": "det_rule_0044",
+    "section": "TORÁCICA",
+    "procedure": "Cirurgia redutora de enfisema\nCorreção de hérnia/eventração diafragmática\nCorreção de pectus Decorticação pulmonar Pericardiectomia\nPleuroscopia terapêutica\nRessecção de condrite/osteomielite Ressecção de estenose de\ntraquéia\nRessecção de tumor pleural Ressecção pulmonar:\nNodulectomia, segmentectomia, Lobectomia Toracectomia\n(tumor de parede)\nToracocospia Toracoplastia Toracoplastia para acesso à coluna\nToracotomia Tromboendarterectomia pulmonar",
+    "procedure_normalized": "cirurgia redutora de enfisema correcao de hernia/eventracao diafragmatica correcao de pectus decorticacao pulmonar pericardiectomia pleuroscopia terapeutica resseccao de condrite/osteomielite resseccao de estenose de traqueia resseccao de tumor pleural resseccao pulmonar: nodulectomia, segmentectomia, lobectomia toracectomia (tumor de parede) toracocospia toracoplastia toracoplastia para acesso a coluna toracotomia tromboendarterectomia pulmonar",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Intraoperatório ou no máximo\n24h",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Intraoperatório ou no máximo\n24h",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 16
+    }
+  },
+  {
+    "rule_id": "det_rule_0046",
+    "section": "TORÁCICA",
+    "procedure": "Biópsia Transtorácica, ou de: gânglio, pleura,\npulmão a céu aberto, tumores de parede Broncoscopia\nrígida e flexível\nCostectomia segmentar Drenagem pleural (não empiema)\nLaringoscopia de suspensão Mediastinoscopia\nMediastinotomia Pleuroscopia diagnóstica Toracocentese\ndiagnóstica Toracostomia para inserção de dreno após\npneumotórax espontâneo Traqueostomia",
+    "procedure_normalized": "biopsia transtoracica, ou de: ganglio, pleura, pulmao a ceu aberto, tumores de parede broncoscopia rigida e flexivel costectomia segmentar drenagem pleural (nao empiema) laringoscopia de suspensao mediastinoscopia mediastinotomia pleuroscopia diagnostica toracocentese diagnostica toracostomia para insercao de dreno apos pneumotorax espontaneo traqueostomia",
+    "is_prophylaxis_required": false,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "Não recomendado",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "NO_PROPHYLAXIS",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 17
+    }
+  },
+  {
+    "rule_id": "det_rule_0047",
+    "section": "NEUROCIRURGIA",
+    "procedure": ". Craniotomia\n. Reconstrução craniana",
+    "procedure_normalized": ". craniotomia . reconstrucao craniana",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "CEFUROXIMA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV\nOU\nCefuroxima",
+      "notes": "Não recomendado EXCETO na\nreconstrução craniana com\nimplante sintético. Nesse caso,\nmanter por até 24h a partir do\ninício da cirurgia (mais 2 doses\n8/8h para ambos)",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ],
+        [
+          "CEFUROXIMA"
+        ],
+        [
+          "CEFAZOLINA",
+          "CEFUROXIMA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado EXCETO na\nreconstrução craniana com\nimplante sintético. Nesse caso,\nmanter por até 24h a partir do\ninício da cirurgia (mais 2 doses\n8/8h para ambos)",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 17
+    }
+  },
+  {
+    "rule_id": "det_rule_0049",
+    "section": "NEUROCIRURGIA",
+    "procedure": "Cirurgia com incisão trans-oral ou trans-esfenoidal",
+    "procedure_normalized": "cirurgia com incisao trans-oral ou trans-esfenoidal",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV + Metronidazol",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "CEFAZOLINA",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 18
+    }
+  },
+  {
+    "rule_id": "det_rule_0051",
+    "section": "GINECOLÓGICA",
+    "procedure": "Cirurgia de mama\nCirurgia estética ou reconstrutiva com prótese\nMastectomia\nNodulectomia\nQuadrantectomia",
+    "procedure_normalized": "cirurgia de mama cirurgia estetica ou reconstrutiva com protese mastectomia nodulectomia quadrantectomia",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "GENTAMICINA",
+          "dose": "5mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV\n+\nGentamicina 5mg/kg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ],
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "CLINDAMICINA",
+          "GENTAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 19
+    }
+  },
+  {
+    "rule_id": "det_rule_0052",
+    "section": "GINECOLÓGICA",
+    "procedure": "Reprodução assistida—Coleta de Oócitos",
+    "procedure_normalized": "reproducao assistida—coleta de oocitos",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "GENTAMICINA",
+          "dose": "5mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV\n+\nGentamicina 5mg/kg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ],
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "CLINDAMICINA",
+          "GENTAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 19
+    }
+  },
+  {
+    "rule_id": "det_rule_0053",
+    "section": "GINECOLÓGICA",
+    "procedure": "Laparoscopia diagnóstica sem acesso instestinal ou vaginal\n(exceto histerectomia)\nCistoscopia\nBiópsia endometrial",
+    "procedure_normalized": "laparoscopia diagnostica sem acesso instestinal ou vaginal (exceto histerectomia) cistoscopia biopsia endometrial",
+    "is_prophylaxis_required": false,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "Não recomendado",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "NO_PROPHYLAXIS",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 19
+    }
+  },
+  {
+    "rule_id": "det_rule_0055",
+    "section": "GINECOLÓGICA",
+    "procedure": "Dilatação e curetagem de indicação\nEsterilização tubária\nHisteroscopia diagnóstica ou cirúrgica\nHisterossalpingografia\nInserção de DIU\nReprodução asssitida ( transferência de embriões)\nBiópsia de tecido cervical, incluindo CAGF ou curetagem\nendocervical",
+    "procedure_normalized": "dilatacao e curetagem de indicacao esterilizacao tubaria histeroscopia diagnostica ou cirurgica histerossalpingografia insercao de diu reproducao asssitida ( transferencia de embrioes) biopsia de tecido cervical, incluindo cagf ou curetagem endocervical",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 20
+    }
+  },
+  {
+    "rule_id": "det_rule_0056",
+    "section": "GINECOLÓGICA",
+    "procedure": "Esfincter anal - reconstrução após lesão perineal obstétrica para\nlesão de 3º e 4º grau",
+    "procedure_normalized": "esfincter anal - reconstrucao apos lesao perineal obstetrica para lesao de 3o e 4o grau",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFTRIAXONE",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Ceftriaxone+ Metronidazol",
+      "notes": "7 dias de tratamento",
+      "acceptable_regimens": [
+        [
+          "CEFTRIAXONE"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "CEFTRIAXONE",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "GENTAMICINA",
+          "dose": "5mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "GENTAMICINA",
+          "dose": "5mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Gentamicina 5mg/kg EV + Metronidazol\n500mg EV na indução, seguido de\nGentamicina 5mg/kg EV q24h + Metronidazol\n500mg EV 8/8h",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "GENTAMICINA",
+          "GENTAMICINA",
+          "METRONIDAZOL",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "7 dias de tratamento",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 20
+    }
+  },
+  {
+    "rule_id": "det_rule_0058",
+    "section": "OBSTETRÍCIA",
+    "procedure": "Parto vaginal",
+    "procedure_normalized": "parto vaginal",
+    "is_prophylaxis_required": false,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "Não recomendado",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "NO_PROPHYLAXIS",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 21
+    }
+  },
+  {
+    "rule_id": "det_rule_0059",
+    "section": "OBSTETRÍCIA",
+    "procedure": "Parto vaginal, se remoção manual da placenta, se lacerações de\nperíneo de 3º e 4º graus",
+    "procedure_normalized": "parto vaginal, se remocao manual da placenta, se laceracoes de perineo de 3o e 4o graus",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV na indução",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 21
+    }
+  },
+  {
+    "rule_id": "det_rule_0060",
+    "section": "OBSTETRÍCIA",
+    "procedure": "Parto fórceps",
+    "procedure_normalized": "parto forceps",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV na indução",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 21
+    }
+  },
+  {
+    "rule_id": "det_rule_0061",
+    "section": "OBSTETRÍCIA",
+    "procedure": "Parto cesariana (sem ruptura de membranas, não trabalho de\nparto)",
+    "procedure_normalized": "parto cesariana (sem ruptura de membranas, nao trabalho de parto)",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV na indução",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 21
+    }
+  },
+  {
+    "rule_id": "det_rule_0062",
+    "section": "OBSTETRÍCIA",
+    "procedure": "Abortamento cirúrgico não infectado",
+    "procedure_normalized": "abortamento cirurgico nao infectado",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV na indução",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 21
+    }
+  },
+  {
+    "rule_id": "det_rule_0063",
+    "section": "OBSTETRÍCIA",
+    "procedure": "Neovagina",
+    "procedure_normalized": "neovagina",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "GENTAMICINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "TOTAL POR PESO/DIA, EM DOSE ÚNICA,",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "ANTES DA INDUÇÃO ANESTÉSICA)",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina + Gentamicina (dose\ntotal por peso/dia, em dose única,\nantes da indução anestésica)",
+      "notes": "Manter por até 24h a partir do\ninício da cirurgia (mais 2 doses\n8/8h), EXCETO gentamicina",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ],
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "TOTAL POR PESO/DIA, EM DOSE ÚNICA,"
+        ],
+        [
+          "ANTES DA INDUÇÃO ANESTÉSICA)"
+        ],
+        [
+          "ANTES DA INDUÇÃO ANESTÉSICA)",
+          "CLINDAMICINA",
+          "GENTAMICINA",
+          "TOTAL POR PESO/DIA, EM DOSE ÚNICA,"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": "500mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g\n+\nMetronidazol 500mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "CEFAZOLINA",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Manter por até 24h a partir do\ninício da cirurgia (mais 2 doses\n8/8h), EXCETO gentamicina",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 21
+    }
+  },
+  {
+    "rule_id": "det_rule_0064",
+    "section": "OBSTETRÍCIA",
+    "procedure": "Cerclagem uterina",
+    "procedure_normalized": "cerclagem uterina",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "GENTAMICINA",
+          "dose": "5mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV\n+\nGentamicina 5mg/kg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ],
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "CLINDAMICINA",
+          "GENTAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 21
+    }
+  },
+  {
+    "rule_id": "det_rule_0066",
+    "section": "OBSTETRÍCIA",
+    "procedure": "Curetagem uterina de aborto retido/incompleto e sem fator de\nrisco",
+    "procedure_normalized": "curetagem uterina de aborto retido/incompleto e sem fator de risco",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "GENTAMICINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "CIPROFLOXACINO",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Metronidazol + Gentamicina ou\nCiprofloxacino",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "CIPROFLOXACINO"
+        ],
+        [
+          "CIPROFLOXACINO",
+          "GENTAMICINA",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 22
+    }
+  },
+  {
+    "rule_id": "det_rule_0067",
+    "section": "OBSTETRÍCIA",
+    "procedure": "Trabalho de parto prematuro em paciente com fator de risco\n(história de DIP, gonorreia ou múltiplos parceiros sexuais,\nemergência, trabalho de parto prolongado >12h)",
+    "procedure_normalized": "trabalho de parto prematuro em paciente com fator de risco (historia de dip, gonorreia ou multiplos parceiros sexuais, emergencia, trabalho de parto prolongado >12h)",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "PENICILINA_G_CRISTALINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "UNIDADES , DE / H DURANTE O",
+          "dose": null,
+          "route": "IV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "TRABALHO DE PARTO",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "AMPICILINA",
+          "dose": null,
+          "route": "IV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "TRABALHO DE PARTO",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Penicilina G cristalina 4-5 milhões\nunidades IV, de 4/4 h durante o\ntrabalho de parto\nOU\nAmpicilina IV, de 4/4 h durante o\ntrabalho de parto",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "PENICILINA_G_CRISTALINA"
+        ],
+        [
+          "UNIDADES , DE / H DURANTE O"
+        ],
+        [
+          "TRABALHO DE PARTO"
+        ],
+        [
+          "AMPICILINA"
+        ],
+        [
+          "TRABALHO DE PARTO"
+        ],
+        [
+          "AMPICILINA",
+          "PENICILINA_G_CRISTALINA",
+          "TRABALHO DE PARTO",
+          "TRABALHO DE PARTO",
+          "UNIDADES , DE / H DURANTE O"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "DE PARTO",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "TRABALHO DE PARTO",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2 g de 8/8 h durante o trabalho\nde parto\nOU\nClindamicina 900 mg de 8/8 h durante o\ntrabalho de parto",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ],
+        [
+          "DE PARTO"
+        ],
+        [
+          "CLINDAMICINA"
+        ],
+        [
+          "TRABALHO DE PARTO"
+        ],
+        [
+          "CEFAZOLINA",
+          "CLINDAMICINA",
+          "DE PARTO",
+          "TRABALHO DE PARTO"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 22
+    }
+  },
+  {
+    "rule_id": "det_rule_0068",
+    "section": "OBSTETRÍCIA",
+    "procedure": "Laparoscopia ou laparotomia diagnóstica (sem abertura de útero\nou vagina) e histeroscopia diagnóstica",
+    "procedure_normalized": "laparoscopia ou laparotomia diagnostica (sem abertura de utero ou vagina) e histeroscopia diagnostica",
+    "is_prophylaxis_required": false,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "Não recomendado",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "NO_PROPHYLAXIS",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 22
+    }
+  },
+  {
+    "rule_id": "det_rule_0069",
+    "section": "ORTOPÉDICA",
+    "procedure": "Cirurgias limpas envolvendo mão, joelho ou pé sem implante,\nsem inserção de próteses, pinos ou parafusos ou tecido\navascular, infiltrações articulares",
+    "procedure_normalized": "cirurgias limpas envolvendo mao, joelho ou pe sem implante, sem insercao de proteses, pinos ou parafusos ou tecido avascular, infiltracoes articulares",
+    "is_prophylaxis_required": false,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "Não recomendado",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "NO_PROPHYLAXIS",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 22
+    }
+  },
+  {
+    "rule_id": "det_rule_0071",
+    "section": "ORTOPÉDICA",
+    "procedure": "Infiltração coluna, Radiculotomia, Microneurólise, Rizotomia\npercutânea#",
+    "procedure_normalized": "infiltracao coluna, radiculotomia, microneurolise, rizotomia percutanea#",
+    "is_prophylaxis_required": false,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "Não indicado (Em situações específicas#, pode ser utilizado Cefazolina 2g EV apenas na indução)",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "NO_PROPHYLAXIS",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 23
+    }
+  },
+  {
+    "rule_id": "det_rule_0073",
+    "section": "ORTOPÉDICA",
+    "procedure": "resultado das culturas.****",
+    "procedure_normalized": "resultado das culturas.****",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "reavaliação dos antibióticos\nconforme resultado da\ncultura",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "INTRAOPERATÓRIO, SEGUIDO Q8H NO POI",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "CIPROFLOXACINO",
+          "dose": "400mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Intraoperatório, seguido q8h no Poi +\nCiprofloxacino 400mg EV em 1h q12h",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "INTRAOPERATÓRIO, SEGUIDO Q8H NO POI"
+        ],
+        [
+          "CIPROFLOXACINO"
+        ],
+        [
+          "CIPROFLOXACINO",
+          "INTRAOPERATÓRIO, SEGUIDO Q8H NO POI"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "reavaliação dos antibióticos\nconforme resultado da\ncultura",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 24
+    }
+  },
+  {
+    "rule_id": "det_rule_0074",
+    "section": "ORTOPÉDICA",
+    "procedure": "Amputação de membros:\n Eletiva (ex.: câncer, gangrena seca)",
+    "procedure_normalized": "amputacao de membros: eletiva (ex.: cancer, gangrena seca)",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina* 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 24
+    }
+  },
+  {
+    "rule_id": "det_rule_0075",
+    "section": "ORTOPÉDICA",
+    "procedure": "Pós-traumática ou em presença de sofrimento de tecidos",
+    "procedure_normalized": "pos-traumatica ou em presenca de sofrimento de tecidos",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina* 2g EV",
+      "notes": "Não recomendado\n (avaliar tratamento, se\ninfecção)",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado\n (avaliar tratamento, se\ninfecção)",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 24
+    }
+  },
+  {
+    "rule_id": "det_rule_0076",
+    "section": "ORTOPÉDICA",
+    "procedure": "Redução cirúrgica fraturas expostas:\n Grau I e II (de acordo com os graus de Gustillo &\nAnderson)",
+    "procedure_normalized": "reducao cirurgica fraturas expostas: grau i e ii (de acordo com os graus de gustillo & anderson)",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "SOLO E/",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "FEZES)",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV (Associar\nmetronidazol se contaminação com\nsolo e/ou fezes)",
+      "notes": "Manter por até 24h a partir do\ninício da cirurgia (mais 2\ndoses 8/8h para ambos)",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "SOLO E/"
+        ],
+        [
+          "FEZES)"
+        ],
+        [
+          "CEFAZOLINA",
+          "FEZES)",
+          "METRONIDAZOL",
+          "SOLO E/"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Manter por até 24h a partir do\ninício da cirurgia (mais 2\ndoses 8/8h para ambos)",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 24
+    }
+  },
+  {
+    "rule_id": "det_rule_0077",
+    "section": "ORTOPÉDICA",
+    "procedure": "Grau III (A, B, C) (de acordo com os graus de Gustillo &\nAnderson)",
+    "procedure_normalized": "grau iii (a, b, c) (de acordo com os graus de gustillo & anderson)",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "AMPICILINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Ampicilina-Sulbactam",
+      "notes": "Até 48h após o fechamento\nda ferida ou por 72h, o que\nvier primeiro",
+      "acceptable_regimens": [
+        [
+          "AMPICILINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "GENTAMICINA",
+          "dose": "5mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV\n+\nGentamicina 5mg/kg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ],
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "CLINDAMICINA",
+          "GENTAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Até 48h após o fechamento\nda ferida ou por 72h, o que\nvier primeiro",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 24
+    }
+  },
+  {
+    "rule_id": "det_rule_0078",
+    "section": "ORTOPÉDICA",
+    "procedure": "Ossos chatos, mão, pé ou dedos pouco contaminados",
+    "procedure_normalized": "ossos chatos, mao, pe ou dedos pouco contaminados",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Manter por até 24h a partir do\ninício da cirurgia (mais 2 doses\n8/8h para ambos)",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Manter por até 24h a partir do\ninício da cirurgia (mais 2 doses\n8/8h para ambos)",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 24
+    }
+  },
+  {
+    "rule_id": "det_rule_0080",
+    "section": "ORTOPÉDICA",
+    "procedure": "Ossos chatos, mão, pé ou dedos muito contaminados",
+    "procedure_normalized": "ossos chatos, mao, pe ou dedos muito contaminados",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "AMPICILINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Ampicilina-Sulbactam",
+      "notes": "Até 48h após o fechamento da\nferida",
+      "acceptable_regimens": [
+        [
+          "AMPICILINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "GENTAMICINA",
+          "dose": "5mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV\n+\nGentamicina 5mg/kg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ],
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "CLINDAMICINA",
+          "GENTAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Até 48h após o fechamento da\nferida",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 25
+    }
+  },
+  {
+    "rule_id": "det_rule_0081",
+    "section": "NEONATAL E PEDIÁTRICA",
+    "procedure": "Mielomeningocele",
+    "procedure_normalized": "mielomeningocele",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "A PROFILAXIA ANTIBIÓTICA É REALIZADA DESDE O MOMENTO DO NASCIMENTO",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "A profilaxia antibiótica é realizada desde o momento do nascimento",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "A PROFILAXIA ANTIBIÓTICA É REALIZADA DESDE O MOMENTO DO NASCIMENTO"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 25
+    }
+  },
+  {
+    "rule_id": "det_rule_0083",
+    "section": "NEONATAL E PEDIÁTRICA",
+    "procedure": "Apendicectomia\n Graus III e IV",
+    "procedure_normalized": "apendicectomia graus iii e iv",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFTRIAXONE",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "A  DIAS",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Tratamento: Ceftriaxone + Metronidazol\n5 a 7 dias",
+      "notes": "Adequar antibioticoterapia\ncaso isolamento de agente.\nTransição EV para VO com\nClavulin BD: Paciente Afebril +\nDor controlada com\nanalgésicos VO + Dieta VO +\nDeambulação + Exame físico\nabdominal normal",
+      "acceptable_regimens": [
+        [
+          "CEFTRIAXONE"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "A  DIAS"
+        ],
+        [
+          "A  DIAS",
+          "CEFTRIAXONE",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "Adequar antibioticoterapia\ncaso isolamento de agente.\nTransição EV para VO com\nClavulin BD: Paciente Afebril +\nDor controlada com\nanalgésicos VO + Dieta VO +\nDeambulação + Exame físico\nabdominal normal",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 26
+    }
+  },
+  {
+    "rule_id": "det_rule_0084",
+    "section": "NEONATAL E PEDIÁTRICA",
+    "procedure": "Cirurgia cardíaca aberta em crianças até 30 kg com ou sem uso\nde CEC",
+    "procedure_normalized": "cirurgia cardiaca aberta em criancas ate 30 kg com ou sem uso de cec",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFUROXIMA",
+          "dose": "50mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefuroxima 50mg/kg",
+      "notes": "Manter por até 24h",
+      "acceptable_regimens": [
+        [
+          "CEFUROXIMA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "VANCOMICINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Vancomicina 15 a 20mg/kg EV em 1 hora",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "VANCOMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Manter por até 24h",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 26
+    }
+  },
+  {
+    "rule_id": "det_rule_0085",
+    "section": "NEONATAL E PEDIÁTRICA",
+    "procedure": "Atresia de Esôfago/Duodeno",
+    "procedure_normalized": "atresia de esofago/duodeno",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "30mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 30 mg/Kg",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 26
+    }
+  },
+  {
+    "rule_id": "det_rule_0086",
+    "section": "NEONATAL E PEDIÁTRICA",
+    "procedure": "Gastrosquise\n Onfalocele",
+    "procedure_normalized": "gastrosquise onfalocele",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "AMPICILINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "GENTAMICINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Ampicilina + Gentamicina",
+      "notes": "7 dias",
+      "acceptable_regimens": [
+        [
+          "AMPICILINA"
+        ],
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "AMPICILINA",
+          "GENTAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "7 dias",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 26
+    }
+  },
+  {
+    "rule_id": "det_rule_0087",
+    "section": "NEONATAL E PEDIÁTRICA",
+    "procedure": "Hipospádia",
+    "procedure_normalized": "hipospadia",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "30mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 30 mg/Kg",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 26
+    }
+  },
+  {
+    "rule_id": "det_rule_0089",
+    "section": "NEONATAL E PEDIÁTRICA",
+    "procedure": "✓ Gastrostomia",
+    "procedure_normalized": "✓ gastrostomia",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "30mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 30 mg/Kg",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 27
+    }
+  },
+  {
+    "rule_id": "det_rule_0090",
+    "section": "NEONATAL E PEDIÁTRICA",
+    "procedure": "✓ Esplenectomia eletiva*",
+    "procedure_normalized": "✓ esplenectomia eletiva*",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "30mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 30 mg/Kg",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 27
+    }
+  },
+  {
+    "rule_id": "det_rule_0091",
+    "section": "NEONATAL E PEDIÁTRICA",
+    "procedure": "Vesicostomia",
+    "procedure_normalized": "vesicostomia",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "30mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 30 mg/Kg",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 27
+    }
+  },
+  {
+    "rule_id": "det_rule_0092",
+    "section": "NEONATAL E PEDIÁTRICA",
+    "procedure": "Postectomia\n Sem fatores de risco",
+    "procedure_normalized": "postectomia sem fatores de risco",
+    "is_prophylaxis_required": false,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "Não recomendado",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "NO_PROPHYLAXIS",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 27
+    }
+  },
+  {
+    "rule_id": "det_rule_0093",
+    "section": "NEONATAL E PEDIÁTRICA",
+    "procedure": "Postectomia\n Com fatores de risco",
+    "procedure_normalized": "postectomia com fatores de risco",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "30mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 30 mg/Kg",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 27
+    }
+  },
+  {
+    "rule_id": "det_rule_0094",
+    "section": "NEONATAL E PEDIÁTRICA",
+    "procedure": "Urologia\n Litíase",
+    "procedure_normalized": "urologia litiase",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFTRIAXONE",
+          "dose": "75mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Ceftriaxone 75 mg/kg",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFTRIAXONE"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "SULFAMETOXAZOL_TRIMETOPRIM",
+          "dose": "3mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "NA TMP",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Sulfametoxazol-trimetropim 3 mg/kg baseado\nna TMP",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "SULFAMETOXAZOL_TRIMETOPRIM"
+        ],
+        [
+          "NA TMP"
+        ],
+        [
+          "NA TMP",
+          "SULFAMETOXAZOL_TRIMETOPRIM"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 27
+    }
+  },
+  {
+    "rule_id": "det_rule_0096",
+    "section": "NEONATAL E PEDIÁTRICA",
+    "procedure": "Urologia\n Geral",
+    "procedure_normalized": "urologia geral",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "30mg/kg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 30 mg/Kg",
+      "notes": "Manter por até 24h",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Manter por até 24h",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 28
+    }
+  },
+  {
+    "rule_id": "det_rule_0097",
+    "section": "PLÁSTICA",
+    "procedure": "Cirurgia da mama:\n Cirurgia estética ou reconstrução com ou sem prótese\n Esvaziamento de linfonodos axilares\n Mastectomia\n Nodulectomia\n Quadrantectomia\n Revisão de cirurgia de mama",
+    "procedure_normalized": "cirurgia da mama: cirurgia estetica ou reconstrucao com ou sem protese esvaziamento de linfonodos axilares mastectomia nodulectomia quadrantectomia revisao de cirurgia de mama",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 28
+    }
+  },
+  {
+    "rule_id": "det_rule_0098",
+    "section": "PLÁSTICA",
+    "procedure": "Cirugia de Mama:\n bióspia excisional diagnóstica\n Bíópsia de linfonodo sentinela\n Excisão de cicatriz\n Lumpectomia com ou sem agulha ou fio de localização",
+    "procedure_normalized": "cirugia de mama: biospia excisional diagnostica biopsia de linfonodo sentinela excisao de cicatriz lumpectomia com ou sem agulha ou fio de localizacao",
+    "is_prophylaxis_required": false,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "Não recomendado",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "NO_PROPHYLAXIS",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 28
+    }
+  },
+  {
+    "rule_id": "det_rule_0099",
+    "section": "PLÁSTICA",
+    "procedure": "Estéticas:\n Abdominoplastia\n Dermolipectomia\n Inserção prótese malar e queixo\n Lipoaspiração\n Otoplastia\n Ritidoplastia",
+    "procedure_normalized": "esteticas: abdominoplastia dermolipectomia insercao protese malar e queixo lipoaspiracao otoplastia ritidoplastia",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 28
+    }
+  },
+  {
+    "rule_id": "det_rule_0100",
+    "section": "PLÁSTICA",
+    "procedure": "Estéticas\n Blefaroplastia",
+    "procedure_normalized": "esteticas blefaroplastia",
+    "is_prophylaxis_required": false,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "Não recomendado",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "NO_PROPHYLAXIS",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 28
+    }
+  },
+  {
+    "rule_id": "det_rule_0102",
+    "section": "PLÁSTICA",
+    "procedure": ". Cirurgias potencialmente contaminadas (enxertos cutâneos\ne retalhos)",
+    "procedure_normalized": ". cirurgias potencialmente contaminadas (enxertos cutaneos e retalhos)",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 29
+    }
+  },
+  {
+    "rule_id": "det_rule_0103",
+    "section": "PLÁSTICA",
+    "procedure": "Septoplastia, rinoplastia\n (realizar apenas quando houver tampão por >48h)",
+    "procedure_normalized": "septoplastia, rinoplastia (realizar apenas quando houver tampao por >48h)",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "e tampão/splint nasal for\nutilizado > 48h, antibiótico com\nmaior duração pode ser\nconsiderado: Amoxicilina-\nClavulanato 875mg VO 12/12h\nOU Cefadroxila 500mg 12/12h\naté retirada do tampão/splint",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "e tampão/splint nasal for\nutilizado > 48h, antibiótico com\nmaior duração pode ser\nconsiderado: Amoxicilina-\nClavulanato 875mg VO 12/12h\nOU Cefadroxila 500mg 12/12h\naté retirada do tampão/splint",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 29
+    }
+  },
+  {
+    "rule_id": "det_rule_0104",
+    "section": "PLÁSTICA",
+    "procedure": ". Rinosseptoplastia/rinoplastia ou septoplatia complexa (revisão\ncom ou sem enxerto)",
+    "procedure_normalized": ". rinosseptoplastia/rinoplastia ou septoplatia complexa (revisao com ou sem enxerto)",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV+ Metronidazol\n500mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "CEFAZOLINA",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "GENTAMICINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV + Gentamicina\n3mg/kg",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ],
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "CLINDAMICINA",
+          "GENTAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 29
+    }
+  },
+  {
+    "rule_id": "det_rule_0105",
+    "section": "PLÁSTICA",
+    "procedure": "✓ Transplante de pele em queimados (enxerto ou retalhos)\n1ª abordagem",
+    "procedure_normalized": "✓ transplante de pele em queimados (enxerto ou retalhos) 1a abordagem",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Manter por até 24h",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Manter por até 24h",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 29
+    }
+  },
+  {
+    "rule_id": "det_rule_0106",
+    "section": "PLÁSTICA",
+    "procedure": "Reparadora:\n Craniofacial (congênitas, trauma)\n Reconstrução de mama\n✓ Microcirurgia",
+    "procedure_normalized": "reparadora: craniofacial (congenitas, trauma) reconstrucao de mama ✓ microcirurgia",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 29
+    }
+  },
+  {
+    "rule_id": "det_rule_0108",
+    "section": "UROLÓGICA",
+    "procedure": "Braquiterapia prostática transperineal\n Cirurgia endourológica ambulatorial\n(colocação de/troca stent,\nureteroscopia diagnóstica/terapêutica)",
+    "procedure_normalized": "braquiterapia prostatica transperineal cirurgia endourologica ambulatorial (colocacao de/troca stent, ureteroscopia diagnostica/terapeutica)",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 30
+    }
+  },
+  {
+    "rule_id": "det_rule_0109",
+    "section": "UROLÓGICA",
+    "procedure": "Cirurgia de adrenal",
+    "procedure_normalized": "cirurgia de adrenal",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 30
+    }
+  },
+  {
+    "rule_id": "det_rule_0111",
+    "section": "UROLÓGICA",
+    "procedure": "Litotripsia extracorpórea (LECO)\nEstudo urodinâmico\nCistoscopia e pielografia retrógrada simples\nSling miduretral\nOrquiectomia, vasectomia, varicoletomia",
+    "procedure_normalized": "litotripsia extracorporea (leco) estudo urodinamico cistoscopia e pielografia retrograda simples sling miduretral orquiectomia, vasectomia, varicoletomia",
+    "is_prophylaxis_required": false,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "Não recomendado",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "NO_PROPHYLAXIS",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 31
+    }
+  },
+  {
+    "rule_id": "det_rule_0112",
+    "section": "UROLÓGICA",
+    "procedure": "Orquiectomia com colocação de prótese",
+    "procedure_normalized": "orquiectomia com colocacao de protese",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 31
+    }
+  },
+  {
+    "rule_id": "det_rule_0113",
+    "section": "UROLÓGICA",
+    "procedure": "Próteses penianas",
+    "procedure_normalized": "proteses penianas",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "GENTAMICINA",
+          "dose": "240mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV\n+\nGentamicina 240 mg EV",
+      "notes": "Manter por até 24h a partir do início da cirurgia",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ],
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "CEFAZOLINA",
+          "GENTAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "SEGUIDO DE",
+          "dose": "600mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "GENTAMICINA",
+          "dose": "240mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV no intraoperatório,\nseguido de 600mg EV q8h no pós-operatório\n+\nGentamicina 240mg EV 1x dia",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ],
+        [
+          "SEGUIDO DE"
+        ],
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "CLINDAMICINA",
+          "GENTAMICINA",
+          "SEGUIDO DE"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Manter por até 24h a partir do início da cirurgia",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 31
+    }
+  },
+  {
+    "rule_id": "det_rule_0114",
+    "section": "UROLÓGICA",
+    "procedure": "Esfincter artificial",
+    "procedure_normalized": "esfincter artificial",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "GENTAMICINA",
+          "dose": "240mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV\n+\nGentamicina 240 mg EV",
+      "notes": "Manter por até 24h a partir do início da cirurgia",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ],
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "CEFAZOLINA",
+          "GENTAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "SEGUIDO DE",
+          "dose": "600mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV no intraoperatório,\nseguido de 600mg EV q8h no pós-operatório\n+",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ],
+        [
+          "SEGUIDO DE"
+        ],
+        [
+          "CLINDAMICINA",
+          "SEGUIDO DE"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Manter por até 24h a partir do início da cirurgia",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 31
+    }
+  },
+  {
+    "rule_id": "det_rule_0116",
+    "section": "UROLÓGICA",
+    "procedure": "Reconstrução pélvica com prótese",
+    "procedure_normalized": "reconstrucao pelvica com protese",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "GENTAMICINA",
+          "dose": "240mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV\n+\nGentamicina 240 mg EV",
+      "notes": "Manter por até 24h a partir do início da cirurgia",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ],
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "CEFAZOLINA",
+          "GENTAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "SEGUIDO DE",
+          "dose": "600mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "GENTAMICINA",
+          "dose": "240mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV no intraoperatório,\nseguido de 600mg EV q8h no pós-operatório\n+\nGentamicina 240mg EV 1x dia",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ],
+        [
+          "SEGUIDO DE"
+        ],
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "CLINDAMICINA",
+          "GENTAMICINA",
+          "SEGUIDO DE"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Manter por até 24h a partir do início da cirurgia",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 32
+    }
+  },
+  {
+    "rule_id": "det_rule_0117",
+    "section": "UROLÓGICA",
+    "procedure": "Nefrectomia limpa",
+    "procedure_normalized": "nefrectomia limpa",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Não recomendado",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Não recomendado",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 32
+    }
+  },
+  {
+    "rule_id": "det_rule_0118",
+    "section": "UROLÓGICA",
+    "procedure": "Nefrectomia infectada (tratamento)",
+    "procedure_normalized": "nefrectomia infectada (tratamento)",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "MANTER TRATATAMENTO ORIENTADO PELA UROCULTURA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Manter tratatamento orientado pela urocultura",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "MANTER TRATATAMENTO ORIENTADO PELA UROCULTURA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 32
+    }
+  },
+  {
+    "rule_id": "det_rule_0120",
+    "section": "UROLÓGICA",
+    "procedure": "Cirurgia de redesignação sexual",
+    "procedure_normalized": "cirurgia de redesignacao sexual",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2g EV",
+      "notes": "Sulfametoxazol/ Trimetoprim\n800/160mg 12/12h",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "Sulfametoxazol/ Trimetoprim\n800/160mg 12/12h",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 33
+    }
+  },
+  {
+    "rule_id": "det_rule_0121",
+    "section": "TRAUMA",
+    "procedure": "Toracoabdominal penetrante ou fechado (com\nindicação cirúrgica)",
+    "procedure_normalized": "toracoabdominal penetrante ou fechado (com indicacao cirurgica)",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "Clindamicina + Gentamicina se\nlesão de víscera oca confirmada ou\nprovável)",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "SE LESÃO DE VÍSCERA OCA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "CONFIRMADA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "PROVÁVEL)",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2grs (+ Metronidazol\nse lesão de víscera oca\nconfirmada ou provável)",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "SE LESÃO DE VÍSCERA OCA"
+        ],
+        [
+          "CONFIRMADA"
+        ],
+        [
+          "PROVÁVEL)"
+        ],
+        [
+          "CEFAZOLINA",
+          "CONFIRMADA",
+          "METRONIDAZOL",
+          "PROVÁVEL)",
+          "SE LESÃO DE VÍSCERA OCA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Clindamicina + Gentamicina se\nlesão de víscera oca confirmada ou\nprovável)",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 33
+    }
+  },
+  {
+    "rule_id": "det_rule_0122",
+    "section": "TRAUMA",
+    "procedure": "Trauma perfurante de esôfago",
+    "procedure_normalized": "trauma perfurante de esofago",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "Clindamicina + Gentamicina",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2grs EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Clindamicina + Gentamicina",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 33
+    }
+  },
+  {
+    "rule_id": "det_rule_0123",
+    "section": "TRAUMA",
+    "procedure": "Torácico, com pneumectomia",
+    "procedure_normalized": "toracico, com pneumectomia",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "Clindamicina + Gentamicina",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2grs EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Clindamicina + Gentamicina",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 33
+    }
+  },
+  {
+    "rule_id": "det_rule_0124",
+    "section": "TRAUMA",
+    "procedure": "Lesão vascular",
+    "procedure_normalized": "lesao vascular",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "Clindamicina 900mg EV",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2grs EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Clindamicina 900mg EV",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 33
+    }
+  },
+  {
+    "rule_id": "det_rule_0125",
+    "section": "TRAUMA",
+    "procedure": "Fratura facial",
+    "procedure_normalized": "fratura facial",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 33
+    }
+  },
+  {
+    "rule_id": "det_rule_0127",
+    "section": "TRAUMA",
+    "procedure": "✓ Sem comunicação com cavidade oral",
+    "procedure_normalized": "✓ sem comunicacao com cavidade oral",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2grs EV",
+      "notes": "Manter por até 24h a partir do início da cirurgia (mais 2\ndoses 8/8h)",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": "900mg",
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina 900mg EV",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Manter por até 24h a partir do início da cirurgia (mais 2\ndoses 8/8h)",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 34
+    }
+  },
+  {
+    "rule_id": "det_rule_0128",
+    "section": "TRAUMA",
+    "procedure": "✓ Com comunicação com cavidade oral",
+    "procedure_normalized": "✓ com comunicacao com cavidade oral",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "CEFAZOLINA",
+          "dose": "2000mg",
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "METRONIDAZOL",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Cefazolina 2grs+ Metronidazol\n500mg EV",
+      "notes": "Gentamicina: dose total diária antes da indução\nanestésica. Demais, manter por até 24h a partir do início\nda cirurgia (mais 2 doses 8/8h). (Sob orientação da\nInfectologia, avaliar necessidade de prolongamento do\nesquema antibiótico).",
+      "acceptable_regimens": [
+        [
+          "CEFAZOLINA"
+        ],
+        [
+          "METRONIDAZOL"
+        ],
+        [
+          "CEFAZOLINA",
+          "METRONIDAZOL"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [
+        {
+          "name": "CLINDAMICINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        },
+        {
+          "name": "GENTAMICINA",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Clindamicina + Gentamicina",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "CLINDAMICINA"
+        ],
+        [
+          "GENTAMICINA"
+        ],
+        [
+          "CLINDAMICINA",
+          "GENTAMICINA"
+        ]
+      ],
+      "metadata": {}
+    },
+    "postoperative": "Gentamicina: dose total diária antes da indução\nanestésica. Demais, manter por até 24h a partir do início\nda cirurgia (mais 2 doses 8/8h). (Sob orientação da\nInfectologia, avaliar necessidade de prolongamento do\nesquema antibiótico).",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 34
+    }
+  },
+  {
+    "rule_id": "det_rule_0130",
+    "section": "TRAUMA",
+    "procedure": "HISTÓRIA DE VACINAÇÃO PRÉVIA CONTRA TÉTANO",
+    "procedure_normalized": "historia de vacinacao previa contra tetano",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "FERIMENTOS COM RISCO MÍNIMO DE TÉTANO*",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "FERIMENTOS COM RISCO MÍNIMO DE TÉTANO*",
+      "notes": "",
+      "acceptable_regimens": [
+        [
+          "FERIMENTOS COM RISCO MÍNIMO DE TÉTANO*"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 35
+    }
+  },
+  {
+    "rule_id": "det_rule_0131",
+    "section": "TRAUMA",
+    "procedure": "Incerta ou menos de três doses",
+    "procedure_normalized": "incerta ou menos de tres doses",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [
+        {
+          "name": "SIM***",
+          "dose": null,
+          "route": "EV",
+          "timing": "na inducao"
+        }
+      ],
+      "raw_text": "Sim***",
+      "notes": "Limpar e\ndesinfectar, lavar\ncom soro fisiológico\ne substância\noxidantes ou\nantissépticas e\ndebridar o foco de\ninfecção.",
+      "acceptable_regimens": [
+        [
+          "SIM***"
+        ]
+      ],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "Não",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "Limpar e\ndesinfectar, lavar\ncom soro fisiológico\ne substância\noxidantes ou\nantissépticas e\ndebridar o foco de\ninfecção.",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 35
+    }
+  },
+  {
+    "rule_id": "det_rule_0132",
+    "section": "TRAUMA",
+    "procedure": "Três doses ou mais, sendo a última dose há menos de 5 anos",
+    "procedure_normalized": "tres doses ou mais, sendo a ultima dose ha menos de 5 anos",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "Não",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "Não",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 35
+    }
+  },
+  {
+    "rule_id": "det_rule_0133",
+    "section": "TRAUMA",
+    "procedure": "Três ou mais doses, sendo a última dose há mais de 5 anos e\nmenos de 10 anos",
+    "procedure_normalized": "tres ou mais doses, sendo a ultima dose ha mais de 5 anos e menos de 10 anos",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "Não",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "Não",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 35
+    }
+  },
+  {
+    "rule_id": "det_rule_0134",
+    "section": "TRAUMA",
+    "procedure": "Três ou mais doses, sendo a última dose há 10 anos ou mais\nanos",
+    "procedure_normalized": "tres ou mais doses, sendo a ultima dose ha 10 anos ou mais anos",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "Sim",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "Não",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 35
+    }
+  },
+  {
+    "rule_id": "det_rule_0135",
+    "section": "TRAUMA",
+    "procedure": "Três ou mais doses, sendo a última dose há 10 anos ou mais\nanos em situações especiais",
+    "procedure_normalized": "tres ou mais doses, sendo a ultima dose ha 10 anos ou mais anos em situacoes especiais",
+    "is_prophylaxis_required": true,
+    "primary_recommendation": {
+      "drugs": [],
+      "raw_text": "Sim",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "allergy_recommendation": {
+      "drugs": [],
+      "raw_text": "Não",
+      "notes": "",
+      "acceptable_regimens": [],
+      "metadata": {}
+    },
+    "postoperative": "",
+    "audit_category": "OK",
+    "original_row_index": -1,
+    "metadata": {
+      "source": "deterministic_pdf",
+      "backend": "pdfplumber",
+      "dose_unit_standard": "mg",
+      "page": 35
+    }
+  }
+]

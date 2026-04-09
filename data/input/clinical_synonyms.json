@@ -1,0 +1,172 @@
+{
+  "_note": "Termos clínicos equivalentes para melhorar o matching de procedimentos da planilha com o protocolo. Chave = termo canônico do protocolo; valores = variações encontradas nas planilhas de auditoria.",
+  "_version": "1.0",
+
+  "artroscopia em geral": [
+    "artroscopia", "artroscopia de joelho", "artroscopia de ombro", "artroscopia de quadril",
+    "artroscopia de tornozelo", "artroscopia de cotovelo", "artroscopia de punho",
+    "meniscectomia artroscopica", "meniscectomia videoartroscopica",
+    "reparo de menisco", "sutura de menisco", "menisco", "meniscectomia",
+    "reconstrucao do ligamento cruzado", "reconstrucao do lca", "lca",
+    "sinovectomia artroscopica", "debridamento artroscopico"
+  ],
+
+  "artroplastia total de substituicao": [
+    "artroplastia", "artroplastia total", "artroplastia de joelho", "artroplastia de quadril",
+    "artroplastia de ombro", "artroplastia de tornozelo", "artroplastia de cotovelo",
+    "protese total", "protese de joelho", "protese de quadril", "protese de ombro",
+    "ptj", "ptq", "pth", "prótese total do joelho", "prótese total do quadril",
+    "endoprotese", "hemiartroplastia", "artroplastia de resseccao",
+    "revisao de artroplastia", "revisao de protese"
+  ],
+
+  "artrodese de coluna": [
+    "artrodese", "artrodese cervical", "artrodese lombar", "artrodese toracica",
+    "artrodese lombossacra", "fusao vertebral", "instrumentacao vertebral",
+    "artrodeses de coluna 360", "artrodese com haste", "fixacao vertebral"
+  ],
+
+  "colecistectomia (aberta) ou laparoscopica": [
+    "colecistectomia", "colecistectomia laparoscopica", "colecistectomia videolaparoscopica",
+    "colecistectomia aberta", "vlp colecistectomia", "retirada de vesicula",
+    "colecistectomia com colangiografia", "colecistectomia + colangiografia"
+  ],
+
+  "cesariana": [
+    "cesarea", "cesárea", "parto cesareo", "parto cesariano", "sc", "cesarea eletiva",
+    "cesarea de emergencia", "cesarea de urgencia", "cesariana eletiva"
+  ],
+
+  "histerectomia abdominal ou vaginal": [
+    "histerectomia", "histerectomia total", "histerectomia abdominal",
+    "histerectomia vaginal", "histerectomia laparoscopica", "histerectomia videolaparoscopica",
+    "histerectomia subtotal", "pan-histerectomia"
+  ],
+
+  "osteossintese de fratura fechada": [
+    "osteossintese", "fixacao interna", "placa e parafuso", "haste intramedular",
+    "fratura de femur", "fratura de tibia", "fratura de umero", "fratura de radio",
+    "fratura de cubito", "fratura de clavicula", "fratura de pelve",
+    "fratura de tornozelo", "fratura de calcaneo", "fratura do femur proximal",
+    "osteossintese de femur", "osteossintese de tibia", "hastes de rush",
+    "reducao aberta e fixacao interna", "rafi"
+  ],
+
+  "apendicectomia nao complicada": [
+    "apendicectomia", "apendicectomia grau i", "apendicectomia grau ii",
+    "apendicectomia simples", "apendicectomia videolaparoscopica",
+    "apendicectomia laparoscopica"
+  ],
+
+  "apendicectomia complicada (abscesso/perfuracao)": [
+    "apendicectomia complicada", "apendicectomia grau iii", "apendicectomia grau iv",
+    "apendicite complicada", "apendicite perfurada", "apendicite com abscesso",
+    "apendicite gangrenosa", "peritonite apendicular"
+  ],
+
+  "hernioplastia e herniorrafia": [
+    "hernioplastia", "herniorrafia", "herniorrafia inguinal", "hernioplastia inguinal",
+    "hernia inguinal", "hernia umbilical", "hernia incisional", "hernia ventral",
+    "hernia epigastrica", "hernioplastia umbilical", "hernioplastia incisional",
+    "herniorrafia umbilical", "reparacao de hernia", "hernia de parede abdominal",
+    "hernioplastia videolaparoscopica", "hernioplastia laparoscopica",
+    "hernioplastia com tela", "tela cirurgica hernia"
+  ],
+
+  "amidalectomia (tonsilectomia)/ adenoamigdalectomia": [
+    "amidalectomia", "tonsilectomia", "adenoamigdalectomia", "adenoidectomia",
+    "amigdalectomia", "retirada de amigdala", "retirada de adenoide",
+    "adenoidectomia por videoendoscopia"
+  ],
+
+  "cirurgia endoscopica de seios paranasais": [
+    "cese", "cesp", "sinusite cronica", "polipose nasal", "sinusectomia",
+    "etmoidectomia", "frontotomia", "esfenoidotomia", "antrostomia",
+    "cirurgia funcional dos seios paranasais", "fess"
+  ],
+
+  "rinosseptoplastia/rinoplastia ou septoplastia complexa": [
+    "rinoplastia", "septoplastia", "rinosseptoplastia", "cirurgia do septo",
+    "desvio de septo", "correcao de septo", "septoplastia com turbinoplastia"
+  ],
+
+  "cirurgias colorretais": [
+    "colectomia", "hemicolectomia", "sigmoidectomia", "proctectomia",
+    "retossigmoidectomia", "resseccao anterior do reto", "amputacao abdomino-perineal",
+    "coloproctectomia", "resseccao de colon", "resseccao de reto",
+    "cirurgia de colon", "cirurgia retal", "hartmann"
+  ],
+
+  "gastrectomia": [
+    "gastrectomia total", "gastrectomia subtotal", "gastrectomia parcial",
+    "gastrectomia sleeve", "gastrectomia vertical", "manga gastrica"
+  ],
+
+  "by-pass coronariano": [
+    "revascularizacao miocardica", "rm", "cabg", "bypass coronariano",
+    "cirurgia de revascularizacao", "pontes de safena", "enxerto aortocoronario"
+  ],
+
+  "insercao de dispositivo cardiaco": [
+    "implante de marcapasso", "marcapasso", "implante de cardiodesfibrilador",
+    "cdi", "implante de ressincronizador", "terapia de ressincronizacao cardiaca",
+    "implante de dispositivo cardiaco"
+  ],
+
+  "prostatectomia radical": [
+    "prostatectomia", "prostatectomia radical retropubica", "prostatectomia laparoscopica",
+    "prostatectomia robotica", "cirurgia de prostata", "resseccao de prostata"
+  ],
+
+  "nefrectomia": [
+    "nefrectomia total", "nefrectomia parcial", "nefrectomia radical",
+    "nefrectomia laparoscopica", "retirada de rim", "cirurgia renal"
+  ],
+
+  "cirurgia endourologica ambulatorial": [
+    "ureteroscopia", "ureterorrenoscopia", "litotripsia endoscopica",
+    "cistoscopia", "dilatacao uretral", "resseccao transuretral de bexiga",
+    "resseccao transuretral de prostata", "rtub", "rtup",
+    "uretrocistoscopia", "biospsia de bexiga"
+  ],
+
+  "amputacao de membros: eletiva (ex.: cancer, gangrena seca)": [
+    "amputacao", "amputacao de membro inferior", "amputacao de membro superior",
+    "amputacao transtibial", "amputacao transfemoral", "amputacao de pe",
+    "amputacao eletiva", "amputacao por gangrena seca"
+  ],
+
+  "amputacao de membros: pos-traumatica": [
+    "amputacao traumatica", "amputacao de urgencia", "amputacao por trauma",
+    "amputacao por gangrena umida", "amputacao por necrose umida"
+  ],
+
+  "abdominoplastia": [
+    "abdominoplastia", "dermolipectomia abdominal", "lifting abdominal",
+    "tummy tuck", "plastica abdominal"
+  ],
+
+  "mamoplastia redutora e mastopexia": [
+    "mamoplastia", "mamoplastia redutora", "mastopexia", "reducao de mama",
+    "levantamento de mama", "cirurgia de mama", "mamoplastia de reducao"
+  ],
+
+  "craniotomia": [
+    "craniotomia", "reconstrucao craniana", "cranioplastia", "neurocirurgia craniana",
+    "cirurgia intracraniana", "resseccao de tumor cerebral", "resseccao de meningioma"
+  ],
+
+  "esplenectomia": [
+    "esplenectomia", "retirada do baco", "esplenectomia laparoscopica",
+    "esplenectomia total", "esplenectomia parcial"
+  ],
+
+  "hepatectomia--neoplasia": [
+    "hepatectomia", "resseccao hepatica", "hepatectomia parcial", "lobectomia hepatica",
+    "metastasectomia hepatica", "segmentectomia hepatica"
+  ],
+
+  "transplante renal": [
+    "transplante de rim", "transplante renal", "tx renal", "nefroplastia"
+  ]
+}

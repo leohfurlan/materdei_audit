@@ -1004,7 +1004,7 @@ class SurgeryAuditor:
 
         if not acceptable_regimens and not optional_regimens and not conditional_variants:
             if not self._rule_requires_prophylaxis(rule):
-                return 'NAO_CONFORME', 'profilaxia_nao_recomendada'
+                return 'ALERTA', 'profilaxia_nao_recomendada'
             if choice_semantics["ambiguous_legacy"] and record.atb_detected:
                 documented_set = set(record.atb_detected)
                 if documented_set and documented_set.issubset(choice_semantics["listed_drugs"]):
@@ -1027,7 +1027,7 @@ class SurgeryAuditor:
             return 'ALERTA', 'atb_regime_ambiguo'
 
         if not self._rule_requires_prophylaxis(rule):
-            return 'NAO_CONFORME', 'profilaxia_nao_recomendada'
+            return 'ALERTA', 'profilaxia_nao_recomendada'
 
         if choice_semantics["ambiguous_legacy"]:
             documented_set = set(documented_regimen)
