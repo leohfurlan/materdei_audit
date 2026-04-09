@@ -104,22 +104,29 @@ def is_valid_yes_no(value: Any) -> bool:
 def normalize_yes_no(value: Any) -> str:
     """
     Normaliza valor sim/não.
-    
-    Args:
-        value: Valor a normalizar
-        
+
+    Retorna 'SIM', 'NAO' ou 'BRANCO'.
+    'BRANCO' indica célula sem preenchimento — distinto de 'NAO' (explicitamente marcado).
+    Isso é relevante para auditorias onde dado ausente != evento não ocorrido.
+
     Returns:
-        'SIM' ou 'NAO'
+        'SIM', 'NAO' ou 'BRANCO'
     """
-    if pd.isna(value):
-        return 'NAO'
-    
+    if value is None or (hasattr(pd, 'isna') and pd.isna(value)):
+        return 'BRANCO'
+
     value_str = str(value).strip().upper()
-    
+
+    if not value_str:
+        return 'BRANCO'
+
     if value_str in ['SIM', 'S', 'YES', 'Y']:
         return 'SIM'
-    else:
+    if value_str in ['NAO', 'NÃO', 'NAO', 'NO', 'N']:
         return 'NAO'
+
+    # Valor não reconhecido (ex.: número, texto inesperado) → tratado como branco
+    return 'BRANCO'
 
 
 def check_data_completeness(df: pd.DataFrame, columns: List[str]) -> Dict[str, Any]:

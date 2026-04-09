@@ -283,8 +283,8 @@ class SurgeryAuditor:
         # Data
         date_val = self._parse_excel_date(self._get_row_value(row, "date"))
         
-        # AntibiÃ³tico dado
-        atb_given = normalize_yes_no(self._get_row_value(row, "atb_given", "NAO"))
+        # Antibiotico dado: preserva BRANCO (celula vazia) distinto de NAO (explicitamente marcado)
+        atb_given = normalize_yes_no(self._get_row_value(row, "atb_given", None))
         atb_name = str(self._get_row_value(row, "atb_name", "")).strip()
         
         # Detecta medicamentos documentados, suportando multiplos agentes.
@@ -408,7 +408,13 @@ class SurgeryAuditor:
         else:
             if matched_rule and self._rule_requires_prophylaxis(matched_rule):
                 result.conf_escolha = 'ALERTA'
-                result.conf_escolha_razao = 'sem_registro_administracao'
+                # Distingue dado ausente (branco) de NAO explícito:
+                # branco = pode constar em outro relatório → dupla conferência
+                # NAO = cirurgião/equipe confirmou ausência → também ALERTA (regra CCIH 23/03/2026)
+                if self._atb_given_is_blank(record):
+                    result.conf_escolha_razao = 'sem_registro_administracao'
+                else:
+                    result.conf_escolha_razao = 'atb_nao_administrado_verificar'
             elif not matched_rule:
                 result.conf_escolha = 'CONFORME'
                 result.conf_escolha_razao = 'sem_match_sem_atb'
@@ -452,8 +458,16 @@ class SurgeryAuditor:
         return result
 
     def _has_documented_administration(self, record: SurgeryRecord) -> bool:
-        """Considera administracao confirmada apenas quando a planilha marca SIM."""
-        return normalize_yes_no(record.atb_given) == "SIM"
+        """Considera administracao confirmada apenas quando a planilha marca explicitamente SIM."""
+        return record.atb_given == "SIM"
+
+    def _atb_given_is_blank(self, record: SurgeryRecord) -> bool:
+        """
+        Retorna True quando a celula de administracao de antibiotico esta em branco.
+        Celula em branco != NAO administrado: o dado pode constar em outro relatorio
+        (anestesista, enfermagem transoperatoria) e requer dupla conferencia pela CCIH.
+        """
+        return record.atb_given == "BRANCO"
 
     def _match_with_protocol(self, record: SurgeryRecord) -> Tuple[Optional[ProtocolRule], float, str]:
         """
