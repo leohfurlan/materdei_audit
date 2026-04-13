@@ -145,9 +145,21 @@ DRUG_DICTIONARY = {
         "KEGFAZOL",
         "KERFAZOL",
         "ANCEF",
+        # Typos identificados na planilha Genoveva Fevereiro/2026
+        "KKEFAZOL",
+        "CAFAZOLINA",
+        "KAFAZOL",
+        "KEZAZOL",
+        "KEFAZUL",
+        "KEFAOL",
+        "KEFRAZOL",
     ],
     "CEFUROXIMA": ["ZINACEF", "ZINASEF", "CEFUROXIMA", "CEFUROXINA", "CEFAROXINA"],
-    "CEFTRIAXONE": ["ROCEFIN", "ROCEFIM", "ROCECEFIN", "CEFTRIAXONA", "CEFRIAXONA", "CEFTRIAXONE"],
+    "CEFTRIAXONE": [
+        "ROCEFIN", "ROCEFIM", "ROCECEFIN", "CEFTRIAXONA", "CEFRIAXONA", "CEFTRIAXONE",
+        # Typos identificados na planilha Genoveva Fevereiro/2026
+        "CEFRAXONA", "CETRRIAXONA", "CEFTRAXONA", "ROSEFIN",
+    ],
     "CEFOXITINA": ["MEFOXIN", "CEFOXITINA"],
     
     # AminoglicosÃ­deos
@@ -174,7 +186,7 @@ DRUG_DICTIONARY = {
     "METRONIDAZOL": ["METRONIDAZOL", "FLAGYL"],
     
     # Outros
-    "CLINDAMICINA": ["CLINDAMICINA", "DALACIN"],
+    "CLINDAMICINA": ["CLINDAMICINA", "DALACIN", "CLINSAMICINA", "CLINDAMICIN"],
     "AZITROMICINA": ["AZITROMICINA", "ZITROMAX"],
     "DOXICICLINA": ["DOXICICLINA", "VIBRAMICINA"],
     "CEFEPIME": ["CEFEPIME", "MAXIPIME"],
